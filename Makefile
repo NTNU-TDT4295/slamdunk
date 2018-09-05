@@ -5,7 +5,7 @@ VIVADO_MODE := batch # gui
 # which C++ compiler to use
 CC = g++
 # scp/rsync target to copy files to board
-BOARD_URI := xilinx@pynq:~/rosetta
+BOARD_URI := xilinx@pynq:~/
 
 # other project settings
 SBT ?= sbt
@@ -32,7 +32,7 @@ GEN_BITFILE_PATH := $(BITFILE_PRJDIR)/$(BITFILE_PRJNAME).runs/impl_1/procsys_wra
 VIVADO_IN_PATH := $(shell command -v vivado 2> /dev/null)
 
 # note that all targets are phony targets, no proper dependency tracking
-.PHONY: hw_verilog hw_cpp hw_driver hw_vivadoproj bitfile pynq_hw pynq_sw pynq rsync test characterize check_vivado
+.PHONY: hw_verilog hw_cpp hw_driver hw_vivadoproj bitfile pynq_hw pynq_sw pynq deploy test characterize check_vivado
 
 check_vivado:
 ifndef VIVADO_IN_PATH
@@ -82,8 +82,17 @@ pynq_script:
 # get everything ready to copy onto the PYNQ
 pynq: pynq_hw pynq_sw pynq_script
 
-# use rsync to synchronize contents of the deployment folder onto the PYNQ
-rsync:
+# Update build to latest src/main/{script,cpp/app} without issuing
+# hw_driver rule
+update_build: pynq_script
+	cp -r $(APP_SRC_DIR)/* $(BUILD_DIR_PYNQ)/
+
+# Use rsync to synchronize contents of the deployment folder onto the
+# PYNQ, set your BOARD_URI accordingly (and perhaps ssh-keys), if
+# rsync fails, check the date on the PYNQ
+deploy: update_build
+	@echo ""
+	@echo "Deploying to: $(BOARD_URI)"
 	rsync -avz $(BUILD_DIR_PYNQ) $(BOARD_URI)
 
 # remove everything that is built
