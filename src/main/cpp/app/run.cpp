@@ -14,6 +14,28 @@ void deinit_platform(void *platform)
 	deinitPlatform((WrapperRegDriver *) platform);
 }
 
+void *dalloc(void *platform, size_t size)
+{
+	return ((WrapperRegDriver *) platform)->allocAccelBuffer(size);
+}
+
+void dfree(void *platform, void *ptr)
+{
+	((WrapperRegDriver *) platform)->deallocAccelBuffer(ptr);
+}
+
+void dmeminit(void *platform, void *dst, unsigned char *src, size_t num)
+{
+	((WrapperRegDriver *) platform)->
+		copyBufferHostToAccel(src, dst, num);
+}
+
+void dmemread(void *platform, unsigned char *dst, void *src, size_t num)
+{
+	((WrapperRegDriver *) platform)->
+		copyBufferAccelToHost(src, dst, num);
+}
+
 void run(void *platform)
 {
 	EchoNumber t((WrapperRegDriver *) platform);
@@ -30,4 +52,9 @@ void run(void *platform)
 
 	AccelReg output = t.get_dataOut();
 	std::cout << "Output value: " << output << std::endl;
+}
+
+void run_memory_test(void *platform)
+{
+	EchoNumber t((WrapperRegDriver *) platform);
 }
