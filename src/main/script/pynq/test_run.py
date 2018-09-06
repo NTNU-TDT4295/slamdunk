@@ -28,13 +28,13 @@ def test_main():
     lib.dfree(platform, base)
 
     # -- Test BRAM -- (not working for now)
-    # bram_addr = 32
+    bram_addr = 1024
 
-    # lib.bwrite(platform, bram_addr, 51)
-    # bram_val = lib.bread(platform, 0)
+    lib.bwrite(platform, bram_addr, 128)
+    bram_val = lib.bread(platform, bram_addr)
 
     # Did we receive anything of interest from BRAM?
-    # print(bram_val)
+    print(bram_val)
 
 
 if __name__ == '__main__':
