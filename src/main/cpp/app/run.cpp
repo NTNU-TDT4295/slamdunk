@@ -59,21 +59,6 @@ void run(void *platform)
 {
 	EchoNumber t((WrapperRegDriver *) platform);
 
-	// unsigned input = 0;
-	// std::cout << "Enter a number: " << std::endl;
-	// std::cin >> input;
-
-	// std::cout << "Testing Echonumber.." << std::endl;
-	// t.set_dataIn(input);
-	// t.set_dataWrite(true);
-
-	// while(t.get_dataReady() != 1);
-
-	// AccelReg output = t.get_dataOut();
-	// std::cout << "Output value: " << output << std::endl;
-
-	// Make sure to reset writer
-
 	unsigned int nums = 64;
 	unsigned int buf_size = nums * sizeof(unsigned int);
 

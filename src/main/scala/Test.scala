@@ -9,20 +9,12 @@ import fpgatidbits.PlatformWrapper._
 // (TODO): split this stuff into relevant modules when actual work is
 // to be done
 class EchoNumber() extends RosettaAccelerator {
-  // val p = PYNQZ1Params;
+  val p = PYNQZ1Params;
 
   val numMemPorts = 2
   val numMemLines = 1024
-  val dataOutReg = Reg(init = UInt(0, 4))
-  val dataReadyReg = Reg(init = Bool(false))
 
   val io = new RosettaAcceleratorIF(numMemPorts) {
-    // val dataIn = UInt(INPUT, 4)
-    // val dataWrite = Bool(INPUT)
-
-    // val dataOut = UInt(OUTPUT, 4)
-    // val dataReady = Bool(OUTPUT)
-
     // For testing BRAM, not EchoNumber
     val writeEnable = Bool(INPUT)
     val writeAddr = UInt(INPUT, width = log2Up(numMemLines))
@@ -37,14 +29,6 @@ class EchoNumber() extends RosettaAccelerator {
     val writeBaseAddr = UInt(INPUT, width = 64)
     val byteCount = UInt(INPUT, width = 32)
   }
-
-  // when (io.dataWrite) {
-  //   dataOutReg := io.dataIn
-  //   dataReadyReg := Bool(true)
-  // }
-
-  // io.dataOut := dataOutReg
-  // io.dataReady := dataReadyReg
 
   // -- BRAM module --
   val bram = Module(new DualPortBRAM(addrBits = log2Up(numMemLines), dataBits = 32)).io
