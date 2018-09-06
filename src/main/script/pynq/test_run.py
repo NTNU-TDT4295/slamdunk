@@ -7,7 +7,7 @@ def test_main():
     platform = lib.init_platform()
     lib.run(platform)
 
-    # Test allocting DRAM
+    # -- Test allocting DRAM --
     src = np.ones((5,), dtype=np.uint8)
     src_ptr = ffi.cast("unsigned char *", src.ctypes.data)
 
@@ -18,7 +18,7 @@ def test_main():
     # and then read four bytes from DRAM into dst. dst now contains
     # the ones from src
     base = lib.dalloc(platform, 4)
-    lib.dmeminit(platform, base, src_ptr, 4)
+    lib.dmemcpy(platform, base, src_ptr, 4)
     lib.dmemread(platform, dst_ptr, base, 4)
 
     # Write out dst to prove that we have fetched memory cells from
@@ -26,6 +26,15 @@ def test_main():
     print(dst)
 
     lib.dfree(platform, base)
+
+    # -- Test BRAM -- (not working for now)
+    # bram_addr = 32
+
+    # lib.bwrite(platform, bram_addr, 51)
+    # bram_val = lib.bread(platform, 0)
+
+    # Did we receive anything of interest from BRAM?
+    # print(bram_val)
 
 
 if __name__ == '__main__':

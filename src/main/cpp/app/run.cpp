@@ -24,7 +24,7 @@ void dfree(void *platform, void *ptr)
 	((WrapperRegDriver *) platform)->deallocAccelBuffer(ptr);
 }
 
-void dmeminit(void *platform, void *dst, unsigned char *src, size_t num)
+void dmemcpy(void *platform, void *dst, unsigned char *src, size_t num)
 {
 	((WrapperRegDriver *) platform)->
 		copyBufferHostToAccel(src, dst, num);
@@ -34,6 +34,25 @@ void dmemread(void *platform, unsigned char *dst, void *src, size_t num)
 {
 	((WrapperRegDriver *) platform)->
 		copyBufferAccelToHost(src, dst, num);
+}
+
+void bwrite(void *platform, unsigned waddr, unsigned wdata)
+{
+	EchoNumber t((WrapperRegDriver *) platform);
+
+	t.set_writeAddr(waddr);
+	t.set_writeData(wdata);
+
+	t.set_writeEnable(1);
+	t.set_writeEnable(0);
+}
+
+unsigned bread(void *platform, unsigned raddr)
+{
+	EchoNumber t((WrapperRegDriver *) platform);
+
+	t.set_readAddr((unsigned int) raddr);
+	return t.get_readData();
 }
 
 void run(void *platform)
@@ -54,7 +73,3 @@ void run(void *platform)
 	std::cout << "Output value: " << output << std::endl;
 }
 
-void run_memory_test(void *platform)
-{
-	EchoNumber t((WrapperRegDriver *) platform);
-}
