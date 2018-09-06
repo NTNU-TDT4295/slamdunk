@@ -8,18 +8,18 @@ def test_main():
     lib.run(platform)
 
     # -- Test allocting DRAM --
-    src = np.ones((5,), dtype=np.uint8)
-    src_ptr = ffi.cast("unsigned char *", src.ctypes.data)
+    src = np.ones((5,), dtype=np.uint32)
+    src_ptr = ffi.cast("unsigned int *", src.ctypes.data)
 
-    dst = np.zeros((5,), dtype=np.uint8)
-    dst_ptr = ffi.cast("unsigned char *", dst.ctypes.data)
+    dst = np.zeros((5,), dtype=np.uint32)
+    dst_ptr = ffi.cast("unsigned int *", dst.ctypes.data)
 
     # Allocate 4 bytes of DRAM memory, write four ones to it from src,
     # and then read four bytes from DRAM into dst. dst now contains
     # the ones from src
-    base = lib.dalloc(platform, 4)
-    lib.dmemcpy(platform, base, src_ptr, 4)
-    lib.dmemread(platform, dst_ptr, base, 4)
+    base = lib.dalloc(platform, 16)
+    lib.dmemset(platform, base, src_ptr, 16)
+    lib.dmemread(platform, dst_ptr, base, 16)
 
     # Write out dst to prove that we have fetched memory cells from
     # the DRAM
