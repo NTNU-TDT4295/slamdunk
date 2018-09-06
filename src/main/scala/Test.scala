@@ -8,12 +8,12 @@ import fpgatidbits.PlatformWrapper._
 
 // (TODO): split this stuff into relevant modules when actual work is
 // to be done
-class EchoNumber() extends RosettaAccelerator {
+class DMPROTest() extends RosettaAccelerator {
   val p = PYNQZ1Params;
   val numMemPorts = 2
 
   val io = new RosettaAcceleratorIF(numMemPorts) {
-    // For testing BRAM, not EchoNumber
+    // For testing BRAM, not DMPROTest
     val writeEnable = Bool(INPUT)
     val writeAddr = UInt(INPUT, width = 32)
     val writeData = UInt(INPUT, width = 64)
@@ -46,23 +46,14 @@ class EchoNumber() extends RosettaAccelerator {
   io.readData := readPort.rsp.readData
 
   // -- DRAM module --
-  val rdP = new StreamReaderParams(
-    streamWidth = p.memDataBits,
-    fifoElems = 8,
-    mem = PYNQZ1Params.toMemReqParams(),
-    maxBeats = 1,
-    chanID = 0,
-    disableThrottle = true
-  )
+  val reader = Module(new StreamReader(new StreamReaderParams(
+    streamWidth = p.memDataBits, fifoElems = 8, mem = PYNQZ1Params.toMemReqParams(),
+    maxBeats = 1, chanID = 0, disableThrottle = true
+  ))).io
 
-  val wrP = new StreamWriterParams(
-    streamWidth = p.memDataBits,
-    mem = PYNQZ1Params.toMemReqParams(),
-    chanID = 0
-  )
-
-  val reader = Module(new StreamReader(rdP)).io
-  val writer = Module(new StreamWriter(wrP)).io
+  val writer = Module(new StreamWriter(new StreamWriterParams(
+    streamWidth = p.memDataBits, mem = PYNQZ1Params.toMemReqParams(), chanID = 0
+  ))).io
 
   // Wiring up the reader to its memory port interface
   reader.start := io.start

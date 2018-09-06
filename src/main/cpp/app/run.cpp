@@ -1,6 +1,6 @@
 #include "run.hpp"
 #include "platform.h"
-#include "EchoNumber.hpp"
+#include "DMPROTest.hpp"
 
 #include <iostream>
 
@@ -38,7 +38,7 @@ void dmemread(void *platform, void *dst, void *src, unsigned int num)
 
 void bwrite(void *platform, unsigned waddr, unsigned wdata)
 {
-	EchoNumber t((WrapperRegDriver *) platform);
+	DMPROTest t((WrapperRegDriver *) platform);
 
 	t.set_writeAddr(waddr);
 	t.set_writeData(wdata);
@@ -49,15 +49,16 @@ void bwrite(void *platform, unsigned waddr, unsigned wdata)
 
 unsigned bread(void *platform, unsigned raddr)
 {
-	EchoNumber t((WrapperRegDriver *) platform);
+	DMPROTest t((WrapperRegDriver *) platform);
 
 	t.set_readAddr((unsigned int) raddr);
 	return t.get_readData();
 }
 
+/* Allocate DRAM and move memory with DMA */
 void run(void *platform)
 {
-	EchoNumber t((WrapperRegDriver *) platform);
+	DMPROTest t((WrapperRegDriver *) platform);
 
 	unsigned int nums = 64;
 	unsigned int buf_size = nums * sizeof(unsigned int);

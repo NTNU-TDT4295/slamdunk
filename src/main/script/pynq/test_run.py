@@ -3,7 +3,7 @@ import numpy as np
 
 
 def test_main():
-    # Test running EchoNumber
+    # Test running DMPROTest
     platform = lib.init_platform()
     lib.run(platform)
 

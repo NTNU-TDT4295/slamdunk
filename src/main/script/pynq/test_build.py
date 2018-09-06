@@ -19,7 +19,7 @@ void run(void *platform);
 
 ffibuilder.set_source("_test",
 """
-#include "EchoNumber.hpp"
+#include "DMPROTest.hpp"
 #include "run.hpp"
 #include "platform.h"
 """,
