@@ -53,6 +53,14 @@ include_directories(${BASE_LOCATION}/include)
 # Add project sources
 set(SOURCES
 	source/main.c
+	source/bsp_bcc.c
+	source/bsp_dk_3200.c
+	source/bsp_dk_3201.c
+	source/bsp_dk_leds.c
+	source/bsp_dk_mcuboard.c
+	source/bsp_stk.c
+	source/bsp_stk_leds.c
+	source/bsp_trace.c
 )
 
 ##### Outputs #####

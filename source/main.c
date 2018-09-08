@@ -15,6 +15,8 @@
 #include "em_cmu.h"
 #include "em_emu.h"
 #include "em_gpio.h"
+#include "bsp.h"
+#include "bsp_trace.h"
 
 volatile uint32_t msTicks; /* counts 1ms timeTicks */
 
@@ -54,17 +56,15 @@ int main(void)
     if (SysTick_Config(CMU_ClockFreqGet(cmuClock_CORE) / 1000)) while (1) ;
 
     /* Initialize LED driver */
-    GPIO_PinModeSet(LED_PORT, LED_PIN, gpioModePushPull, 0);
-
-    GPIO_PinOutSet(LED_PORT, LED_PIN);
-
-    printf("test");
+    BSP_LedsInit();
+    BSP_LedSet(0);
 
     /* Infinite blink loop */
     while (1)
     {
+	BSP_LedToggle(0);
+	BSP_LedToggle(1);
         Delay(1000);
-        GPIO_PinOutToggle(LED_PORT, LED_PIN);
     }
 }
 
