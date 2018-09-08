@@ -43,6 +43,18 @@ void Delay(uint32_t dlyTicks)
     while ((msTicks - curTicks) < dlyTicks) ;
 }
 
+void recv_char_cb(char c)
+{
+	switch (c) {
+	case 'a':
+		BSP_LedToggle(0);
+		BSP_LedToggle(1);
+		break;
+	default:
+		break;
+	}
+}
+
 /**************************************************************************//**
  * @brief  Main function
  *****************************************************************************/
@@ -57,13 +69,17 @@ int main(void)
 
     /* Initialize LED driver */
     BSP_LedsInit();
-    BSP_LedSet(0);
+    /* BSP_LedSet(0); */
+
+    /* Setup UART for testing */
+    set_recv_callback(&recv_char_cb);
+    setup_uart();
 
     /* Infinite blink loop */
     while (1)
     {
-	BSP_LedToggle(0);
-	BSP_LedToggle(1);
+	/* BSP_LedToggle(0); */
+	/* BSP_LedToggle(1); */
         Delay(1000);
     }
 }

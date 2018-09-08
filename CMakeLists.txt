@@ -61,6 +61,8 @@ set(SOURCES
 	source/bsp_stk.c
 	source/bsp_stk_leds.c
 	source/bsp_trace.c
+	source/uart.c
+	source/usart
 )
 
 ##### Outputs #####
