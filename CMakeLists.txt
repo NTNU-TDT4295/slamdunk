@@ -49,21 +49,25 @@ include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 
 # Add project headers
 include_directories(${BASE_LOCATION}/include)
+include_directories(${BASE_LOCATION}/bsp)
+include_directories(${BASE_LOCATION}/uart)
 
 # Add project sources
 set(SOURCES
 	source/main.c
-	source/bsp_bcc.c
-	source/bsp_dk_3200.c
-	source/bsp_dk_3201.c
-	source/bsp_dk_leds.c
-	source/bsp_dk_mcuboard.c
-	source/bsp_stk.c
-	source/bsp_stk_leds.c
-	source/bsp_trace.c
-	source/uart.c
-	source/usart
+    bsp/bsp_bcc.c
+	bsp/bsp_dk_3200.c
+	bsp/bsp_dk_3201.c
+	bsp/bsp_dk_leds.c
+	bsp/bsp_dk_mcuboard.c
+	bsp/bsp_stk.c
+	bsp/bsp_stk_leds.c
+	bsp/bsp_trace.c
+    uart/uart.c
+	uart/usart
 )
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ##### Outputs #####
 
@@ -78,4 +82,3 @@ include(${BASE_LOCATION}/toolchain/post-build.cmake)
 
 # Add JLink commands
 include(${BASE_LOCATION}/toolchain/jlink.cmake)
-
