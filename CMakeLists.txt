@@ -51,6 +51,7 @@ include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 include_directories(${BASE_LOCATION}/include)
 include_directories(${BASE_LOCATION}/bsp)
 include_directories(${BASE_LOCATION}/uart)
+include_directories(${BASE_LOCATION}/lcd)
 
 # Add project sources
 set(SOURCES
@@ -65,6 +66,8 @@ set(SOURCES
 	bsp/bsp_trace.c
     uart/uart.c
 	uart/usart
+    lcd/segmentlcdconfig.h
+    lcd/segmentlcd.c
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

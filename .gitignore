@@ -15,6 +15,9 @@ builds/
 # Backup files
 *~
 
+# vimfiles
+*.swp
+*.swo
+
 # Misc
 *.DS_Store
-
