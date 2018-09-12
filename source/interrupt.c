@@ -33,38 +33,38 @@ void gpioCallback(uint8_t pin)
  */
 void gpioSetup(void)
 {
-  /* Initialize GPIO interrupt dispatcher */
-  GPIOINT_Init();
+    /* Initialize GPIO interrupt dispatcher */
+    GPIOINT_Init();
 
-  /* Configure PB9 and PB10 as input */
-  GPIO_PinModeSet(gpioPortB, 9, gpioModeInput, 0);
-  GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);
+    /* Configure PB9 and PB10 as input */
+    GPIO_PinModeSet(gpioPortB, 9, gpioModeInput, 0);
+    GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);
 
-  /* Set falling edge interrupt for both ports */
-  GPIO_IntConfig(gpioPortB, 9, false, true, true);
-  GPIO_IntConfig(gpioPortB, 10, false, true, true);
+    /* Set falling edge interrupt for both ports */
+    GPIO_IntConfig(gpioPortB, 9, false, true, true);
+    GPIO_IntConfig(gpioPortB, 10, false, true, true);
 
-  /* Register callbacks before setting up and enabling pin interrupt. */
-  GPIOINT_CallbackRegister(9, gpioCallback);
-  GPIOINT_CallbackRegister(10, gpioCallback);
+    /* Register callbacks before setting up and enabling pin interrupt. */
+    GPIOINT_CallbackRegister(9, gpioCallback);
+    GPIOINT_CallbackRegister(10, gpioCallback);
 }
 
 void RTC_IRQHandler(void)
 {
-  /* Clear interrupt source */
-  RTC_IntClear(RTC_IFC_COMP0);
+    /* Clear interrupt source */
+    RTC_IntClear(RTC_IFC_COMP0);
 
-  /* Increase time by one minute */
-  minutes++;
-  if (minutes > 59)
-  {
-    minutes = 0;
-    hours++;
-    if (hours > 23)
+    /* Increase time by one minute */
+    minutes++;
+    if (minutes > 59)
     {
-      hours = 0;
+        minutes = 0;
+        hours++;
+        if (hours > 23)
+        {
+            hours = 0;
+        }
     }
-  }
 }
 
 /*
@@ -73,59 +73,59 @@ void RTC_IRQHandler(void)
  */
 void rtcSetup(void)
 {
-  RTC_Init_TypeDef rtcInit = RTC_INIT_DEFAULT;
+    RTC_Init_TypeDef rtcInit = RTC_INIT_DEFAULT;
 
-  /* Enable LE domain registers */
-  CMU_ClockEnable(cmuClock_CORELE, true);
+    /* Enable LE domain registers */
+    CMU_ClockEnable(cmuClock_CORELE, true);
 
-  /* Enable LFXO as LFACLK in CMU. This will also start LFXO */
-  CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
+    /* Enable LFXO as LFACLK in CMU. This will also start LFXO */
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
 
-  /* Set a clock divisor of 32 to reduce power conumption. */
-  CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_32);
+    /* Set a clock divisor of 32 to reduce power conumption. */
+    CMU_ClockDivSet(cmuClock_RTC, cmuClkDiv_32);
 
-  /* Enable RTC clock */
-  CMU_ClockEnable(cmuClock_RTC, true);
+    /* Enable RTC clock */
+    CMU_ClockEnable(cmuClock_RTC, true);
 
-  /* Initialize RTC */
-  rtcInit.enable   = false;  /* Do not start RTC after initialization is complete. */
-  rtcInit.debugRun = false;  /* Halt RTC when debugging. */
-  rtcInit.comp0Top = true;   /* Wrap around on COMP0 match. */
-  RTC_Init(&rtcInit);
+    /* Initialize RTC */
+    rtcInit.enable   = false;  /* Do not start RTC after initialization is complete. */
+    rtcInit.debugRun = false;  /* Halt RTC when debugging. */
+    rtcInit.comp0Top = true;   /* Wrap around on COMP0 match. */
+    RTC_Init(&rtcInit);
 
-  /* Interrupt every minute */
-  RTC_CompareSet(0, ((RTC_FREQ / 32) * 60 ) - 1 );
+    /* Interrupt every minute */
+    RTC_CompareSet(0, ((RTC_FREQ / 32) * 60 ) - 1 );
 
-  /* Enable interrupt */
-  NVIC_EnableIRQ(RTC_IRQn);
-  RTC_IntEnable(RTC_IEN_COMP0);
+    /* Enable interrupt */
+    NVIC_EnableIRQ(RTC_IRQn);
+    RTC_IntEnable(RTC_IEN_COMP0);
 
-  /* Start Counter */
-  RTC_Enable(true);
+    /* Start Counter */
+    RTC_Enable(true);
 }
 void clockLoop(void)
 {
-  while (1)
-  {
-    SegmentLCD_Number(hours * 100 + minutes);
-    EMU_EnterEM2(true);
-  }
+    while (1)
+    {
+        SegmentLCD_Number(hours * 100 + minutes);
+        EMU_EnterEM2(true);
+    }
 }
 
 void interrupt_test(void)
 {
-  /* Ensure core frequency has been updated */
-  SystemCoreClockUpdate();
+    /* Ensure core frequency has been updated */
+    SystemCoreClockUpdate();
 
-  /* Init LCD with no voltage boost */
-  SegmentLCD_Init(false);
+    /* Init LCD with no voltage boost */
+    SegmentLCD_Init(false);
 
-  /* Setup RTC to generate an interrupt every minute */
-  rtcSetup();
+    /* Setup RTC to generate an interrupt every minute */
+    rtcSetup();
 
-  /* Setup GPIO with interrupts to serve the pushbuttons */
-  gpioSetup();
+    /* Setup GPIO with interrupts to serve the pushbuttons */
+    gpioSetup();
 
-  /* Main function loop */
-  clockLoop();
+    /* Main function loop */
+    clockLoop();
 }

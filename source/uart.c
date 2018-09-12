@@ -3,14 +3,14 @@
 #include "setup.h"
 void recv_char_cb(char c)
 {
-	switch (c) {
-	case 'a':
-		BSP_LedToggle(0);
-		BSP_LedToggle(1);
-		break;
-	default:
-		break;
-	}
+    switch (c) {
+        case 'a':
+            BSP_LedToggle(0);
+            BSP_LedToggle(1);
+            break;
+        default:
+            break;
+    }
 }
 void uart_test(void)
 {

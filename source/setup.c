@@ -18,10 +18,10 @@ void SysTick_Handler(void)
  */
 void Delay(uint32_t dlyTicks)
 {
-  uint32_t curTicks;
+    uint32_t curTicks;
 
-  curTicks = msTicks;
-  while ((msTicks - curTicks) < dlyTicks) ;
+    curTicks = msTicks;
+    while ((msTicks - curTicks) < dlyTicks) ;
 }
 
 /*
