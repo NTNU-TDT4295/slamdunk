@@ -49,13 +49,18 @@ include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 
 # Add project headers
 include_directories(${BASE_LOCATION}/include)
+include_directories(${BASE_LOCATION}/emlib/inc)
 include_directories(${BASE_LOCATION}/bsp)
 include_directories(${BASE_LOCATION}/uart)
 include_directories(${BASE_LOCATION}/lcd)
+include_directories(${BASE_LOCATION}/interrupt)
 
 # Add project sources
 set(SOURCES
-	source/main.c
+    source/main.c
+    source/setup.h
+    emlib/inc/em_chip.h
+    emlib/inc/em_cmu.h
     bsp/bsp_bcc.c
 	bsp/bsp_dk_3200.c
 	bsp/bsp_dk_3201.c
@@ -68,6 +73,8 @@ set(SOURCES
 	uart/usart
     lcd/segmentlcdconfig.h
     lcd/segmentlcd.c
+    interrupt/gpiointerrupt.h
+    interrupt/gpiointerrupt.c
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

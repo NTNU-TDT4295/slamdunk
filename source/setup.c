@@ -1,7 +1,4 @@
-#include <stdbool.h>
-#include "em_device.h"
-#include "em_chip.h"
-#include "em_cmu.h"
+#include "setup.h"
 
 volatile uint32_t msTicks; /* counts 1ms timeTicks */
 
@@ -12,7 +9,7 @@ void Delay(uint32_t dlyTicks);
  */
 void SysTick_Handler(void)
 {
-  msTicks++;   /* increment counter necessary in Delay()*/
+    msTicks++;   /* increment counter necessary in Delay()*/
 }
 
 /*

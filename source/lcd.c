@@ -6,8 +6,6 @@
  *****************************************************************************/
 void LCD_test(void)
 {
-  int i;
-
   /* Enable LCD without voltage boost */
   SegmentLCD_Init(false);
 
@@ -22,7 +20,7 @@ void LCD_test(void)
     SegmentLCD_AllOff();
 
     /* Write a number */
-    for (i = 0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
       SegmentLCD_Number(i * 1111);
       Delay(200);

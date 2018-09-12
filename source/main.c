@@ -3,12 +3,14 @@
 #include "setup.c"
 #include "lcd.c"
 #include "leds.c"
+#include "interrupt.c"
 
 int main(void)
 {
     init();
 
-    LCD_test();
-    leds_test();
+    //leds_test();
+    interrupt_test();
+    //LCD_test();
 
 }
