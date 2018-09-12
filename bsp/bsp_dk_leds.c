@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
  * @brief Board support package API for GPIO leds on STK's.
- * @version 5.1.1
+ * @version 5.2.2
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2015 Silicon Labs, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -13,11 +13,9 @@
  *
  ******************************************************************************/
 
-
-
 #include "bsp.h"
 
-#if defined( BSP_DK_LEDS )
+#if defined(BSP_DK_LEDS)
 /***************************************************************************//**
  * @addtogroup BSP
  * @{
@@ -73,10 +71,9 @@ int BSP_LedClear(int ledNo)
 {
   uint32_t tmp;
 
-  if ((ledNo >= 0) && (ledNo < BSP_NO_OF_LEDS))
-  {
+  if ((ledNo >= 0) && (ledNo < BSP_NO_OF_LEDS)) {
     tmp = BSP_RegisterRead(BSP_LED_PORT) & BSP_LED_MASK;
-    tmp &= ~( 1 << ledNo );
+    tmp &= ~(1 << ledNo);
     BSP_RegisterWrite(BSP_LED_PORT, tmp);
     return BSP_STATUS_OK;
   }
@@ -92,10 +89,10 @@ int BSP_LedClear(int ledNo)
  *****************************************************************************/
 int BSP_LedGet(int ledNo)
 {
-  if ((ledNo >= 0) && (ledNo < BSP_NO_OF_LEDS))
-  {
-    if ( BSP_RegisterRead(BSP_LED_PORT) & BSP_LED_MASK & (1 << ledNo) )
+  if ((ledNo >= 0) && (ledNo < BSP_NO_OF_LEDS)) {
+    if ( BSP_RegisterRead(BSP_LED_PORT) & BSP_LED_MASK & (1 << ledNo) ) {
       return 1;
+    }
 
     return 0;
   }
@@ -112,8 +109,7 @@ int BSP_LedSet(int ledNo)
 {
   uint32_t tmp;
 
-  if ((ledNo >= 0) && (ledNo < BSP_NO_OF_LEDS))
-  {
+  if ((ledNo >= 0) && (ledNo < BSP_NO_OF_LEDS)) {
     tmp = BSP_RegisterRead(BSP_LED_PORT) & BSP_LED_MASK;
     tmp |= 1 << ledNo;
     BSP_RegisterWrite(BSP_LED_PORT, tmp);
@@ -132,8 +128,7 @@ int BSP_LedToggle(int ledNo)
 {
   uint32_t tmp;
 
-  if ((ledNo >= 0) && (ledNo < BSP_NO_OF_LEDS))
-  {
+  if ((ledNo >= 0) && (ledNo < BSP_NO_OF_LEDS)) {
     tmp = BSP_RegisterRead(BSP_LED_PORT) & BSP_LED_MASK;
     tmp ^= 1 << ledNo;
     BSP_RegisterWrite(BSP_LED_PORT, tmp);
@@ -144,4 +139,4 @@ int BSP_LedToggle(int ledNo)
 
 /** @} */
 /** @} */
-#endif  /* BSP_DK_LEDS */
+#endif /* BSP_DK_LEDS */

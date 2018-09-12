@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
  * @brief Board support package API implementation STK's.
- * @version 5.1.1
+ * @version 5.2.2
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Labs, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -18,14 +18,14 @@
 #include "em_cmu.h"
 #include "em_gpio.h"
 #include "bsp.h"
-#if defined( BSP_STK_USE_EBI )
+#if defined(BSP_STK_USE_EBI)
 #include "em_ebi.h"
 #endif
 #if defined(BSP_IO_EXPANDER)
 #include "bsp_stk_ioexp.h"
 #endif
 
-#if defined( BSP_STK )
+#if defined(BSP_STK)
 
 /***************************************************************************//**
  * @addtogroup BSP
@@ -67,7 +67,7 @@ int BSP_Disable(void)
  *****************************************************************************/
 int BSP_EbiInit(void)
 {
-#if defined( BSP_STK_USE_EBI )
+#if defined(BSP_STK_USE_EBI)
   /* ------------------------------------------ */
   /* NAND Flash, Bank0, Base Address 0x80000000 */
   /* Micron flash NAND256W3A                    */
@@ -158,9 +158,9 @@ int BSP_EbiInit(void)
  * @return
  *   @ref BSP_STATUS_OK or @ref BSP_STATUS_NOT_IMPLEMENTED
  *****************************************************************************/
-int BSP_EbiDeInit( void )
+int BSP_EbiDeInit(void)
 {
-#if defined( BSP_STK_USE_EBI )
+#if defined(BSP_STK_USE_EBI)
   return BSP_STATUS_OK;
 #else
   return BSP_STATUS_NOT_IMPLEMENTED;
@@ -174,7 +174,7 @@ int BSP_EbiDeInit( void )
  *   The device id of a connected IO Expander Device id or 0 if no IO expander
  *   is connected.
  *****************************************************************************/
-uint32_t BSP_IOExpGetDeviceId( void )
+uint32_t BSP_IOExpGetDeviceId(void)
 {
 #if defined(BSP_IO_EXPANDER)
   return ioexpGetDeviceId();
@@ -192,23 +192,20 @@ uint32_t BSP_IOExpGetDeviceId( void )
  * @return
  *   @ref BSP_STATUS_OK or BSP_STATUS_IOEXP_FAILURE
  *****************************************************************************/
-int BSP_Init( uint32_t flags )
+int BSP_Init(uint32_t flags)
 {
 #if defined(BSP_IO_EXPANDER)
   int status;
 #endif
 
-  if ( flags & BSP_INIT_BCC )
-  {
+  if ( flags & BSP_INIT_BCC ) {
     BSP_BccInit();
   }
 
 #if defined(BSP_IO_EXPANDER)
-  if (flags & BSP_INIT_IOEXP)
-  {
+  if (flags & BSP_INIT_IOEXP) {
     status = ioexpEnable();
-    if (status != BSP_STATUS_OK)
-    {
+    if (status != BSP_STATUS_OK) {
       return status;
     }
   }
@@ -238,10 +235,8 @@ int BSP_PeripheralAccess(BSP_Peripheral_TypeDef perf, bool enable)
 #if defined(BSP_IO_EXPANDER)
   int status = BSP_STATUS_OK;
 
-  if (enable)
-  {
-    switch (perf)
-    {
+  if (enable) {
+    switch (perf) {
       case BSP_IOEXP_LEDS:
         status = ioexpWriteReg(BSP_IOEXP_REG_LED_CTRL,
                                BSP_IOEXP_REG_LED_CTRL_DIRECT);
@@ -254,8 +249,7 @@ int BSP_PeripheralAccess(BSP_Peripheral_TypeDef perf, bool enable)
       case BSP_IOEXP_DISPLAY:
         /* Cant use VCOM together with the display. */
         status = ioexpWriteReg(BSP_IOEXP_REG_VCOM_CTRL, 0);
-        if (status == BSP_STATUS_OK)
-        {
+        if (status == BSP_STATUS_OK) {
           status = ioexpWriteReg(BSP_IOEXP_REG_DISP_CTRL,
                                  BSP_IOEXP_REG_DISP_CTRL_ENABLE
                                  | BSP_IOEXP_REG_DISP_CTRL_AUTO_EXTCOMIN);
@@ -265,17 +259,13 @@ int BSP_PeripheralAccess(BSP_Peripheral_TypeDef perf, bool enable)
       case BSP_IOEXP_VCOM:
         /* Cant use the display together with VCOM. */
         status = ioexpWriteReg(BSP_IOEXP_REG_DISP_CTRL, 0);
-        if (status == BSP_STATUS_OK)
-        {
+        if (status == BSP_STATUS_OK) {
           status = ioexpWriteReg(BSP_IOEXP_REG_VCOM_CTRL, 1);
         }
         break;
     }
-  }
-  else
-  {
-    switch (perf)
-    {
+  } else {
+    switch (perf) {
       case BSP_IOEXP_LEDS:
         status = ioexpWriteReg(BSP_IOEXP_REG_LED_CTRL, 0);
         break;
@@ -314,26 +304,25 @@ int BSP_PeripheralAccess(BSP_Peripheral_TypeDef perf, bool enable)
  *   The current expressed in milliamperes. Returns 0.0 on board controller
  *   communication error.
  *****************************************************************************/
-float BSP_CurrentGet( void )
+float BSP_CurrentGet(void)
 {
-   BCP_Packet pkt;
-   float      *pcurrent;
+  BCP_Packet pkt;
+  float      *pcurrent;
 
-   pkt.type          = BSP_BCP_CURRENT_REQ;
-   pkt.payloadLength = 0;
+  pkt.type          = BSP_BCP_CURRENT_REQ;
+  pkt.payloadLength = 0;
 
-   /* Send Request/Get reply */
-   BSP_BccPacketSend( &pkt );
-   BSP_BccPacketReceive( &pkt );
+  /* Send Request/Get reply */
+  BSP_BccPacketSend(&pkt);
+  BSP_BccPacketReceive(&pkt);
 
-   /* Process reply */
-   pcurrent = (float *)pkt.data;
-   if ( pkt.type != BSP_BCP_CURRENT_REPLY )
-   {
-      *pcurrent = 0.0f;
-   }
+  /* Process reply */
+  pcurrent = (float *)pkt.data;
+  if ( pkt.type != BSP_BCP_CURRENT_REPLY ) {
+    *pcurrent = 0.0f;
+  }
 
-   return *pcurrent;
+  return *pcurrent;
 }
 
 /**************************************************************************//**
@@ -346,26 +335,25 @@ float BSP_CurrentGet( void )
  *   The voltage. Returns 0.0 on board controller communication
  *   error.
  *****************************************************************************/
-float BSP_VoltageGet( void )
+float BSP_VoltageGet(void)
 {
-   BCP_Packet pkt;
-   float      *pvoltage;
+  BCP_Packet pkt;
+  float      *pvoltage;
 
-   pkt.type          = BSP_BCP_VOLTAGE_REQ;
-   pkt.payloadLength = 0;
+  pkt.type          = BSP_BCP_VOLTAGE_REQ;
+  pkt.payloadLength = 0;
 
-   /* Send Request/Get reply */
-   BSP_BccPacketSend( &pkt );
-   BSP_BccPacketReceive( &pkt );
+  /* Send Request/Get reply */
+  BSP_BccPacketSend(&pkt);
+  BSP_BccPacketReceive(&pkt);
 
-   /* Process reply */
-   pvoltage = (float *)pkt.data;
-   if ( pkt.type != BSP_BCP_VOLTAGE_REPLY )
-   {
-      *pvoltage = 0.0f;
-   }
+  /* Process reply */
+  pvoltage = (float *)pkt.data;
+  if ( pkt.type != BSP_BCP_VOLTAGE_REPLY ) {
+    *pvoltage = 0.0f;
+  }
 
-   return *pvoltage;
+  return *pvoltage;
 }
 
 /** @} (end group BSP_STK) */

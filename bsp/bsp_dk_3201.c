@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
  * @brief Board support package API implementation for BRD3201.
- * @version 5.1.1
+ * @version 5.2.2
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Labs, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -13,8 +13,6 @@
  *
  ******************************************************************************/
 
-
-
 #include "em_device.h"
 #include "em_cmu.h"
 #include "em_ebi.h"
@@ -23,7 +21,7 @@
 #include "bsp_dk_bcreg_3201.h"
 #include "bsp.h"
 
-#if defined( BSP_DK_BRD3201 )
+#if defined(BSP_DK_BRD3201)
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
 /* USART used for SPI access */
@@ -41,8 +39,7 @@
 #define BSP_PIN_SPI_CS      5               /**< SPI Chip Select pin */
 
 /** SPI control */
-typedef enum
-{
+typedef enum {
   BSP_SPI_Audio,    /**< Configure switchable SPI interface to Audio I2S */
   BSP_SPI_Ethernet, /**< Configure switchable SPI interface to Ethernet */
   BSP_SPI_Display,  /**< Configure switchable SPI interface to SSD2119 */
@@ -50,8 +47,7 @@ typedef enum
 } BSP_SpiControl_TypeDef;
 
 /** BSP board control access method */
-typedef enum
-{
+typedef enum {
   BSP_Init_EBI,    /**< Use EBI to interface board control functionality */
   BSP_Init_SPI,    /**< Use SPI to interface board control functionality */
   BSP_Init_DIRECT, /**< No board control, only GPIO */
@@ -96,12 +92,10 @@ static uint16_t bcFwVersion;
  *****************************************************************************/
 int BSP_Disable(void)
 {
-  if (bspOperationMode == BSP_INIT_DK_EBI)
-  {
+  if (bspOperationMode == BSP_INIT_DK_EBI) {
     EbiDisable();
   }
-  if (bspOperationMode == BSP_INIT_DK_SPI)
-  {
+  if (bspOperationMode == BSP_INIT_DK_SPI) {
     SpiBcDisable();
   }
   BSP_BusControlModeSet(BSP_BusControl_OFF);
@@ -128,21 +122,18 @@ int BSP_Init(uint32_t flags)
 {
   bool ret = false;
 
-  if (flags & BSP_INIT_DK_EBI)
-  {
+  if (flags & BSP_INIT_DK_EBI) {
     bspOperationMode = BSP_INIT_DK_EBI;
     BSP_BusControlModeSet(BSP_BusControl_EBI);
     ret = EbiInit();
   }
-  if (flags & BSP_INIT_DK_SPI)
-  {
+  if (flags & BSP_INIT_DK_SPI) {
     bspOperationMode = BSP_INIT_DK_SPI;
     BSP_BusControlModeSet(BSP_BusControl_SPI);
     ret = SpiInit();
   }
 
-  if (ret == false)
-  {
+  if (ret == false) {
     /* Unable to access board control, this is an abornomal situation. */
     /* Try to restart kit and reprogram EFM32 with a standard example */
     /* as this is most likely caused by a peripheral misconfiguration. */
@@ -170,7 +161,7 @@ int BSP_Init(uint32_t flags)
  * @return Bus decode logic configuration as enumerated in
  *         @ref BSP_BusControl_TypeDef.
  *****************************************************************************/
-BSP_BusControl_TypeDef BSP_BusControlModeGet( void )
+BSP_BusControl_TypeDef BSP_BusControlModeGet(void)
 {
   return busMode;
 }
@@ -194,8 +185,7 @@ int BSP_BusControlModeSet(BSP_BusControl_TypeDef mode)
 
   busMode = mode;
 
-  switch (mode)
-  {
+  switch (mode) {
     case BSP_BusControl_OFF:
       /* Configure board for OFF mode on PB15 MCU_EBI_CONNECT */
       GPIO_PinModeSet(gpioPortB, 15, gpioModePushPull, 1);
@@ -252,59 +242,58 @@ int BSP_DisplayControl(BSP_Display_TypeDef option)
 {
   uint16_t tmp;
 
-  switch (option)
-  {
-  case BSP_Display_EBI:
-    BSP_RegisterWrite(&BC_REGISTER->ARB_CTRL, BC_ARB_CTRL_EBI);
-    break;
+  switch (option) {
+    case BSP_Display_EBI:
+      BSP_RegisterWrite(&BC_REGISTER->ARB_CTRL, BC_ARB_CTRL_EBI);
+      break;
 
-  case BSP_Display_SPI:
-    BSP_RegisterWrite(&BC_REGISTER->ARB_CTRL, BC_ARB_CTRL_SPI);
-    break;
+    case BSP_Display_SPI:
+      BSP_RegisterWrite(&BC_REGISTER->ARB_CTRL, BC_ARB_CTRL_SPI);
+      break;
 
-  case BSP_Display_BC:
-    BSP_RegisterWrite(&BC_REGISTER->ARB_CTRL, BC_ARB_CTRL_BC);
-    break;
+    case BSP_Display_BC:
+      BSP_RegisterWrite(&BC_REGISTER->ARB_CTRL, BC_ARB_CTRL_BC);
+      break;
 
-  case BSP_Display_PowerEnable:
-    tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
-    tmp |= (BC_DISPLAY_CTRL_POWER_ENABLE);
-    BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
-    break;
+    case BSP_Display_PowerEnable:
+      tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
+      tmp |= (BC_DISPLAY_CTRL_POWER_ENABLE);
+      BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
+      break;
 
-  case BSP_Display_PowerDisable:
-    tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
-    tmp &= ~(BC_DISPLAY_CTRL_POWER_ENABLE);
-    BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
-    break;
+    case BSP_Display_PowerDisable:
+      tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
+      tmp &= ~(BC_DISPLAY_CTRL_POWER_ENABLE);
+      BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
+      break;
 
-  case BSP_Display_ResetAssert:
-    tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
-    tmp |= (BC_DISPLAY_CTRL_RESET);
-    BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
-    break;
+    case BSP_Display_ResetAssert:
+      tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
+      tmp |= (BC_DISPLAY_CTRL_RESET);
+      BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
+      break;
 
-  case BSP_Display_ResetRelease:
-    tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
-    tmp &= ~(BC_DISPLAY_CTRL_RESET);
-    BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
-    break;
+    case BSP_Display_ResetRelease:
+      tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
+      tmp &= ~(BC_DISPLAY_CTRL_RESET);
+      BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
+      break;
 
-  case BSP_Display_Mode8080:
-    tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
-    tmp &= ~(BC_DISPLAY_CTRL_MODE_GENERIC);
-    BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
-    break;
+    case BSP_Display_Mode8080:
+      tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
+      tmp &= ~(BC_DISPLAY_CTRL_MODE_GENERIC);
+      BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
+      break;
 
-  case BSP_Display_ModeGeneric:
-    tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
-    tmp |= (BC_DISPLAY_CTRL_MODE_GENERIC);
-    BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
-    break;
+    case BSP_Display_ModeGeneric:
+      tmp  = BSP_RegisterRead(&BC_REGISTER->DISPLAY_CTRL);
+      tmp |= (BC_DISPLAY_CTRL_MODE_GENERIC);
+      BSP_RegisterWrite(&BC_REGISTER->DISPLAY_CTRL, tmp);
+      break;
 
-  default:
-    /* Unknown command */
-    while (1);
+    default:
+      /* Unknown command */
+      while (1) ;
   }
 
   return BSP_STATUS_OK;
@@ -322,17 +311,13 @@ int BSP_DisplayControl(BSP_Display_TypeDef option)
  *****************************************************************************/
 int BSP_EbiExtendedAddressRange(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     BSP_RegisterWrite(&BC_REGISTER->EBI_CTRL, BC_EBI_CTRL_EXTADDR_MASK);
-  }
-  else
-  {
+  } else {
     BSP_RegisterWrite(&BC_REGISTER->EBI_CTRL, 0);
   }
   return BSP_STATUS_OK;
 }
-
 
 /**************************************************************************//**
  * @brief Inform board controller about current energy mode.
@@ -396,14 +381,11 @@ int BSP_InterruptFlagsClear(uint16_t flags)
   uint16_t intFlags;
 
   /* Board control firmware version 257 and higher has a new interrupt architecture */
-  if (bcFwVersion < 257)
-  {
+  if (bcFwVersion < 257) {
     intFlags  = BSP_RegisterRead(&BC_REGISTER->INTFLAG);
     intFlags &= ~(flags);
     BSP_RegisterWrite(&BC_REGISTER->INTFLAG, intFlags);
-  }
-  else
-  {
+  } else {
     BSP_RegisterWrite(&BC_REGISTER->INTCLEAR, flags);
   }
   return BSP_STATUS_OK;
@@ -465,65 +447,63 @@ int BSP_PeripheralAccess(BSP_Peripheral_TypeDef perf, bool enable)
   perfControl = BSP_RegisterRead(&BC_REGISTER->PERICON);
 
   /* Enable or disable the specified peripheral by setting board control switch */
-  if (enable)
-  {
-    switch (perf)
-    {
-    case BSP_RS232_SHUTDOWN:
-      perfControl |= (1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
-      break;
+  if (enable) {
+    switch (perf) {
+      case BSP_RS232_SHUTDOWN:
+        perfControl |= (1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
+        break;
 
-    case BSP_RS232_UART:
-      perfControl &= ~(1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_RS232_LEUART_SHIFT);
-      perfControl |= (1 << BC_PERICON_RS232_UART_SHIFT);
-      break;
+      case BSP_RS232_UART:
+        perfControl &= ~(1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_RS232_LEUART_SHIFT);
+        perfControl |= (1 << BC_PERICON_RS232_UART_SHIFT);
+        break;
 
-    case BSP_RS232_LEUART:
-      perfControl &= ~(1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_RS232_UART_SHIFT);
-      perfControl |= (1 << BC_PERICON_RS232_LEUART_SHIFT);
-      break;
+      case BSP_RS232_LEUART:
+        perfControl &= ~(1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_RS232_UART_SHIFT);
+        perfControl |= (1 << BC_PERICON_RS232_LEUART_SHIFT);
+        break;
 
-    case BSP_I2C:
-      perfControl |= (1 << BC_PERICON_I2C_SHIFT);
-      break;
+      case BSP_I2C:
+        perfControl |= (1 << BC_PERICON_I2C_SHIFT);
+        break;
 
-    case BSP_ETH:
-      /* Enable SPI interface */
-      SpiControl(BSP_SPI_Ethernet);
+      case BSP_ETH:
+        /* Enable SPI interface */
+        SpiControl(BSP_SPI_Ethernet);
 
-      /* Enable Ethernet analog switches */
-      perfControl |= (1 << BC_PERICON_I2S_ETH_SHIFT);
-      perfControl |= (1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
+        /* Enable Ethernet analog switches */
+        perfControl |= (1 << BC_PERICON_I2S_ETH_SHIFT);
+        perfControl |= (1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
 
-      /* Disable Analog Diff Input - pins PD0 and PD1 is shared */
-      perfControl &= ~(1 << BC_PERICON_ANALOG_DIFF_SHIFT);
-      /* Disable Touch Inputs - pin PD3 is shared */
-      perfControl &= ~(1 << BC_PERICON_TOUCH_SHIFT);
-      /* Disable Analog SE Input - pin PD2 is shared */
-      perfControl &= ~(1 << BC_PERICON_ANALOG_SE_SHIFT);
-      break;
+        /* Disable Analog Diff Input - pins PD0 and PD1 is shared */
+        perfControl &= ~(1 << BC_PERICON_ANALOG_DIFF_SHIFT);
+        /* Disable Touch Inputs - pin PD3 is shared */
+        perfControl &= ~(1 << BC_PERICON_TOUCH_SHIFT);
+        /* Disable Analog SE Input - pin PD2 is shared */
+        perfControl &= ~(1 << BC_PERICON_ANALOG_SE_SHIFT);
+        break;
 
-    case BSP_I2S:
-      /* Direct SPI interface to I2S DAC */
-      SpiControl(BSP_SPI_Audio);
+      case BSP_I2S:
+        /* Direct SPI interface to I2S DAC */
+        SpiControl(BSP_SPI_Audio);
 
-      /* Also make surea Audio out is connected for I2S operation */
-      perfControl |= (1 << BC_PERICON_AUDIO_OUT_SHIFT);
-      perfControl |= (1 << BC_PERICON_AUDIO_OUT_SEL_SHIFT);
-      perfControl |= (1 << BC_PERICON_I2S_ETH_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
+        /* Also make surea Audio out is connected for I2S operation */
+        perfControl |= (1 << BC_PERICON_AUDIO_OUT_SHIFT);
+        perfControl |= (1 << BC_PERICON_AUDIO_OUT_SEL_SHIFT);
+        perfControl |= (1 << BC_PERICON_I2S_ETH_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
 
-      /* Disable Analog Diff Input - pins PD0 and PD1 is shared */
-      perfControl &= ~(1 << BC_PERICON_ANALOG_DIFF_SHIFT);
-      /* Disable Touch Inputs - pin PD3 is shared */
-      perfControl &= ~(1 << BC_PERICON_TOUCH_SHIFT);
-      /* Disable Analog SE Input - pin PD2 is shared */
-      perfControl &= ~(1 << BC_PERICON_ANALOG_SE_SHIFT);
-      break;
+        /* Disable Analog Diff Input - pins PD0 and PD1 is shared */
+        perfControl &= ~(1 << BC_PERICON_ANALOG_DIFF_SHIFT);
+        /* Disable Touch Inputs - pin PD3 is shared */
+        perfControl &= ~(1 << BC_PERICON_TOUCH_SHIFT);
+        /* Disable Analog SE Input - pin PD2 is shared */
+        perfControl &= ~(1 << BC_PERICON_ANALOG_SE_SHIFT);
+        break;
 
-    case BSP_TRACE:
+      case BSP_TRACE:
       #if defined(ETM_PRESENT)
         perfControl |= (1 << BC_PERICON_TRACE_SHIFT);
         break;
@@ -532,96 +512,93 @@ int BSP_PeripheralAccess(BSP_Peripheral_TypeDef perf, bool enable)
         while (1) ;
       #endif
 
-    case BSP_TOUCH:
-      perfControl |= (1 << BC_PERICON_TOUCH_SHIFT);
-      /* Disconnect SPI switch, pin PD3 is shared */
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
-      SpiControl(BSP_SPI_OFF);
-      break;
+      case BSP_TOUCH:
+        perfControl |= (1 << BC_PERICON_TOUCH_SHIFT);
+        /* Disconnect SPI switch, pin PD3 is shared */
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
+        SpiControl(BSP_SPI_OFF);
+        break;
 
-    case BSP_AUDIO_IN:
-      perfControl |= (1 << BC_PERICON_AUDIO_IN_SHIFT);
-      break;
+      case BSP_AUDIO_IN:
+        perfControl |= (1 << BC_PERICON_AUDIO_IN_SHIFT);
+        break;
 
-    case BSP_AUDIO_OUT:
-      perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SEL_SHIFT);
-      perfControl |= (1 << BC_PERICON_AUDIO_OUT_SHIFT);
-      break;
+      case BSP_AUDIO_OUT:
+        perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SEL_SHIFT);
+        perfControl |= (1 << BC_PERICON_AUDIO_OUT_SHIFT);
+        break;
 
-    case BSP_ANALOG_DIFF:
-      perfControl |= (1 << BC_PERICON_ANALOG_DIFF_SHIFT);
-      /* Disconnect SPI switch, pin PD0 and PD1 is shared */
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
-      SpiControl(BSP_SPI_OFF);
-      break;
+      case BSP_ANALOG_DIFF:
+        perfControl |= (1 << BC_PERICON_ANALOG_DIFF_SHIFT);
+        /* Disconnect SPI switch, pin PD0 and PD1 is shared */
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
+        SpiControl(BSP_SPI_OFF);
+        break;
 
-    case BSP_ANALOG_SE:
-      perfControl |= (1 << BC_PERICON_ANALOG_SE_SHIFT);
-      /* Disconnect SPI switch, pin PD2 is shared */
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
-      SpiControl(BSP_SPI_OFF);
-      break;
+      case BSP_ANALOG_SE:
+        perfControl |= (1 << BC_PERICON_ANALOG_SE_SHIFT);
+        /* Disconnect SPI switch, pin PD2 is shared */
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
+        SpiControl(BSP_SPI_OFF);
+        break;
 
-    case BSP_MICROSD:
-      perfControl |= (1 << BC_PERICON_SPI_SHIFT);
-      break;
+      case BSP_MICROSD:
+        perfControl |= (1 << BC_PERICON_SPI_SHIFT);
+        break;
 
-    case BSP_TFT:
-      /* Enable SPI to SSD2119 */
-      SpiControl(BSP_SPI_Display);
-      /* Enable SPI analog switch */
-      perfControl |= (1 << BC_PERICON_I2S_ETH_SHIFT);
-      /* Disable Analog Diff Input - pins D0 and D1 is shared */
-      perfControl &= ~(1 << BC_PERICON_ANALOG_DIFF_SHIFT);
-      /* Disable Touch Inputs - pin D3 is shared */
-      perfControl &= ~(1 << BC_PERICON_TOUCH_SHIFT);
-      /* Disable Analog SE Input - pin D2 is shared */
-      perfControl &= ~(1 << BC_PERICON_ANALOG_SE_SHIFT);
-      break;
+      case BSP_TFT:
+        /* Enable SPI to SSD2119 */
+        SpiControl(BSP_SPI_Display);
+        /* Enable SPI analog switch */
+        perfControl |= (1 << BC_PERICON_I2S_ETH_SHIFT);
+        /* Disable Analog Diff Input - pins D0 and D1 is shared */
+        perfControl &= ~(1 << BC_PERICON_ANALOG_DIFF_SHIFT);
+        /* Disable Touch Inputs - pin D3 is shared */
+        perfControl &= ~(1 << BC_PERICON_TOUCH_SHIFT);
+        /* Disable Analog SE Input - pin D2 is shared */
+        perfControl &= ~(1 << BC_PERICON_ANALOG_SE_SHIFT);
+        break;
     }
-  }
-  else
-  {
-    switch (perf)
-    {
-    case BSP_RS232_SHUTDOWN:
-      perfControl &= ~(1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
-      break;
+  } else {
+    switch (perf) {
+      case BSP_RS232_SHUTDOWN:
+        perfControl &= ~(1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
+        break;
 
-    case BSP_RS232_UART:
-      perfControl |= (1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_RS232_UART_SHIFT);
-      break;
+      case BSP_RS232_UART:
+        perfControl |= (1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_RS232_UART_SHIFT);
+        break;
 
-    case BSP_RS232_LEUART:
-      perfControl |= (1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_RS232_LEUART_SHIFT);
-      break;
+      case BSP_RS232_LEUART:
+        perfControl |= (1 << BC_PERICON_RS232_SHUTDOWN_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_RS232_LEUART_SHIFT);
+        break;
 
-    case BSP_I2C:
-      perfControl &= ~(1 << BC_PERICON_I2C_SHIFT);
-      break;
+      case BSP_I2C:
+        perfControl &= ~(1 << BC_PERICON_I2C_SHIFT);
+        break;
 
-    case BSP_ETH:
-      /* Disable SPI interface */
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
-      SpiControl(BSP_SPI_OFF);
-      break;
+      case BSP_ETH:
+        /* Disable SPI interface */
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
+        SpiControl(BSP_SPI_OFF);
+        break;
 
-    case BSP_I2S:
-      /* Disable SPI interface and audio out */
-      perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SEL_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
-      SpiControl(BSP_SPI_OFF);
-      break;
+      case BSP_I2S:
+        /* Disable SPI interface and audio out */
+        perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SEL_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
+        SpiControl(BSP_SPI_OFF);
+        break;
 
-    case BSP_TRACE:
+      case BSP_TRACE:
       #if defined(ETM_PRESENT)
         perfControl &= ~(1 << BC_PERICON_TRACE_SHIFT);
         break;
@@ -630,37 +607,37 @@ int BSP_PeripheralAccess(BSP_Peripheral_TypeDef perf, bool enable)
         while (1) ;
       #endif
 
-    case BSP_TOUCH:
-      perfControl &= ~(1 << BC_PERICON_TOUCH_SHIFT);
-      break;
+      case BSP_TOUCH:
+        perfControl &= ~(1 << BC_PERICON_TOUCH_SHIFT);
+        break;
 
-    case BSP_AUDIO_IN:
-      perfControl &= ~(1 << BC_PERICON_AUDIO_IN_SHIFT);
-      break;
+      case BSP_AUDIO_IN:
+        perfControl &= ~(1 << BC_PERICON_AUDIO_IN_SHIFT);
+        break;
 
-    case BSP_AUDIO_OUT:
-      perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SEL_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SHIFT);
-      break;
+      case BSP_AUDIO_OUT:
+        perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SEL_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_AUDIO_OUT_SHIFT);
+        break;
 
-    case BSP_ANALOG_DIFF:
-      perfControl &= ~(1 << BC_PERICON_ANALOG_DIFF_SHIFT);
-      break;
+      case BSP_ANALOG_DIFF:
+        perfControl &= ~(1 << BC_PERICON_ANALOG_DIFF_SHIFT);
+        break;
 
-    case BSP_ANALOG_SE:
-      perfControl &= ~(1 << BC_PERICON_ANALOG_SE_SHIFT);
-      break;
+      case BSP_ANALOG_SE:
+        perfControl &= ~(1 << BC_PERICON_ANALOG_SE_SHIFT);
+        break;
 
-    case BSP_MICROSD:
-      perfControl &= ~(1 << BC_PERICON_SPI_SHIFT);
-      break;
+      case BSP_MICROSD:
+        perfControl &= ~(1 << BC_PERICON_SPI_SHIFT);
+        break;
 
-    case BSP_TFT:
-      /* Disable SPI interface */
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
-      perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
-      SpiControl(BSP_SPI_OFF);
-      break;
+      case BSP_TFT:
+        /* Disable SPI interface */
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SHIFT);
+        perfControl &= ~(1 << BC_PERICON_I2S_ETH_SEL_SHIFT);
+        SpiControl(BSP_SPI_OFF);
+        break;
     }
   }
   /* Write back register */
@@ -686,12 +663,9 @@ uint16_t BSP_PushButtonsGet(void)
  *****************************************************************************/
 uint16_t BSP_RegisterRead(volatile uint16_t *addr)
 {
-  if (bspOperationMode == BSP_INIT_DK_EBI)
-  {
+  if (bspOperationMode == BSP_INIT_DK_EBI) {
     return *addr;
-  }
-  else
-  {
+  } else {
     return SpiRegisterRead(addr);
   }
 }
@@ -703,12 +677,9 @@ uint16_t BSP_RegisterRead(volatile uint16_t *addr)
  *****************************************************************************/
 int BSP_RegisterWrite(volatile uint16_t *addr, uint16_t data)
 {
-  if (bspOperationMode == BSP_INIT_DK_EBI)
-  {
+  if (bspOperationMode == BSP_INIT_DK_EBI) {
     *addr = data;
-  }
-  else
-  {
+  } else {
     SpiRegisterWrite(addr, data);
   }
   return BSP_STATUS_OK;
@@ -723,88 +694,88 @@ static void EbiDisable(void)
 #if defined(_EFM32_GECKO_FAMILY)
 
   /* Configure GPIO pins as disabled */
-  GPIO_PinModeSet( gpioPortA,  0, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  1, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  2, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  3, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  4, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  5, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  6, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortA, 0, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 1, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 2, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 3, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 4, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 5, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 6, gpioModeDisabled, 0);
 
-  GPIO_PinModeSet( gpioPortA, 15, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortA, 15, gpioModeDisabled, 0);
 
-  GPIO_PinModeSet( gpioPortD,  9, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortD, 10, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortD, 11, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortD, 12, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortD, 9, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortD, 10, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortD, 11, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortD, 12, gpioModeDisabled, 0);
 
-  GPIO_PinModeSet( gpioPortE,  8, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE,  9, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 10, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 11, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 12, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 13, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 14, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 15, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortE, 8, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 9, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 10, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 11, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 12, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 13, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 14, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 15, gpioModeDisabled, 0);
 
-  GPIO_PinModeSet( gpioPortF, 2, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortF, 3, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortF, 4, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortF, 5, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortF, 2, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortF, 3, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortF, 4, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortF, 5, gpioModeDisabled, 0);
 
   /* EBI Byte Lane 0 support BL0/BL1 */
-  GPIO_PinModeSet( gpioPortF, 6, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortF, 7, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortF, 6, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortF, 7, gpioModeDisabled, 0);
 
 #else
 
   /* Configure GPIO pins as disabled */
   /* EBI AD9..15 */
-  GPIO_PinModeSet( gpioPortA,  0, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  1, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  2, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  3, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  4, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  5, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortA,  6, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortA, 0, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 1, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 2, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 3, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 4, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 5, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortA, 6, gpioModeDisabled, 0);
 
   /* EBI AD8 */
-  GPIO_PinModeSet( gpioPortA, 15, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortA, 15, gpioModeDisabled, 0);
 
   /* EBI A16-A22 */
-  GPIO_PinModeSet( gpioPortB,  0, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortB,  1, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortB,  2, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortB,  3, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortB,  4, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortB,  5, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortB,  6, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortB, 0, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortB, 1, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortB, 2, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortB, 3, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortB, 4, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortB, 5, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortB, 6, gpioModeDisabled, 0);
 
   /* EBI CS0-CS3 */
-  GPIO_PinModeSet( gpioPortD,  9, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortD, 10, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortD, 11, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortD, 12, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortD, 9, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortD, 10, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortD, 11, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortD, 12, gpioModeDisabled, 0);
 
   /* EBI AD0..7 */
-  GPIO_PinModeSet( gpioPortE,  8, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE,  9, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 10, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 11, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 12, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 13, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 14, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortE, 15, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortE, 8, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 9, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 10, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 11, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 12, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 13, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 14, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortE, 15, gpioModeDisabled, 0);
 
   /* EBI ARDY/WEN/REN/ALE */
-  GPIO_PinModeSet( gpioPortF,  2, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortF,  8, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortF,  9, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortC, 11, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortF, 2, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortF, 8, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortF, 9, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortC, 11, gpioModeDisabled, 0);
 
   /* EBI Byte Lane 0 support BL0/BL1 */
-  GPIO_PinModeSet( gpioPortF,  6, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( gpioPortF,  7, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(gpioPortF, 6, gpioModeDisabled, 0);
+  GPIO_PinModeSet(gpioPortF, 7, gpioModeDisabled, 0);
 
 #endif
 
@@ -834,46 +805,46 @@ static bool EbiInit(void)
 #if defined(_EFM32_GECKO_FAMILY)
 
   /* Configure LCD_SELECT (EBI and LCD cannot be shared) */
-  GPIO_PinModeSet( gpioPortC, 12, gpioModePushPull, 1 );
+  GPIO_PinModeSet(gpioPortC, 12, gpioModePushPull, 1);
 
   /* Configure GPIO pins as push pull */
   /* EBI AD9..15 */
-  GPIO_PinModeSet( gpioPortA,  0, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  1, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  2, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  3, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  4, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  5, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  6, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortA, 0, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 1, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 2, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 3, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 4, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 5, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 6, gpioModePushPull, 0);
 
   /* EBI AD8 */
-  GPIO_PinModeSet( gpioPortA, 15, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortA, 15, gpioModePushPull, 0);
 
   /* EBI CS0-CS3 */
-  GPIO_PinModeSet( gpioPortD,  9, gpioModePushPull, 1 );
-  GPIO_PinModeSet( gpioPortD, 10, gpioModePushPull, 1 );
-  GPIO_PinModeSet( gpioPortD, 11, gpioModePushPull, 1 );
-  GPIO_PinModeSet( gpioPortD, 12, gpioModePushPull, 1 );
+  GPIO_PinModeSet(gpioPortD, 9, gpioModePushPull, 1);
+  GPIO_PinModeSet(gpioPortD, 10, gpioModePushPull, 1);
+  GPIO_PinModeSet(gpioPortD, 11, gpioModePushPull, 1);
+  GPIO_PinModeSet(gpioPortD, 12, gpioModePushPull, 1);
 
   /* EBI AD0..7 */
-  GPIO_PinModeSet( gpioPortE,  8, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE,  9, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 10, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 11, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 12, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 13, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 14, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 15, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortE, 8, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 9, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 10, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 11, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 12, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 13, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 14, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 15, gpioModePushPull, 0);
 
   /* EBI ARDY/ALEN/Wen/Ren */
-  GPIO_PinModeSet( gpioPortF,  2, gpioModeInput,    0 );
-  GPIO_PinModeSet( gpioPortF,  3, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortF,  4, gpioModePushPull, 1 );
-  GPIO_PinModeSet( gpioPortF,  5, gpioModePushPull, 1 );
+  GPIO_PinModeSet(gpioPortF, 2, gpioModeInput, 0);
+  GPIO_PinModeSet(gpioPortF, 3, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortF, 4, gpioModePushPull, 1);
+  GPIO_PinModeSet(gpioPortF, 5, gpioModePushPull, 1);
 
   /* Byte Lanes */
-  GPIO_PinModeSet( gpioPortF,  6, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortF,  7, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortF, 6, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortF, 7, gpioModePushPull, 0);
 
   /* Configure EBI controller, changing default values */
   ebiConfig.mode = ebiModeD16A16ALE;
@@ -928,51 +899,51 @@ static bool EbiInit(void)
 
   /* Configure GPIO pins as push pull */
   /* EBI AD9..15 */
-  GPIO_PinModeSet( gpioPortA,  0, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  1, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  2, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  3, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  4, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  5, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortA,  6, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortA, 0, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 1, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 2, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 3, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 4, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 5, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortA, 6, gpioModePushPull, 0);
 
   /* EBI AD8 */
-  GPIO_PinModeSet( gpioPortA, 15, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortA, 15, gpioModePushPull, 0);
 
   /* EBI A16-A22 */
-  GPIO_PinModeSet( gpioPortB,  0, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortB,  1, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortB,  2, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortB,  3, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortB,  4, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortB,  5, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortB,  6, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortB, 0, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortB, 1, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortB, 2, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortB, 3, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortB, 4, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortB, 5, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortB, 6, gpioModePushPull, 0);
 
   /* EBI CS0-CS3 */
-  GPIO_PinModeSet( gpioPortD,  9, gpioModePushPull, 1 );
-  GPIO_PinModeSet( gpioPortD, 10, gpioModePushPull, 1 );
-  GPIO_PinModeSet( gpioPortD, 11, gpioModePushPull, 1 );
-  GPIO_PinModeSet( gpioPortD, 12, gpioModePushPull, 1 );
+  GPIO_PinModeSet(gpioPortD, 9, gpioModePushPull, 1);
+  GPIO_PinModeSet(gpioPortD, 10, gpioModePushPull, 1);
+  GPIO_PinModeSet(gpioPortD, 11, gpioModePushPull, 1);
+  GPIO_PinModeSet(gpioPortD, 12, gpioModePushPull, 1);
 
   /* EBI AD0..7 */
-  GPIO_PinModeSet( gpioPortE,  8, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE,  9, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 10, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 11, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 12, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 13, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 14, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortE, 15, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortE, 8, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 9, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 10, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 11, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 12, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 13, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 14, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortE, 15, gpioModePushPull, 0);
 
   /* EBI ARDY/WEN/REN/ALE */
-  GPIO_PinModeSet( gpioPortF,  2, gpioModeInput,    0 );
-  GPIO_PinModeSet( gpioPortF,  8, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortF,  9, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortC, 11, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortF, 2, gpioModeInput, 0);
+  GPIO_PinModeSet(gpioPortF, 8, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortF, 9, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortC, 11, gpioModePushPull, 0);
 
   /* EBI Byte Lane 0 support BL0/BL1 */
-  GPIO_PinModeSet( gpioPortF, 6, gpioModePushPull, 0 );
-  GPIO_PinModeSet( gpioPortF, 7, gpioModePushPull, 0 );
+  GPIO_PinModeSet(gpioPortF, 6, gpioModePushPull, 0);
+  GPIO_PinModeSet(gpioPortF, 7, gpioModePushPull, 0);
 
   /* ---------------------------------------------------- */
   /* External 4MB PSRAM, Bank 2, Base Address 0x88000000  */
@@ -1105,12 +1076,9 @@ static bool EbiInit(void)
 #endif
 
   /* Verify connectivity to Board Control registers */
-  if (BC_REGISTER->MAGIC != 0xef32)
-  {
+  if (BC_REGISTER->MAGIC != 0xef32) {
     return false;
-  }
-  else
-  {
+  } else {
     return true;
   }
 }
@@ -1177,9 +1145,9 @@ static void SpiBcInit(void)
   /* for all configurations. */
 
   #if defined(_EFM32_GECKO_FAMILY)
-    bcinit.refFreq  = 32000000;
+  bcinit.refFreq  = 32000000;
   #else
-    bcinit.refFreq  = 48000000;
+  bcinit.refFreq  = 48000000;
   #endif
   bcinit.baudrate = 7000000;
 
@@ -1192,24 +1160,23 @@ static void SpiBcInit(void)
 
 static void SpiControl(BSP_SpiControl_TypeDef device)
 {
-  switch (device)
-  {
-  case BSP_SPI_Audio:
-    BSP_RegisterWrite(&BC_REGISTER->SPI_DEMUX, BC_SPI_DEMUX_SLAVE_AUDIO);
-    break;
+  switch (device) {
+    case BSP_SPI_Audio:
+      BSP_RegisterWrite(&BC_REGISTER->SPI_DEMUX, BC_SPI_DEMUX_SLAVE_AUDIO);
+      break;
 
-  case BSP_SPI_Ethernet:
-    BSP_RegisterWrite(&BC_REGISTER->SPI_DEMUX, BC_SPI_DEMUX_SLAVE_ETHERNET);
-    break;
+    case BSP_SPI_Ethernet:
+      BSP_RegisterWrite(&BC_REGISTER->SPI_DEMUX, BC_SPI_DEMUX_SLAVE_ETHERNET);
+      break;
 
-  case BSP_SPI_Display:
-    BSP_RegisterWrite(&BC_REGISTER->SPI_DEMUX, BC_SPI_DEMUX_SLAVE_DISPLAY);
-    break;
+    case BSP_SPI_Display:
+      BSP_RegisterWrite(&BC_REGISTER->SPI_DEMUX, BC_SPI_DEMUX_SLAVE_DISPLAY);
+      break;
 
-  case BSP_SPI_OFF:
-    USART_Reset(USART1);
-    CMU_ClockEnable(cmuClock_USART1, false);
-    break;
+    case BSP_SPI_OFF:
+      USART_Reset(USART1);
+      CMU_ClockEnable(cmuClock_USART1, false);
+      break;
   }
 }
 
@@ -1225,12 +1192,9 @@ static bool SpiInit(void)
   /* Read "board control Magic" register to verify SPI is up and running */
   /*  if not FPGA is configured to be in EBI mode  */
   bcMagic = SpiRegisterRead(&BC_REGISTER->MAGIC);
-  if (bcMagic != BC_MAGIC_VALUE)
-  {
+  if (bcMagic != BC_MAGIC_VALUE) {
     return false;
-  }
-  else
-  {
+  } else {
     return true;
   }
 }
@@ -1239,8 +1203,7 @@ static uint16_t SpiRegisterRead(volatile uint16_t *addr)
 {
   uint16_t data;
 
-  if (addr != lastAddr)
-  {
+  if (addr != lastAddr) {
     SpiBcAccess(0x00, 0, 0xFFFF & ((uint32_t) addr));           /* LSBs of address */
     SpiBcAccess(0x01, 0, 0xFF & ((uint32_t) addr >> 16));       /* MSBs of address */
     SpiBcAccess(0x02, 0, (0x0C000000 & (uint32_t) addr) >> 26); /* Chip select */
@@ -1256,8 +1219,7 @@ static uint16_t SpiRegisterRead(volatile uint16_t *addr)
 
 static void SpiRegisterWrite(volatile uint16_t *addr, uint16_t data)
 {
-  if (addr != lastAddr)
-  {
+  if (addr != lastAddr) {
     SpiBcAccess(0x00, 0, 0xFFFF & ((uint32_t) addr));           /* LSBs of address */
     SpiBcAccess(0x01, 0, 0xFF & ((uint32_t) addr >> 16));       /* MSBs of address */
     SpiBcAccess(0x02, 0, (0x0C000000 & (uint32_t) addr) >> 26); /* Chip select */
@@ -1267,4 +1229,4 @@ static void SpiRegisterWrite(volatile uint16_t *addr, uint16_t data)
 }
 
 /** @endcond */
-#endif  /* BSP_DK_BRD3201 */
+#endif /* BSP_DK_BRD3201 */

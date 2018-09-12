@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
  * @brief Board support package API for functions on MCU plugin boards.
- * @version 5.1.1
+ * @version 5.2.2
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2015 Silicon Labs, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -12,8 +12,6 @@
  * any purpose, you must agree to the terms of that agreement.
  *
  ******************************************************************************/
-
-
 
 #include <stdbool.h>
 #include "bsp.h"
@@ -34,13 +32,13 @@
  * @brief Disable MCU plugin board peripherals.
  * @return @ref BSP_STATUS_OK.
  *****************************************************************************/
-int BSP_McuBoard_DeInit( void )
+int BSP_McuBoard_DeInit(void)
 {
 #ifdef BSP_MCUBOARD_USB
   /* Disable GPIO port pin mode. */
-  GPIO_PinModeSet( BSP_USB_STATUSLED_PORT, BSP_USB_STATUSLED_PIN, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( BSP_USB_OCFLAG_PORT, BSP_USB_OCFLAG_PIN, gpioModeDisabled, 0 );
-  GPIO_PinModeSet( BSP_USB_VBUSEN_PORT, BSP_USB_VBUSEN_PIN, gpioModeDisabled, 0 );
+  GPIO_PinModeSet(BSP_USB_STATUSLED_PORT, BSP_USB_STATUSLED_PIN, gpioModeDisabled, 0);
+  GPIO_PinModeSet(BSP_USB_OCFLAG_PORT, BSP_USB_OCFLAG_PIN, gpioModeDisabled, 0);
+  GPIO_PinModeSet(BSP_USB_VBUSEN_PORT, BSP_USB_VBUSEN_PIN, gpioModeDisabled, 0);
 #endif
 
   return BSP_STATUS_OK;
@@ -50,20 +48,20 @@ int BSP_McuBoard_DeInit( void )
  * @brief Enable MCU plugin board peripherals.
  * @return @ref BSP_STATUS_OK.
  *****************************************************************************/
-int BSP_McuBoard_Init( void )
+int BSP_McuBoard_Init(void)
 {
 #ifdef BSP_MCUBOARD_USB
   /* Make sure that the CMU clock to the GPIO peripheral is enabled  */
-  CMU_ClockEnable( cmuClock_GPIO, true );
+  CMU_ClockEnable(cmuClock_GPIO, true);
 
   /* USB status LED - configure PE1 as push pull */
-  GPIO_PinModeSet( BSP_USB_STATUSLED_PORT, BSP_USB_STATUSLED_PIN, gpioModePushPull, 0 );
+  GPIO_PinModeSet(BSP_USB_STATUSLED_PORT, BSP_USB_STATUSLED_PIN, gpioModePushPull, 0);
 
   /* USB PHY overcurrent status input */
-  GPIO_PinModeSet( BSP_USB_OCFLAG_PORT, BSP_USB_OCFLAG_PIN, gpioModeInput, 0 );
+  GPIO_PinModeSet(BSP_USB_OCFLAG_PORT, BSP_USB_OCFLAG_PIN, gpioModeInput, 0);
 
   /* USB VBUS switch - configure PF5 as push pull - Default OFF */
-  GPIO_PinModeSet( BSP_USB_VBUSEN_PORT, BSP_USB_VBUSEN_PIN, gpioModePushPull, 0 );
+  GPIO_PinModeSet(BSP_USB_VBUSEN_PORT, BSP_USB_VBUSEN_PIN, gpioModePushPull, 0);
 #endif
 
   return BSP_STATUS_OK;
@@ -75,16 +73,13 @@ int BSP_McuBoard_Init( void )
  * @return @ref BSP_STATUS_OK on plugin boards with USB capability,
  *         @ref BSP_STATUS_NOT_IMPLEMENTED otherwise.
  *****************************************************************************/
-int BSP_McuBoard_UsbStatusLedEnable( bool enable )
+int BSP_McuBoard_UsbStatusLedEnable(bool enable)
 {
 #ifdef BSP_MCUBOARD_USB
-  if ( enable )
-  {
-    GPIO_PinOutSet( BSP_USB_STATUSLED_PORT, BSP_USB_STATUSLED_PIN );
-  }
-  else
-  {
-    GPIO_PinOutClear( BSP_USB_STATUSLED_PORT, BSP_USB_STATUSLED_PIN );
+  if ( enable ) {
+    GPIO_PinOutSet(BSP_USB_STATUSLED_PORT, BSP_USB_STATUSLED_PIN);
+  } else {
+    GPIO_PinOutClear(BSP_USB_STATUSLED_PORT, BSP_USB_STATUSLED_PIN);
   }
 
   return BSP_STATUS_OK;
@@ -99,17 +94,14 @@ int BSP_McuBoard_UsbStatusLedEnable( bool enable )
  * @brief Get state MCU plugin board VBUS overcurrent flag.
  * @return True if overcurrent situation exist, false otherwise.
  *****************************************************************************/
-bool BSP_McuBoard_UsbVbusOcFlagGet( void )
+bool BSP_McuBoard_UsbVbusOcFlagGet(void)
 {
 #ifdef BSP_MCUBOARD_USB
   bool flag;
 
-  if ( !GPIO_PinInGet( BSP_USB_OCFLAG_PORT, BSP_USB_OCFLAG_PIN ) )
-  {
+  if ( !GPIO_PinInGet(BSP_USB_OCFLAG_PORT, BSP_USB_OCFLAG_PIN) ) {
     flag = true;
-  }
-  else
-  {
+  } else {
     flag = false;
   }
 
@@ -126,10 +118,10 @@ bool BSP_McuBoard_UsbVbusOcFlagGet( void )
  * @return @ref BSP_STATUS_OK on plugin boards with USB capability,
  *         @ref BSP_STATUS_NOT_IMPLEMENTED otherwise.
  *****************************************************************************/
-int BSP_McuBoard_UsbVbusPowerEnable( bool enable )
+int BSP_McuBoard_UsbVbusPowerEnable(bool enable)
 {
 #ifdef BSP_MCUBOARD_USB
-  GPIO_PinModeSet( BSP_USB_VBUSEN_PORT, BSP_USB_VBUSEN_PIN, gpioModePushPull, enable );
+  GPIO_PinModeSet(BSP_USB_VBUSEN_PORT, BSP_USB_VBUSEN_PIN, gpioModePushPull, enable);
 
   return BSP_STATUS_OK;
 #else

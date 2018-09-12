@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
  * @brief Board support package API implementation for BRD3200.
- * @version 5.1.1
+ * @version 5.2.2
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2015 Silicon Labs, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -12,8 +12,6 @@
  * any purpose, you must agree to the terms of that agreement.
  *
  ******************************************************************************/
-
-
 
 #include "em_device.h"
 #include "em_cmu.h"
@@ -24,7 +22,7 @@
 #include "bsp_dk_bcreg_3200.h"
 #include "bsp.h"
 
-#if defined( BSP_DK_BRD3200 )
+#if defined(BSP_DK_BRD3200)
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
 /* USART used for SPI access */
@@ -53,7 +51,7 @@ static uint16_t SpiRegisterRead(volatile uint16_t *addr);
 static void SpiRegisterWrite(volatile uint16_t *addr, uint16_t data);
 static volatile const uint16_t *lastAddr = 0; /**< Last register accessed */
 
-#if defined( BSP_BC_CTRL_EBI )
+#if defined(BSP_BC_CTRL_EBI)
 static void EbiConfigure(void);
 static bool EbiInit(void);
 static void EbiDisable(void);
@@ -67,7 +65,7 @@ int BSP_BusControlModeSet(BSP_BusControl_TypeDef mode)
   return BSP_STATUS_NOT_IMPLEMENTED;
 }
 
-BSP_BusControl_TypeDef BSP_BusControlModeGet( void )
+BSP_BusControl_TypeDef BSP_BusControlModeGet(void)
 {
   return busMode;
 }
@@ -79,7 +77,7 @@ uint32_t BSP_DipSwitchGet(void)
 
 int BSP_Disable(void)
 {
-#if defined( BSP_BC_CTRL_EBI )
+#if defined(BSP_BC_CTRL_EBI)
   /* Handover bus control */
   BSP_RegisterWrite(BC_BUS_CFG, 0);
   /* Disable EBI interface */
@@ -117,7 +115,7 @@ int BSP_Init(uint32_t flags)
   bool ret = false;
   (void)flags;                /* Unused parameter. */
 
-#if defined( BSP_BC_CTRL_EBI )
+#if defined(BSP_BC_CTRL_EBI)
   ret = EbiInit();
   busMode = BSP_BusControl_EBI;
 #else
@@ -125,8 +123,7 @@ int BSP_Init(uint32_t flags)
   busMode = BSP_BusControl_SPI;
 #endif
 
-  if (ret == false)
-  {
+  if (ret == false) {
     /* Board is configured in wrong mode, please restart KIT! */
     while (1) ;
   }
@@ -179,8 +176,7 @@ uint16_t BSP_JoystickGet(void)
   /* Check state */
   aemState = BSP_RegisterRead(BC_AEMSTATE);
   /* Read pushbutton status */
-  if (aemState == BC_AEMSTATE_EFM)
-  {
+  if (aemState == BC_AEMSTATE_EFM) {
     joyStick = (~(BSP_RegisterRead(BC_JOYSTICK))) & 0x001f;
   }
   return joyStick;
@@ -198,40 +194,33 @@ int BSP_PeripheralAccess(BSP_Peripheral_TypeDef perf, bool enable)
   tmp = BSP_RegisterRead(BC_PERCTRL);
 
   /* Enable or disable the specificed peripheral by setting board control switch */
-  if (enable)
-  {
+  if (enable) {
     /* Enable peripheral */
     tmp |= bit;
 
     /* Special case for RS232, if enabled disable shutdown */
-    if ((perf == BSP_RS232A) || (perf == BSP_RS232B))
-    {
+    if ((perf == BSP_RS232A) || (perf == BSP_RS232B)) {
       /* clear shutdown bit */
       tmp &= ~(BC_PERCTRL_RS232_SHUTDOWN);
     }
 
     /* Special case for IRDA if enabled disable shutdown */
-    if (perf == BSP_IRDA)
-    {
+    if (perf == BSP_IRDA) {
       /* clear shutdown bit */
       tmp &= ~(BC_PERCTRL_IRDA_SHUTDOWN);
     }
-  }
-  else
-  {
+  } else {
     /* Disable peripheral */
     tmp &= ~(bit);
 
     /* Special case for RS232, if enabled disable shutdown */
-    if ((perf == BSP_RS232A) || (perf == BSP_RS232B))
-    {
+    if ((perf == BSP_RS232A) || (perf == BSP_RS232B)) {
       /* Set shutdown bit */
       tmp |= (BC_PERCTRL_RS232_SHUTDOWN);
     }
 
     /* Special case for IRDA */
-    if (perf == BSP_IRDA)
-    {
+    if (perf == BSP_IRDA) {
       /* Set shutdown bit */
       tmp |= (BC_PERCTRL_IRDA_SHUTDOWN);
     }
@@ -250,8 +239,7 @@ uint16_t BSP_PushButtonsGet(void)
   /* Check state */
   aemState = BSP_RegisterRead(BC_AEMSTATE);
   /* Read pushbutton status */
-  if (aemState == BC_AEMSTATE_EFM)
-  {
+  if (aemState == BC_AEMSTATE_EFM) {
     pb = (~(BSP_RegisterRead(BC_PUSHBUTTON))) & 0x000f;
   }
   return pb;
@@ -259,7 +247,7 @@ uint16_t BSP_PushButtonsGet(void)
 
 uint16_t BSP_RegisterRead(volatile uint16_t *addr)
 {
-#if defined( BSP_BC_CTRL_EBI )
+#if defined(BSP_BC_CTRL_EBI)
   return *addr;
 #else
   return SpiRegisterRead(addr);
@@ -268,7 +256,7 @@ uint16_t BSP_RegisterRead(volatile uint16_t *addr)
 
 int BSP_RegisterWrite(volatile uint16_t *addr, uint16_t data)
 {
-#if defined( BSP_BC_CTRL_EBI )
+#if defined(BSP_BC_CTRL_EBI)
   *addr = data;
 #else
   SpiRegisterWrite(addr, data);
@@ -277,14 +265,13 @@ int BSP_RegisterWrite(volatile uint16_t *addr, uint16_t data)
   return BSP_STATUS_OK;
 }
 
-#if defined( BSP_BC_CTRL_EBI )
+#if defined(BSP_BC_CTRL_EBI)
 static void EbiConfigure(void)
 {
   EBI_Init_TypeDef ebiConfig = EBI_INIT_DEFAULT;
 
   /* Run time check if we have EBI on-chip capability on this device */
-  switch ( SYSTEM_GetPartNumber() )
-  {
+  switch ( SYSTEM_GetPartNumber() ) {
     /* Only device types EFM32G 280/290/880 and 890 have EBI capability */
     case 280:
     case 290:
@@ -430,8 +417,7 @@ static bool EbiInit(void)
   /* Verify that EBI access is working, if not kit is in SPI mode and needs to
    * be configured for EBI access */
   ebiMagic = BSP_RegisterRead(BC_MAGIC);
-  while ((ebiMagic != BC_MAGIC_VALUE) && retry)
-  {
+  while ((ebiMagic != BC_MAGIC_VALUE) && retry) {
     EbiDisable();
     /* Enable SPI interface */
     SpiInit();
@@ -445,11 +431,15 @@ static bool EbiInit(void)
     EbiConfigure();
     /* Wait until ready */
     ebiMagic = BSP_RegisterRead(BC_MAGIC);
-    if (ebiMagic == BC_MAGIC_VALUE) break;
+    if (ebiMagic == BC_MAGIC_VALUE) {
+      break;
+    }
 
     retry--;
   }
-  if (!retry) return false;
+  if (!retry) {
+    return false;
+  }
 
   BSP_RegisterWrite(BC_LED, retry);
   return true;
@@ -548,12 +538,9 @@ static bool SpiInit(void)
   /* Read "board control Magic" register to verify SPI is up and running */
   /*  if not FPGA is configured to be in EBI mode  */
   bcMagic = SpiRegisterRead(BC_MAGIC);
-  if (bcMagic != BC_MAGIC_VALUE)
-  {
+  if (bcMagic != BC_MAGIC_VALUE) {
     return false;
-  }
-  else
-  {
+  } else {
     return true;
   }
 }
@@ -562,8 +549,7 @@ static uint16_t SpiRegisterRead(volatile uint16_t *addr)
 {
   uint16_t data;
 
-  if (addr != lastAddr)
-  {
+  if (addr != lastAddr) {
     SpiBcAccess(0x00, 0, 0xFFFF & ((uint32_t) addr));           /* LSBs of address */
     SpiBcAccess(0x01, 0, 0xFF & ((uint32_t) addr >> 16));       /* MSBs of address */
     SpiBcAccess(0x02, 0, (0x0C000000 & (uint32_t) addr) >> 26); /* Chip select */
@@ -578,8 +564,7 @@ static uint16_t SpiRegisterRead(volatile uint16_t *addr)
 
 static void SpiRegisterWrite(volatile uint16_t *addr, uint16_t data)
 {
-  if (addr != lastAddr)
-  {
+  if (addr != lastAddr) {
     SpiBcAccess(0x00, 0, 0xFFFF & ((uint32_t) addr));           /* LSBs of address */
     SpiBcAccess(0x01, 0, 0xFF & ((uint32_t) addr >> 16));       /* MSBs of address */
     SpiBcAccess(0x02, 0, (0x0C000000 & (uint32_t) addr) >> 26); /* Chip select */
@@ -589,4 +574,4 @@ static void SpiRegisterWrite(volatile uint16_t *addr, uint16_t data)
 }
 
 /** @endcond */
-#endif  /* BSP_DK_BRD3200 */
+#endif /* BSP_DK_BRD3200 */

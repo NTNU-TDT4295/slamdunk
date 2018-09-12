@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file bsp_stk_ioexp.c
  * @brief Board support package API implementation STK's.
- * @version 5.1.1
+ * @version 5.2.2
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Labs, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -76,12 +76,9 @@ static int i2cReadReg(uint8_t addr, uint8_t *value)
 
   ret = I2CSPM_Transfer(BSP_IOEXP_I2C_DEVICE, &seq);
 
-  if (ret == i2cTransferDone)
-  {
+  if (ret == i2cTransferDone) {
     status = BSP_STATUS_OK;
-  }
-  else
-  {
+  } else {
     status = BSP_STATUS_IOEXP_FAILURE;
   }
 
@@ -116,12 +113,9 @@ static int i2cWriteReg(uint8_t addr, uint8_t value)
 
   ret = I2CSPM_Transfer(BSP_IOEXP_I2C_DEVICE, &seq);
 
-  if (ret == i2cTransferDone)
-  {
+  if (ret == i2cTransferDone) {
     status = BSP_STATUS_OK;
-  }
-  else
-  {
+  } else {
     status = BSP_STATUS_IOEXP_FAILURE;
   }
 
@@ -197,23 +191,19 @@ int ioexpRegBitsSet(uint8_t addr, bool set, uint8_t bitMask)
   ioexpWake();
 
   status = i2cReadReg(addr, &value);
-  if (status != BSP_STATUS_OK)
-  {
+  if (status != BSP_STATUS_OK) {
     goto cleanup;
   }
 
-  if (set)
-  {
+  if (set) {
     value |= bitMask;
-  }
-  else
-  {
+  } else {
     value &= ~bitMask;
   }
 
   status = i2cWriteReg(addr, value);
 
-cleanup:
+  cleanup:
   ioexpSleep();
   return status;
 }
@@ -250,10 +240,10 @@ void ioexpDisable(void)
 {
   /* Reset IO-expander registers */
   ioexpWake();
-  i2cWriteReg(BSP_IOEXP_REG_VCOM_CTRL,   1);
-  i2cWriteReg(BSP_IOEXP_REG_DISP_CTRL,   0);
+  i2cWriteReg(BSP_IOEXP_REG_VCOM_CTRL, 1);
+  i2cWriteReg(BSP_IOEXP_REG_DISP_CTRL, 0);
   i2cWriteReg(BSP_IOEXP_REG_SENSOR_CTRL, 0);
-  i2cWriteReg(BSP_IOEXP_REG_LED_CTRL,    0);
+  i2cWriteReg(BSP_IOEXP_REG_LED_CTRL, 0);
   ioexpSleep();
 }
 
@@ -276,17 +266,16 @@ int ioexpEnable(void)
   I2CSPM_Init(&i2cInit);
 
   /* Check that the device is responding */
-  if (ioexpGetDeviceId() != BSP_IOEXP_DEVICE_ID)
-  {
+  if (ioexpGetDeviceId() != BSP_IOEXP_DEVICE_ID) {
     return BSP_STATUS_IOEXP_FAILURE;
   }
 
   /* Set IOEXP default register content */
   ioexpWake();
-  i2cWriteReg(BSP_IOEXP_REG_VCOM_CTRL,   1);
-  i2cWriteReg(BSP_IOEXP_REG_DISP_CTRL,   0);
+  i2cWriteReg(BSP_IOEXP_REG_VCOM_CTRL, 1);
+  i2cWriteReg(BSP_IOEXP_REG_DISP_CTRL, 0);
   i2cWriteReg(BSP_IOEXP_REG_SENSOR_CTRL, 0);
-  i2cWriteReg(BSP_IOEXP_REG_LED_CTRL,    0);
+  i2cWriteReg(BSP_IOEXP_REG_LED_CTRL, 0);
   ioexpSleep();
 
   return BSP_STATUS_OK;
