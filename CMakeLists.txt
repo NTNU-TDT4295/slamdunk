@@ -59,6 +59,7 @@ include_directories(${BASE_LOCATION}/interrupt)
 set(SOURCES
     source/main.c
     source/setup.h
+    source/serial.c
     emlib/inc/em_chip.h
     emlib/inc/em_cmu.h
     bsp/bsp_bcc.c

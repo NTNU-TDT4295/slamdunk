@@ -105,7 +105,9 @@ void setup_uart(void) {
   BSP_PeripheralAccess(/*BSP_RS232_UART*/1, true);
 
   /* When DVK is configured, and no more DVK access is needed, the interface can safely be disabled to save current */
-  BSP_Disable();
+ BSP_Disable();
+
+ return;
 
   /*  Eternal while loop
    *  CPU will sleep during Rx and Tx. When a byte is transmitted, an interrupt
@@ -153,11 +155,11 @@ void uartSetup(void) {
   /* Prepare struct for initializing UART in asynchronous mode*/
   uartInit.enable       = usartDisable;   	/* Don't enable UART upon intialization */
   uartInit.refFreq      = 0;              	/* Provide information on reference frequency. When set to 0, the reference frequency is */
-  uartInit.baudrate     = 9600;			/* Baud rate */
+  uartInit.baudrate     = 9600;		/* Baud rate */
   uartInit.oversampling = usartOVS16;     	/* Oversampling. Range is 4x, 6x, 8x or 16x */
   uartInit.databits     = usartDatabits8; 	/* Number of data bits. Range is 4 to 10 */
   uartInit.parity       = usartNoParity;  	/* Parity mode */
-  uartInit.stopbits     = usartStopbits2; 	/* Number of stop bits. Range is 0 to 2 */
+  uartInit.stopbits     = usartStopbits1; 	/* Number of stop bits. Range is 0 to 2 */
   uartInit.mvdis        = false;          	/* Disable majority voting */
   uartInit.prsRxEnable  = false;          	/* Enable USART Rx via Peripheral Reflex System */
   uartInit.prsRxCh      = usartPrsRxCh0;  	/* Select PRS channel if enabled */
@@ -334,14 +336,14 @@ void UART1_RX_IRQHandler(void) {
     /* Copy data into RX Buffer */
     uint8_t rxData = USART_Rx(uart);
     GPIO_PinModeSet(gpioPortE, 1, gpioModePushPull, 1);
-    /*rxBuf.data[rxBuf.wrI] = rxData;
+    rxBuf.data[rxBuf.wrI] = rxData;
     rxBuf.wrI             = (rxBuf.wrI + 1) % BUFFERSIZE;
     rxBuf.pendingBytes++;
 
     //Flag Rx overflow
     if (rxBuf.pendingBytes > BUFFERSIZE) {
       rxBuf.overflow = true;
-    }*/
+    }
 
 	recv_callback(rxData);
 
