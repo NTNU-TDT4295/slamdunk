@@ -1,13 +1,4 @@
-#include <stdint.h>
-#include <stdbool.h>
-#include "em_device.h"
-#include "segmentlcd.h"
-#include "em_emu.h"
-#include "em_gpio.h"
-#include "em_rtc.h"
-#include "bsp.h"
-#include "bsp_trace.h"
-#include "gpiointerrupt.h"
+#include "interrupt.h"
 
 #define RTC_FREQ    32768
 
@@ -21,7 +12,7 @@ uint32_t minutes = 0;
  */
 void gpioCallback(uint8_t pin)
 {
-    if(pin == 9)
+    if (pin == 9)
         hours = (hours + 1) % 24;
     else if (pin == 10)
         minutes = (minutes + 1) % 60;
@@ -112,7 +103,7 @@ void clockLoop(void)
     }
 }
 
-void interrupt_test(void)
+void interrupt_test()
 {
     /* Ensure core frequency has been updated */
     SystemCoreClockUpdate();

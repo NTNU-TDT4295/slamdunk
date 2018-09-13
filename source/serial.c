@@ -18,9 +18,23 @@ void recv_char_cb(char c)
 	}
 }
 
-void uart_test(void)
+void init_uart(void)
 {
     /* Setup UART for testing */
     set_recv_callback(&recv_char_cb);
     setup_uart();
+}
+
+void echo_uart()
+{
+	char rx_data;
+
+	/* Echo RX to TX indefinitely */
+	for (;;) {
+        rx_data = uartGetChar();
+
+        if (rx_data) {
+            uartPutChar(rx_data);
+        }
+    }
 }

@@ -1,9 +1,9 @@
 //EFM32 blink test
 
-#include "setup.c"
-#include "lcd.c"
-#include "leds.c"
-#include "interrupt.c"
+#include "setup.h"
+#include "leds.h"
+#include "lcd.h"
+#include "interrupt.h"
 #include "serial.h"
 #include <string.h>
 
@@ -11,28 +11,16 @@ int main(void)
 {
     init();
 
-    /* leds_test(); */
+    // UART
+    init_uart();
+    echo_uart();
 
-    /* BSP_LedsInit(); */
-    /* BSP_LedSet(1); */
+    // LEDS
+    leds_test();
 
-    /* for(;;); */
+    // LCD
+    LCD_test();
 
-    /* for(;;); */
-
-    uart_test();
-
-    char tmp;
-
-    for (;;) {
-        /* uartPutChar('a'); */
-        /* Delay(50); */
-
-        tmp = uartGetChar();
-
-        if (tmp) {
-            BSP_LedToggle(0);
-            uartPutChar(tmp + 2);
-        }
-    }
+    // Interrupts
+    interrupt_test();
 }

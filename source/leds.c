@@ -1,19 +1,14 @@
-#ifndef LED_PIN
-#define LED_PIN     4
-#endif
-#ifndef LED_PORT
-#define LED_PORT    gpioPortA
-#endif
+#include "leds.h"
 
-#include "setup.h"
-#include "bsp.h"
-#include "bsp_trace.h"
-
-void leds_test(void)
+void leds_init()
 {
-    /* Initialize LED driver */
     BSP_LedsInit();
     BSP_LedSet(1);
+}
+
+void leds_test()
+{
+    leds_init();
 
     /* Infinite blink loop */
     while (1)

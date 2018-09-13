@@ -1,12 +1,8 @@
-#include "setup.h"
-#include "segmentlcd.h"
+#include "lcd.h"
 
-/**************************************************************************//**
- * @brief  Main function
- *****************************************************************************/
-void LCD_test(void)
+void LCD_test()
 {
-    /* Enable LCD without voltage boost */
+	/* Enable LCD without voltage boost */
     SegmentLCD_Init(false);
 
     /* Infinite loop with test pattern. */

@@ -1,8 +1,10 @@
+#include <stdint.h>
+#include <stdbool.h>
+#include "em_chip.h"
+#include "em_cmu.h"
 #include "setup.h"
 
 volatile uint32_t msTicks; /* counts 1ms timeTicks */
-
-void Delay(uint32_t dlyTicks);
 
 /*
  * @brief Interrupt Service Routine for system tick counter

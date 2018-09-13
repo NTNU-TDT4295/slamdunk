@@ -8,5 +8,6 @@
 
 void recv_char_cb(char c);
 void uart_test(void);
+void echo_uart();
 
 #endif
