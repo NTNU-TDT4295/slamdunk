@@ -108,7 +108,7 @@ void clockLoop(void)
     while (1)
     {
         //SegmentLCD_Number(minutes * 100 + seconds);
-        snprintf(str, 8, "%02d%02d%02d", hours, minutes, seconds);
+        snprintf(str, 8, "%02ld%02ld%02ld", hours, minutes, seconds);
         SegmentLCD_Write(str);
         SegmentLCD_ARing(i, 1);
         if (++i == 8){

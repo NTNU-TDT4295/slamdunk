@@ -7,7 +7,7 @@
 #include "uart.h"
 
 void recv_char_cb(char c);
-void uart_test(void);
+void init_uart(void);
 void echo_uart();
 
 #endif
