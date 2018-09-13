@@ -17,6 +17,8 @@ void gpioCallback(uint8_t pin)
         hours = (hours + 1) % 24;
     else if (pin == 10)
         minutes = (minutes + 1) % 60;
+
+    inc_clock();
 }
 
 /*
@@ -61,6 +63,15 @@ void RTC_IRQHandler(void)
             }
         }
     }
+    inc_clock();
+}
+
+void inc_clock(void)
+{
+    char str[8];
+    //SegmentLCD_Number(minutes * 100 + seconds);
+    snprintf(str, 8, "%02ld%02ld%02ld", hours, minutes, seconds);
+    SegmentLCD_Write(str);
 }
 
 /*
@@ -101,25 +112,6 @@ void rtcSetup(void)
     /* Start Counter */
     RTC_Enable(true);
 }
-void clockLoop(void)
-{
-    char str[8];
-    int i = 0;
-    while (1)
-    {
-        //SegmentLCD_Number(minutes * 100 + seconds);
-        snprintf(str, 8, "%02ld%02ld%02ld", hours, minutes, seconds);
-        SegmentLCD_Write(str);
-        SegmentLCD_ARing(i, 1);
-        if (++i == 8){
-            i = 1;
-            for (int j = 1; j < 8; j++){
-                SegmentLCD_ARing(j, 0);
-            }
-        }
-        EMU_EnterEM2(true);
-    }
-}
 
 void interrupt_test()
 {
@@ -134,7 +126,4 @@ void interrupt_test()
 
     /* Setup GPIO with interrupts to serve the pushbuttons */
     gpioSetup();
-
-    /* Main function loop */
-    clockLoop();
 }

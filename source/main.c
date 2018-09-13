@@ -12,13 +12,13 @@ int main(void)
     init();
 
     // UART
-    init_uart();
+    //init_uart();
 
     // LEDS
-    leds_test();
+    //leds_test();
 
     // LCD
-    LCD_test();
+    //LCD_test();
 
     // Interrupts
     interrupt_test();
