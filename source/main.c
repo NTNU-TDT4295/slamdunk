@@ -13,7 +13,6 @@ int main(void)
 
     // UART
     init_uart();
-    echo_uart();
 
     // LEDS
     leds_test();

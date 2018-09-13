@@ -12,6 +12,7 @@
 #define LED_PORT    gpioPortA
 #endif
 
+void leds_init();
 void leds_test();
 
 #endif

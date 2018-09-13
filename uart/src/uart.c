@@ -107,6 +107,7 @@ void setup_uart(void) {
   /* When DVK is configured, and no more DVK access is needed, the interface can safely be disabled to save current */
  BSP_Disable();
 
+ /* Return here, as we don't want to loop indefinitely */
  return;
 
   /*  Eternal while loop
@@ -148,14 +149,14 @@ void uartSetup(void) {
   /* Enable clock for GPIO module (required for pin configuration) */
   CMU_ClockEnable(cmuClock_GPIO, true);
   /* Configure GPIO pins */
-  GPIO_PinModeSet(gpioPortE, 2, gpioModePushPull, 1);	//TX
-  GPIO_PinModeSet(gpioPortE, 3, gpioModeInput, 0);	//RX
+  GPIO_PinModeSet(gpioPortB, 9, gpioModePushPull, 1);	//TX
+  GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);	//RX
 
 
   /* Prepare struct for initializing UART in asynchronous mode*/
   uartInit.enable       = usartDisable;   	/* Don't enable UART upon intialization */
   uartInit.refFreq      = 0;              	/* Provide information on reference frequency. When set to 0, the reference frequency is */
-  uartInit.baudrate     = 9600;		/* Baud rate */
+  uartInit.baudrate     = 115200;		/* Baud rate */
   uartInit.oversampling = usartOVS16;     	/* Oversampling. Range is 4x, 6x, 8x or 16x */
   uartInit.databits     = usartDatabits8; 	/* Number of data bits. Range is 4 to 10 */
   uartInit.parity       = usartNoParity;  	/* Parity mode */
@@ -176,7 +177,7 @@ void uartSetup(void) {
   NVIC_EnableIRQ(UART1_TX_IRQn);
 
   /* Enable I/O pins at UART1 location #2 */
-  uart->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC3;
+  uart->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC2;
 
   /* Enable UART */
   USART_Enable(uart, usartEnable);
@@ -345,7 +346,7 @@ void UART1_RX_IRQHandler(void) {
       rxBuf.overflow = true;
     }
 
-	recv_callback(rxData);
+    recv_callback(rxData);
 
     /* Clear RXDATAV interrupt */
     USART_IntClear(UART1, UART_IF_RXDATAV);

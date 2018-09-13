@@ -5,17 +5,13 @@
 
 void recv_char_cb(char c)
 {
-	switch (c) {
-	case 'a':
-		BSP_LedToggle(0);
-		BSP_LedToggle(1);
-		break;
-
-	case 'q':
-		return;
-	default:
-		break;
-	}
+    switch (c) {
+    case 'q':
+        return;
+    default:
+        uartPutChar(c);
+        break;
+    }
 }
 
 void init_uart(void)
@@ -27,10 +23,10 @@ void init_uart(void)
 
 void echo_uart()
 {
-	char rx_data;
+    char rx_data;
 
-	/* Echo RX to TX indefinitely */
-	for (;;) {
+    /* Echo RX to TX indefinitely */
+    for (;;) {
         rx_data = uartGetChar();
 
         if (rx_data) {
