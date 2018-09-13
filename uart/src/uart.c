@@ -81,16 +81,10 @@ volatile struct circularBuffer
 
 
 /* Setup UART1 in async mode for RS232*/
-static USART_TypeDef           * uart   = UART1;
+static USART_TypeDef           * uart0   = UART0;
+static USART_TypeDef           * uart1   = UART1;
 static USART_InitAsync_TypeDef uartInit = USART_INITASYNC_DEFAULT;
 
-
-
-
-/******************************************************************************
- * @brief  Main function
- *
- *****************************************************************************/
 void setup_uart(void) {
   /* Initialize clocks and oscillators */
   cmuSetup( );
@@ -99,13 +93,14 @@ void setup_uart(void) {
   uartSetup( );
 
   /* Initialize Development Kit in EBI mode */
-  BSP_Init(BSP_INIT_DEFAULT);
+  /* BSP_Init(BSP_INIT_DEFAULT); */
 
   /* Enable RS-232 transceiver on Development Kit */
-  BSP_PeripheralAccess(/*BSP_RS232_UART*/1, true);
+  /* BSP_PeripheralAccess(/\*BSP_RS232_UART*\/0, true); */
+  /* BSP_PeripheralAccess(/\*BSP_RS232_UART*\/1, true); */
 
   /* When DVK is configured, and no more DVK access is needed, the interface can safely be disabled to save current */
- BSP_Disable();
+  /* BSP_Disable(); */
 
  /* Return here, as we don't want to loop indefinitely */
  return;
@@ -138,9 +133,6 @@ void setup_uart(void) {
   }
 }
 
-
-
-
 /******************************************************************************
 * @brief  uartSetup function
 *
@@ -149,6 +141,9 @@ void uartSetup(void) {
   /* Enable clock for GPIO module (required for pin configuration) */
   CMU_ClockEnable(cmuClock_GPIO, true);
   /* Configure GPIO pins (portB with 9 and 10 is also usable) */
+  GPIO_PinModeSet(gpioPortE, 0, gpioModePushPull, 1);	//TX
+  GPIO_PinModeSet(gpioPortE, 1, gpioModeInput, 0);	//RX
+
   GPIO_PinModeSet(gpioPortE, 2, gpioModePushPull, 1);	//TX
   GPIO_PinModeSet(gpioPortE, 3, gpioModeInput, 0);	//RX
 
@@ -166,11 +161,19 @@ void uartSetup(void) {
   uartInit.prsRxCh      = usartPrsRxCh0;  	/* Select PRS channel if enabled */
 
   /* Initialize USART with uartInit struct */
-  USART_InitAsync(uart, &uartInit);
+  USART_InitAsync(uart0, &uartInit);
+  USART_InitAsync(uart1, &uartInit);
 
   /* Prepare UART Rx and Tx interrupts */
-  USART_IntClear(uart, _UART_IF_MASK);
-  USART_IntEnable(uart, UART_IF_RXDATAV);
+  USART_IntClear(uart0, _UART_IF_MASK);
+  USART_IntEnable(uart0, UART_IF_RXDATAV);
+  NVIC_ClearPendingIRQ(UART0_RX_IRQn);
+  NVIC_ClearPendingIRQ(UART0_TX_IRQn);
+  NVIC_EnableIRQ(UART0_RX_IRQn);
+  NVIC_EnableIRQ(UART0_TX_IRQn);
+
+  USART_IntClear(uart1, _UART_IF_MASK);
+  USART_IntEnable(uart1, UART_IF_RXDATAV);
   NVIC_ClearPendingIRQ(UART1_RX_IRQn);
   NVIC_ClearPendingIRQ(UART1_TX_IRQn);
   NVIC_EnableIRQ(UART1_RX_IRQn);
@@ -179,13 +182,14 @@ void uartSetup(void) {
   /* Enable I/O pins at UART1 location #2 */
   // LOC3 = PE2/PE3
   // LOC2 = PB9/PB10
-  uart->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC3;
+  // LOC1 = PE0/PE1
+  uart0->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC1;
+  uart1->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC3;
 
   /* Enable UART */
-  USART_Enable(uart, usartEnable);
+  USART_Enable(uart0, usartEnable);
+  USART_Enable(uart1, usartEnable);
 }
-
-
 
 /******************************************************************************
  * @brief  uartGetChar function
@@ -212,9 +216,6 @@ uint8_t uartGetChar() {
   return ch;
 }
 
-
-
-
 /******************************************************************************
  * @brief  uartPutChar function
  *
@@ -235,11 +236,9 @@ void uartPutChar(uint8_t ch) {
   txBuf.pendingBytes++;
 
   /* Enable interrupt on USART TX Buffer*/
-  USART_IntEnable(uart, UART_IF_TXBL);
+  USART_IntEnable(uart0, UART_IF_TXBL);
+  USART_IntEnable(uart1, UART_IF_TXBL);
 }
-
-
-
 
 /******************************************************************************
  * @brief  uartPutData function
@@ -272,7 +271,8 @@ void uartPutData(uint8_t * dataPtr, uint32_t dataLen) {
   txBuf.pendingBytes += dataLen;
 
   /* Enable interrupt on USART TX Buffer*/
-  USART_IntEnable(uart, UART_IF_TXBL);
+  USART_IntEnable(uart0, UART_IF_TXBL);
+  USART_IntEnable(uart1, UART_IF_TXBL);
 }
 
 /******************************************************************************
@@ -321,23 +321,61 @@ void cmuSetup(void) {
   CMU_ClockEnable(cmuClock_HFPER, true);
 
   /* Enable clock for USART module */
+  CMU_ClockEnable(cmuClock_UART0, true);
   CMU_ClockEnable(cmuClock_UART1, true);
 }
 
+void UART0_RX_IRQHandler(void) {
+  /* Check for RX data valid interrupt */
+  if (uart0->STATUS & UART_STATUS_RXDATAV) {
+    /* Copy data into RX Buffer */
+    uint8_t rxData = USART_Rx(uart0);
+    GPIO_PinModeSet(gpioPortE, 1, gpioModePushPull, 1);
+    rxBuf.data[rxBuf.wrI] = rxData;
+    rxBuf.wrI             = (rxBuf.wrI + 1) % BUFFERSIZE;
+    rxBuf.pendingBytes++;
 
-/**************************************************************************//**
- * @brief UART1 RX IRQ Handler
- *
- * Set up the interrupt prior to use
- *
- * Note that this function handles overflows in a very simple way.
- *
- *****************************************************************************/
+    //Flag Rx overflow
+    if (rxBuf.pendingBytes > BUFFERSIZE) {
+      rxBuf.overflow = true;
+    }
+
+    recv_callback(rxData);
+
+    /* Clear RXDATAV interrupt */
+    USART_IntClear(UART0, UART_IF_RXDATAV);
+  }
+}
+
+void UART0_TX_IRQHandler(void) {
+  /* Clear interrupt flags by reading them. */
+  USART_IntGet(UART0);
+
+  /* Check TX buffer level status */
+  if (uart0->STATUS & UART_STATUS_TXBL)
+  {
+	GPIO_PinModeSet(gpioPortE, 0, gpioModePushPull, 1);
+    if (txBuf.pendingBytes > 0)
+    {
+      /* Transmit pending character */
+      USART_Tx(uart0, txBuf.data[txBuf.rdI]);
+      txBuf.rdI = (txBuf.rdI + 1) % BUFFERSIZE;
+      txBuf.pendingBytes--;
+    }
+
+    /* Disable Tx interrupt if no more bytes in queue */
+    if (txBuf.pendingBytes == 0)
+    {
+      USART_IntDisable(uart0, UART_IF_TXBL);
+    }
+  }
+}
+
 void UART1_RX_IRQHandler(void) {
   /* Check for RX data valid interrupt */
-  if (uart->STATUS & UART_STATUS_RXDATAV) {
+  if (uart1->STATUS & UART_STATUS_RXDATAV) {
     /* Copy data into RX Buffer */
-    uint8_t rxData = USART_Rx(uart);
+    uint8_t rxData = USART_Rx(uart1);
     GPIO_PinModeSet(gpioPortE, 1, gpioModePushPull, 1);
     rxBuf.data[rxBuf.wrI] = rxData;
     rxBuf.wrI             = (rxBuf.wrI + 1) % BUFFERSIZE;
@@ -355,24 +393,18 @@ void UART1_RX_IRQHandler(void) {
   }
 }
 
-/**************************************************************************//**
- * @brief UART1 TX IRQ Handler
- *
- * Set up the interrupt prior to use
- *
- *****************************************************************************/
 void UART1_TX_IRQHandler(void) {
   /* Clear interrupt flags by reading them. */
   USART_IntGet(UART1);
 
   /* Check TX buffer level status */
-  if (uart->STATUS & UART_STATUS_TXBL)
+  if (uart1->STATUS & UART_STATUS_TXBL)
   {
 	GPIO_PinModeSet(gpioPortE, 0, gpioModePushPull, 1);
     if (txBuf.pendingBytes > 0)
     {
       /* Transmit pending character */
-      USART_Tx(uart, txBuf.data[txBuf.rdI]);
+      USART_Tx(uart1, txBuf.data[txBuf.rdI]);
       txBuf.rdI = (txBuf.rdI + 1) % BUFFERSIZE;
       txBuf.pendingBytes--;
     }
@@ -380,11 +412,10 @@ void UART1_TX_IRQHandler(void) {
     /* Disable Tx interrupt if no more bytes in queue */
     if (txBuf.pendingBytes == 0)
     {
-      USART_IntDisable(uart, UART_IF_TXBL);
+      USART_IntDisable(uart1, UART_IF_TXBL);
     }
   }
 }
-
 
 void test_callback() {(*recv_callback)('a');}
 void set_recv_callback(void (*f)(char)) {recv_callback = f;}
