@@ -5,6 +5,7 @@
 /* Initial setup to 12:00 */
 uint32_t hours   = 12;
 uint32_t minutes = 0;
+uint32_t seconds = 0;
 
 /*
  * @brief  Gpio callback
@@ -46,14 +47,18 @@ void RTC_IRQHandler(void)
     RTC_IntClear(RTC_IFC_COMP0);
 
     /* Increase time by one minute */
-    minutes++;
-    if (minutes > 59)
-    {
-        minutes = 0;
-        hours++;
-        if (hours > 23)
+    seconds++;
+    if(seconds > 59){
+        seconds = 0;
+        minutes++;
+        if (minutes > 59)
         {
-            hours = 0;
+            minutes = 0;
+            hours++;
+            if (hours > 23)
+            {
+                hours = 0;
+            }
         }
     }
 }
@@ -64,8 +69,6 @@ void RTC_IRQHandler(void)
  */
 void rtcSetup(void)
 {
-    RTC_Init_TypeDef rtcInit = RTC_INIT_DEFAULT;
-
     /* Enable LE domain registers */
     CMU_ClockEnable(cmuClock_CORELE, true);
 
@@ -79,13 +82,17 @@ void rtcSetup(void)
     CMU_ClockEnable(cmuClock_RTC, true);
 
     /* Initialize RTC */
+    RTC_Init_TypeDef rtcInit = RTC_INIT_DEFAULT;
+
     rtcInit.enable   = false;  /* Do not start RTC after initialization is complete. */
     rtcInit.debugRun = false;  /* Halt RTC when debugging. */
     rtcInit.comp0Top = true;   /* Wrap around on COMP0 match. */
     RTC_Init(&rtcInit);
 
     /* Interrupt every minute */
-    RTC_CompareSet(0, ((RTC_FREQ / 32) * 60 ) - 1 );
+    //RTC_CompareSet(0, ((RTC_FREQ / 32) * 60) - 1 );
+    /* Interrupt every second */
+    RTC_CompareSet(0, (RTC_FREQ / 32) - 1 );
 
     /* Enable interrupt */
     NVIC_EnableIRQ(RTC_IRQn);
@@ -96,9 +103,20 @@ void rtcSetup(void)
 }
 void clockLoop(void)
 {
+    char str[8];
+    int i = 0;
     while (1)
     {
-        SegmentLCD_Number(hours * 100 + minutes);
+        //SegmentLCD_Number(minutes * 100 + seconds);
+        snprintf(str, 8, "%02d%02d%02d", hours, minutes, seconds);
+        SegmentLCD_Write(str);
+        SegmentLCD_ARing(i, 1);
+        if (++i == 8){
+            i = 1;
+            for (int j = 1; j < 8; j++){
+                SegmentLCD_ARing(j, 0);
+            }
+        }
         EMU_EnterEM2(true);
     }
 }
