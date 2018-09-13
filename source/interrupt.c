@@ -66,7 +66,7 @@ void RTC_IRQHandler(void)
     inc_clock();
 }
 
-void inc_clock(void)
+void inc_clock()
 {
     char str[8];
     //SegmentLCD_Number(minutes * 100 + seconds);

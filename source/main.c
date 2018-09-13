@@ -11,15 +11,14 @@ int main(void)
 {
     init();
 
+    // Interrupts (works with LCD)
+    /* interrupt_test(); */
+
     // UART
-    //init_uart();
+    init_uart();
 
-    // LEDS
-    //leds_test();
+    // LEDS, (disabled for now, as they collide with UART)
+    /* leds_test(); */
 
-    // LCD
-    //LCD_test();
-
-    // Interrupts
-    interrupt_test();
+    for (;;);
 }

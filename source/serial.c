@@ -2,20 +2,44 @@
 #include "bsp_trace.h"
 #include "setup.h"
 #include "uart.h"
+#include "segmentlcd.h"
+#include <stdio.h>
 
 void recv_char_cb(char c)
 {
-    switch (c) {
-    case 'q':
-        return;
+	static char str[8];
+	static int idx = 0;
+
+	switch (c) {
+	case 8:
+		if (idx != 0) {
+			str[--idx] = 0;
+		}
+		break;
+	case 13:
+		for (size_t i = 0; i < 8; ++i) {
+			str[i] = 0;
+			idx = 0;
+		}
+		break;
     default:
         uartPutChar(c);
         break;
     }
+
+	if (c >= 'a' && c <= 'z') {
+		str[idx] = c - 32;
+		idx = idx == 7 ? 7 : idx + 1;
+	}
+
+	SegmentLCD_Write(str);
 }
 
 void init_uart(void)
 {
+	/* LCD for proof of concept, remove later */
+	SegmentLCD_Init(false);
+
     /* Setup UART for testing */
     set_recv_callback(&recv_char_cb);
     setup_uart();

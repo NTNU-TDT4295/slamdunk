@@ -148,9 +148,9 @@ void setup_uart(void) {
 void uartSetup(void) {
   /* Enable clock for GPIO module (required for pin configuration) */
   CMU_ClockEnable(cmuClock_GPIO, true);
-  /* Configure GPIO pins */
-  GPIO_PinModeSet(gpioPortB, 9, gpioModePushPull, 1);	//TX
-  GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);	//RX
+  /* Configure GPIO pins (portB with 9 and 10 is also usable) */
+  GPIO_PinModeSet(gpioPortE, 2, gpioModePushPull, 1);	//TX
+  GPIO_PinModeSet(gpioPortE, 3, gpioModeInput, 0);	//RX
 
 
   /* Prepare struct for initializing UART in asynchronous mode*/
@@ -177,7 +177,9 @@ void uartSetup(void) {
   NVIC_EnableIRQ(UART1_TX_IRQn);
 
   /* Enable I/O pins at UART1 location #2 */
-  uart->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC2;
+  // LOC3 = PE2/PE3
+  // LOC2 = PB9/PB10
+  uart->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC3;
 
   /* Enable UART */
   USART_Enable(uart, usartEnable);

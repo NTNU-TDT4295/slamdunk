@@ -14,6 +14,7 @@
 #include "gpiointerrupt.h"
 #include "segmentlcd.h"
 
+void inc_clock();
 void interrupt_test();
 
 #endif
