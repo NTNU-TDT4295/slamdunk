@@ -1,23 +1,20 @@
-#include "bsp.h"
-#include "bsp_trace.h"
-#include "setup.h"
-#include "uart.h"
-#include "segmentlcd.h"
 #include <stdio.h>
+
+#include "serial.h"
 
 void recv_char_cb(char c)
 {
-	static char str[8];
+	static char str[LCD_BUFFER_SIZE];
 	static int idx = 0;
 
 	switch (c) {
-	case 8:
+	case BACKSPACE:
 		if (idx != 0) {
 			str[--idx] = 0;
 		}
 		break;
-	case 13:
-		for (size_t i = 0; i < 8; ++i) {
+	case ENTER:
+		for (size_t i = 0; i < LCD_BUFFER_SIZE; ++i) {
 			str[i] = 0;
 			idx = 0;
 		}
@@ -25,11 +22,13 @@ void recv_char_cb(char c)
     default:
         uartPutChar(c);
         break;
-    }
+	}
 
-	if (c >= 'a' && c <= 'z') {
+	if ('a' <= c && c <= 'z') {
 		str[idx] = c - 32;
-		idx = idx == 7 ? 7 : idx + 1;
+		idx = idx == SEGMENT_LCD_NUM_BLOCK_COLUMNS
+			? SEGMENT_LCD_NUM_BLOCK_COLUMNS
+			: idx + 1;
 	}
 
 	SegmentLCD_Write(str);
@@ -48,7 +47,6 @@ void init_uart(void)
 void echo_uart()
 {
     char rx_data;
-
     /* Echo RX to TX indefinitely */
     for (;;) {
         rx_data = uartGetChar();
