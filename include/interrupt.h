@@ -16,5 +16,6 @@
 
 void inc_clock();
 void interrupt_test();
+void rtcSetup();
 
 #endif

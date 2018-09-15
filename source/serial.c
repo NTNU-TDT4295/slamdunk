@@ -70,7 +70,7 @@ uint8_t i2c_rxBufferIndex;
 volatile bool i2c_rxInProgress;
 volatile bool i2c_startTx;
 
-I2C_TransferReturn_TypeDef I2C_Status;
+I2C_TransferReturn_TypeDef I2CStatus;
 
 void init_i2c(void)
 {
@@ -111,7 +111,7 @@ void performI2CTransfer(void)
 
 	/* uint8_t data[] = "\x3D\x08"; */
 	/* uint8_t dataLen = sizeof(data); */
-	uint8_t data[] = "\x3D\x08";
+	uint8_t data[] = "\x3D\x0C";
 	uint8_t dataLen = sizeof(data);
 
 	/* Initializing I2C transfer */
@@ -155,19 +155,18 @@ void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
 	i2cTransfer.flags = I2C_FLAG_WRITE_READ;
 
 	i2cTransfer.buf[0].data = regid;
-	i2cTransfer.buf[0].len = bytes;
+	i2cTransfer.buf[0].len = 1;
 
-	// Only read one byte, 7 is not a valid status (debugging purposes)
 	i2cTransfer.buf[1].data = buf;
 	i2cTransfer.buf[1].len = bytes;
 
-	I2C_TransferInit(I2C0, &i2cTransfer);
+	I2CStatus = I2C_TransferInit(I2C0, &i2cTransfer);
 
 	I2C_TransferReturn_TypeDef ret = I2C_Transfer(I2C0);
 
 	/* Waiting for data */
-	while (ret == i2cTransferInProgress) {
-		ret = I2C_Transfer(I2C0);
+	while (I2CStatus == i2cTransferInProgress) {
+		I2CStatus = I2C_Transfer(I2C0);
 	}
 
 	/* Clearing pin to indicate end of transfer */
@@ -175,6 +174,11 @@ void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
 }
 
 void I2C0_IRQHandler(void)
+{
+	;
+}
+
+void RTC_IRQHandler(void)
 {
 	;
 }

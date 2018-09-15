@@ -43,28 +43,28 @@ void gpioSetup(void)
     GPIOINT_CallbackRegister(10, gpioCallback);
 }
 
-void RTC_IRQHandler(void)
-{
-    /* Clear interrupt source */
-    RTC_IntClear(RTC_IFC_COMP0);
+/* void RTC_IRQHandler(void) */
+/* { */
+/*     /\* Clear interrupt source *\/ */
+/*     RTC_IntClear(RTC_IFC_COMP0); */
 
-    /* Increase time by one minute */
-    seconds++;
-    if(seconds > 59){
-        seconds = 0;
-        minutes++;
-        if (minutes > 59)
-        {
-            minutes = 0;
-            hours++;
-            if (hours > 23)
-            {
-                hours = 0;
-            }
-        }
-    }
-    inc_clock();
-}
+/*     /\* Increase time by one minute *\/ */
+/*     seconds++; */
+/*     if(seconds > 59){ */
+/*         seconds = 0; */
+/*         minutes++; */
+/*         if (minutes > 59) */
+/*         { */
+/*             minutes = 0; */
+/*             hours++; */
+/*             if (hours > 23) */
+/*             { */
+/*                 hours = 0; */
+/*             } */
+/*         } */
+/*     } */
+/*     inc_clock(); */
+/* } */
 
 void inc_clock()
 {
