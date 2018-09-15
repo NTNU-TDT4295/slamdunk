@@ -57,11 +57,12 @@ void echo_uart()
     }
 }
 
-
-
-
 ////////////////
-uint8_t i2c_txBuffer[] = "Gecko";
+// I2C
+////////////////
+
+// \x3D is OPR_MODE_ADDR, \x08 is IMU_PLUS (IMU) mode
+uint8_t i2c_txBuffer[] = "\x3D\x08";
 uint8_t i2c_txBufferSize = sizeof(i2c_txBuffer);
 uint8_t i2c_rxBuffer[I2C_RXBUFFER_SIZE];
 uint8_t i2c_rxBufferIndex;
@@ -69,11 +70,11 @@ uint8_t i2c_rxBufferIndex;
 volatile bool i2c_rxInProgress;
 volatile bool i2c_startTx;
 
+I2C_TransferReturn_TypeDef I2C_Status;
 
 void init_i2c(void)
 {
-
-    CMU_ClockEnable(cmuClock_I2C0, true);
+	CMU_ClockEnable(cmuClock_I2C0, true);
 
 	// Using default settings
 	I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
@@ -95,24 +96,7 @@ void init_i2c(void)
 	i2c_rxInProgress = false;
 	i2c_startTx = false;
 	i2c_rxBufferIndex = 0;
-
-	/* Setting up to enable slave mode */
-	I2C0->SADDR = I2C_ADDRESS;
-	I2C0->CTRL |= I2C_CTRL_SLAVE | I2C_CTRL_AUTOACK | I2C_CTRL_AUTOSN;
-	enableI2cSlaveInterrupts();
-
-
-        //
-
 }
-
-void enableI2cSlaveInterrupts(void)
-{
-	I2C_IntClear(I2C0, I2C_IEN_ADDR | I2C_IEN_RXDATAV | I2C_IEN_SSTOP);
-	I2C_IntEnable(I2C0, I2C_IEN_ADDR | I2C_IEN_RXDATAV | I2C_IEN_SSTOP);
-	NVIC_EnableIRQ(I2C0_IRQn);
-}
-
 
 /**************************************************************************/ /**
  * @brief  Transmitting I2C data. Will busy-wait until the transfer is complete.
@@ -125,69 +109,72 @@ void performI2CTransfer(void)
 	/* Setting pin to indicate transfer */
 	GPIO_PinOutSet(gpioPortC, 0);
 
+	/* uint8_t data[] = "\x3D\x08"; */
+	/* uint8_t dataLen = sizeof(data); */
+	uint8_t data[] = "\x3D\x08";
+	uint8_t dataLen = sizeof(data);
+
 	/* Initializing I2C transfer */
 	i2cTransfer.addr = I2C_ADDRESS;
 	i2cTransfer.flags = I2C_FLAG_WRITE;
-	i2cTransfer.buf[0].data = i2c_txBuffer;
-	i2cTransfer.buf[0].len = i2c_txBufferSize;
+
+	i2cTransfer.buf[0].data = data;
+	i2cTransfer.buf[0].len = dataLen;
 	i2cTransfer.buf[1].data = i2c_rxBuffer;
 	i2cTransfer.buf[1].len = I2C_RXBUFFER_SIZE;
+
 	I2C_TransferInit(I2C0, &i2cTransfer);
 
+	I2C_TransferReturn_TypeDef ret = I2C_Transfer(I2C0);
+
 	/* Sending data */
-	while (I2C_Transfer(I2C0) == i2cTransferInProgress) {
-		;
+	while (ret == i2cTransferInProgress) {
+		ret = I2C_Transfer(I2C0);
+		uartPutChar((uint8_t) ret);
 	}
 
 	/* Clearing pin to indicate end of transfer */
 	GPIO_PinOutClear(gpioPortC, 0);
-	enableI2cSlaveInterrupts();
 }
 
-/**************************************************************************/ /**
- * @brief I2C Interrupt Handler.
- *        The interrupt table is in assembly startup file startup_efm32.s
- *****************************************************************************/
+void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
+{
+	/* Transfer structure */
+	I2C_TransferSeq_TypeDef i2cTransfer;
+
+	uint8_t regid[1] = { reg };
+
+	// EULER data registers
+	// 0x1A to 0x1F, 0x1A is LSB 0x1B is MSB of 16-bit value
+
+	/* Setting pin to indicate transfer */
+	GPIO_PinOutSet(gpioPortC, 0);
+
+	/* Initializing I2C transfer */
+	i2cTransfer.addr = I2C_ADDRESS;
+	i2cTransfer.flags = I2C_FLAG_WRITE_READ;
+
+	i2cTransfer.buf[0].data = regid;
+	i2cTransfer.buf[0].len = bytes;
+
+	// Only read one byte, 7 is not a valid status (debugging purposes)
+	i2cTransfer.buf[1].data = buf;
+	i2cTransfer.buf[1].len = bytes;
+
+	I2C_TransferInit(I2C0, &i2cTransfer);
+
+	I2C_TransferReturn_TypeDef ret = I2C_Transfer(I2C0);
+
+	/* Waiting for data */
+	while (ret == i2cTransferInProgress) {
+		ret = I2C_Transfer(I2C0);
+	}
+
+	/* Clearing pin to indicate end of transfer */
+	GPIO_PinOutClear(gpioPortC, 0);
+}
+
 void I2C0_IRQHandler(void)
 {
-	int status;
-        	    uartPutChar('A');
-
-	status = I2C0->IF;
-
-	if (status & I2C_IF_ADDR) {
-		/* Address Match */
-		/* Indicating that reception is started */
-		i2c_rxInProgress = true;
-		I2C0->RXDATA;
-
-		I2C_IntClear(I2C0, I2C_IFC_ADDR);
-
-
-	} else if (status & I2C_IF_RXDATAV) {
-		/* Data received */
-		i2c_rxBuffer[i2c_rxBufferIndex] = I2C0->RXDATA;
-		i2c_rxBufferIndex++;
-	}
-
-	if (status & I2C_IEN_SSTOP) {
-		/* Stop received, reception is ended */
-		I2C_IntClear(I2C0, I2C_IEN_SSTOP);
-		i2c_rxInProgress = false;
-		i2c_rxBufferIndex = 0;
-	}
-}
-
-
-/**************************************************************************/ /**
- * @brief  Receiving I2C data. Along with the I2C interrupt, it will keep the 
-  EFM32 in EM1 while the data is received.
- *****************************************************************************/
-void receiveI2CData(void)
-{
-	while (i2c_rxInProgress) {
-	    uartPutChar('A');
-	/* EMU_EnterEM1(); */
-	}
-
+	;
 }

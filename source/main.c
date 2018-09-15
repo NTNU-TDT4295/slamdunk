@@ -20,32 +20,33 @@
 
 int main(void)
 {
-    init();
+	init();
 
-    // Interrupts (works with LCD)
-    /* interrupt_test(); */
+	// Interrupts (works with LCD)
+	/* interrupt_test(); */
 
-    // UART
-    init_uart();
+	// UART
+	init_uart();
 
+	// I2C
+	init_i2c();
+
+	// Setup the BNO055
+	performI2CTransfer();
+
+	uint8_t buf[1] = { 7 };
 
 	while (1) {
-		if (i2c_rxInProgress) {
-			/* Receiving data */
-            receiveI2CData();
-		}/*  else if (i2c_startTx) { */
-		/* 	/\* Transmitting data *\/ */
-		/* 	performI2CTransfer(); */
-		/* 	/\* Transmission complete *\/ */
-		/* 	i2c_startTx = false; */
-		/* } */
-
-		/* Forever enter EM2. The RTC or I2C will wake up the EFM32 */
-		/* EMU_EnterEM2(false); */
+		// Fetch system status
+		performI2CRead(BNO055_SYS_STAT_ADDR, buf, 1);
+		uartPutChar('a');
+		uartPutChar(buf[0]);
+		uartPutChar('b');
+		Delay(1000);
 	}
-    
-	// LEDS, (disabled for now, as they collide with UART)
-    /* leds_test(); */
 
-    for (;;);
+	// LEDS, (disabled for now, as they collide with UART)
+	/* leds_test(); */
+
+	for (;;);
 }
