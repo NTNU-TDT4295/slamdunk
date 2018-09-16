@@ -14,5 +14,7 @@ struct WindowFrameInfo {
 
 	struct {
 		unsigned int width, height;
+
+		bool focused;
 	} window;
 };

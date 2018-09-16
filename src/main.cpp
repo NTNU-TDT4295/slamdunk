@@ -297,8 +297,9 @@ int main(int argc, char **argv)
 
 	while (!should_exit) {
 		XEvent event;
-		bool key_down = false;
 		while (XPending(display) > 0) {
+			bool key_down = true;
+
 			XNextEvent(display, &event);
 			switch (event.type) {
 			case ConfigureNotify:
@@ -315,15 +316,37 @@ int main(int argc, char **argv)
 				}
 				break;
 
+			case EnterNotify:
+			case FocusIn:
+				frame_info.window.focused = true;
+				break;
+
+			case LeaveNotify:
 			case FocusOut:
+				frame_info.window.focused = false;
 #define KEYBINDING(name, key) frame_info.keyboard.name = false;
 #include "keybindings.h"
 #undef KEYBINDING
 				break;
 
-			case KeyPress:
-				key_down = true;
-			case KeyRelease: {
+			case KeyRelease:
+				key_down = false;
+
+				// Check for key-repeat
+				if (XEventsQueued(display, QueuedAfterReading)) {
+					XEvent next_event;
+					XPeekEvent(display, &next_event);
+
+
+					if (next_event.type == KeyPress &&
+						next_event.xkey.time == event.xkey.time &&
+						next_event.xkey.keycode == event.xkey.keycode) {
+
+						break;
+					}
+				}
+
+			case KeyPress: {
 				KeySym keysym;
 				unsigned int mods;
 
@@ -334,22 +357,28 @@ int main(int argc, char **argv)
 #undef KEYBINDING
 				}
 			} break;
+
+			default:
+				printf("Skipping event %d\n", event.type);
+				break;
 			}
 		}
 
-		int pointer_x, pointer_y, _dc_int;
+		int pointer_x = 0, pointer_y = 0, _dc_int;
 		unsigned int _dc_uint;
 		Window _dc_win;
 
-		XQueryPointer(display, window, &_dc_win, &_dc_win,
-					  &_dc_int, &_dc_int,
-					  &pointer_x, &pointer_y, &_dc_uint);
+		if (frame_info.window.focused) {
+			XQueryPointer(display, window, &_dc_win, &_dc_win,
+						&_dc_int, &_dc_int,
+						&pointer_x, &pointer_y, &_dc_uint);
 
-		pointer_x -= window_width / 2;
-		pointer_y -= window_height / 2;
+			pointer_x -= window_width / 2;
+			pointer_y -= window_height / 2;
 
-		XWarpPointer(display, None, window, 0, 0, 0, 0, window_width / 2, window_height / 2);
-		XSync(display, False);
+			XWarpPointer(display, None, window, 0, 0, 0, 0, window_width / 2, window_height / 2);
+			XSync(display, False);
+		}
 
 		frame_info.mouse.dx = pointer_x;
 		frame_info.mouse.dy = pointer_y;
