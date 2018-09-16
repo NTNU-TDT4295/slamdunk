@@ -47,8 +47,6 @@ static void update_camera(PointCloudContext &ctx, const WindowFrameInfo &frame) 
 		glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE,
 						   glm::value_ptr(projection_matrix));
 		glUseProgram(0);
-
-		glViewport(0, 0, frame.window.width, frame.window.height);
 	}
 
 	ctx.camera.yaw += (float)frame.mouse.dx * 0.005f;

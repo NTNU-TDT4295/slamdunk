@@ -16,6 +16,9 @@
 #include "window.h"
 #include "point_cloud.h"
 
+constexpr int INITIAL_WINDOW_WIDTH = 800;
+constexpr int INITIAL_WINDOW_HEIGHT = 800;
+
 static bool should_exit = false;
 
 static int context_error_handler(Display *display, XErrorEvent *ev) {
@@ -53,7 +56,6 @@ int main(int argc, char **argv)
 	Colormap colormap;
 	GLXContext gl_context = NULL;
 	Atom WM_DELETE_WINDOW;
-	int window_width = 800, window_height = 600;
 
 	display = XOpenDisplay(0);
 
@@ -125,7 +127,7 @@ int main(int argc, char **argv)
 	window = XCreateWindow(
 		display,
 		root_window,
-		0, 0, window_width, window_height, // x, y, width, height
+		0, 0, INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, // x, y, width, height
 		0, // border
 		visual->depth,
 		InputOutput, // class
@@ -225,10 +227,10 @@ int main(int argc, char **argv)
 				 GrabModeAsync, GrabModeAsync,
 				 window, blank_cursor, CurrentTime);
 
-	WindowFrameInfo frame_info = {0};
-	frame_info.window.dimentions_changed = true;
-	frame_info.window.width = window_width;
-	frame_info.window.height = window_height;
+	WindowFrameInfo frame = {0};
+	frame.window.width = INITIAL_WINDOW_WIDTH;
+	frame.window.height = INITIAL_WINDOW_HEIGHT;
+	frame.window.dimentions_changed = true;
 
 	PointCloudContext point_cloud_context = {};
 	init_point_cloud(point_cloud_context);
@@ -241,10 +243,13 @@ int main(int argc, char **argv)
 			XNextEvent(display, &event);
 			switch (event.type) {
 			case ConfigureNotify:
-				if (event.xconfigure.width != window_width ||
-					event.xconfigure.height != window_height) {
-					window_width = event.xconfigure.width;
-					window_height = event.xconfigure.height;
+				if (event.xconfigure.width != frame.window.width ||
+					event.xconfigure.height != frame.window.height) {
+					frame.window.width  = event.xconfigure.width;
+					frame.window.height = event.xconfigure.height;
+					frame.window.dimentions_changed = true;
+
+					glViewport(0, 0, frame.window.width, frame.window.height);
 				}
 				break;
 
@@ -256,13 +261,13 @@ int main(int argc, char **argv)
 
 			case EnterNotify:
 			case FocusIn:
-				frame_info.window.focused = true;
+				frame.window.focused = true;
 				break;
 
 			case LeaveNotify:
 			case FocusOut:
-				frame_info.window.focused = false;
-#define KEYBINDING(name, key) frame_info.keyboard.name = false;
+				frame.window.focused = false;
+#define KEYBINDING(name, key) frame.keyboard.name = false;
 #include "keybindings.h"
 #undef KEYBINDING
 				break;
@@ -289,7 +294,7 @@ int main(int argc, char **argv)
 
 				XkbLookupKeySym(display, event.xkey.keycode, 0, &mods, &keysym);
 				switch (keysym) {
-#define KEYBINDING(name, key) case key: frame_info.keyboard.name = key_down; break;
+#define KEYBINDING(name, key) case key: frame.keyboard.name = key_down; break;
 #include "keybindings.h"
 #undef KEYBINDING
 				}
@@ -305,26 +310,28 @@ int main(int argc, char **argv)
 		unsigned int _dc_uint;
 		Window _dc_win;
 
-		if (frame_info.window.focused) {
+		if (frame.window.focused) {
 			XQueryPointer(display, window, &_dc_win, &_dc_win,
 						&_dc_int, &_dc_int,
 						&pointer_x, &pointer_y, &_dc_uint);
 
-			pointer_x -= window_width / 2;
-			pointer_y -= window_height / 2;
+			pointer_x -= frame.window.width / 2;
+			pointer_y -= frame.window.height / 2;
 
-			XWarpPointer(display, None, window, 0, 0, 0, 0, window_width / 2, window_height / 2);
+			XWarpPointer(display, None, window, 0, 0, 0, 0,
+						 frame.window.width / 2,
+						 frame.window.height / 2);
 			XSync(display, False);
 		}
 
-		frame_info.mouse.dx = pointer_x;
-		frame_info.mouse.dy = pointer_y;
+		frame.mouse.dx = pointer_x;
+		frame.mouse.dy = pointer_y;
 
-		tick_point_cloud(point_cloud_context, frame_info);
+		tick_point_cloud(point_cloud_context, frame);
 
 		glXSwapBuffers(display, window);
 
-		frame_info.window.dimentions_changed = false;
+		frame.window.dimentions_changed = false;
 	}
 
 	glXMakeCurrent(display, None, NULL);

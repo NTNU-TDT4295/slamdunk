@@ -13,7 +13,7 @@ struct WindowFrameInfo {
 	} mouse;
 
 	struct {
-		unsigned int width, height;
+		int width, height;
 		bool dimentions_changed;
 
 		bool focused;
