@@ -351,10 +351,13 @@ int main(int argc, char **argv)
 		XWarpPointer(display, None, window, 0, 0, 0, 0, window_width / 2, window_height / 2);
 		XSync(display, False);
 
-		camera_yaw += (float)pointer_x * 0.005f;
+		frame_info.mouse.dx = pointer_x;
+		frame_info.mouse.dy = pointer_y;
+
+		camera_yaw += (float)frame_info.mouse.dx * 0.005f;
 		camera_yaw -= floor(camera_yaw);
 
-		camera_pitch += (float)pointer_y * 0.005f;
+		camera_pitch += (float)frame_info.mouse.dy * 0.005f;
 		if (camera_pitch > 1.0f) {
 			camera_pitch = 1.0f;
 		} else if (camera_pitch < -1.0f) {
@@ -366,9 +369,6 @@ int main(int argc, char **argv)
 
 		if (frame_info.keyboard.left)     {move_delta.x -= 1.0f;}
 		if (frame_info.keyboard.right)    {move_delta.x += 1.0f;}
-
-		if (frame_info.keyboard.up)       {move_delta.y += 1.0f;}
-		if (frame_info.keyboard.down)     {move_delta.y -= 1.0f;}
 
 		if (frame_info.keyboard.forward)  {move_delta.z -= 1.0f;}
 		if (frame_info.keyboard.backward) {move_delta.z += 1.0f;}
@@ -383,9 +383,8 @@ int main(int argc, char **argv)
 		if (move_delta.z != 0.0f) {
 			move_final.x += -sin(PI*2*camera_yaw)/move_delta.z;
 			move_final.z += cos(PI*2*camera_yaw)/move_delta.z;
+			move_final.y += sin(PI*camera_pitch)/move_delta.z;
 		}
-
-		move_final.y = move_delta.y;
 
 		camera_position += move_final * 0.1f;
 
