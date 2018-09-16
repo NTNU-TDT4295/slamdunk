@@ -11,6 +11,7 @@ struct arena {
 };
 
 int arena_init(arena *arena, size_t capacity);
+void arena_free(arena *arena);
 void *arena_alloc(arena *arena, size_t length);
 
 void arena_print_usage(arena *arena);

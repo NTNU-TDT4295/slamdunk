@@ -5,9 +5,6 @@
 #include <X11/XKBlib.h>
 #include <X11/cursorfont.h>
 
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "utils.h"
 #include "arena.h"
 #include "glad/glad_glx.h"
@@ -17,6 +14,7 @@
 #include "string.h"
 #include "octree.h"
 #include "window.h"
+#include "point_cloud.h"
 
 static bool should_exit = false;
 
@@ -201,74 +199,8 @@ int main(int argc, char **argv)
 	setup_gl_debug_output();
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	model mdl;
-	arena transient;
-
-	arena_init(&transient, MEGABYTE(1));
-
-	if (!load_obj_file(transient, STR("assets/models/room.obj"), &mdl)) {
-		print_error("model", "Failed to load model!");
-		return -1;
-	}
-
-	GLuint triangle_vao, triangle_buffer;
-
-	glGenVertexArrays(1, &triangle_vao);
-	glBindVertexArray(triangle_vao);
-
-	glGenBuffers(1, &triangle_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, triangle_buffer);
-
-	vec3 triangle_data[] = {
-		{-1.0, -1.0, 0.0f},
-		{ 1.0, -1.0, 0.0f},
-		{ 0.0,  1.0, 0.0f}
-	};
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_data), triangle_data, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	GLuint vshader, fshader, shader,
-		uniform_in_matrix, uniform_in_projection_matrix,
-		uniform_emission_color, uniform_diffuse_color;
-
-	vshader = create_shader_from_file("assets/shaders/test.vsh", GL_VERTEX_SHADER);
-	fshader = create_shader_from_file("assets/shaders/test.fsh", GL_FRAGMENT_SHADER);
-
-	shader = glCreateProgram();
-
-	glAttachShader(shader, vshader);
-	glAttachShader(shader, fshader);
-
-	link_shader_program(shader);
-
-	uniform_in_matrix = glGetUniformLocation(shader, "in_matrix");
-	uniform_in_projection_matrix = glGetUniformLocation(shader, "in_projection_matrix");
-	uniform_emission_color = glGetUniformLocation(shader, "emission_color");
-	uniform_diffuse_color = glGetUniformLocation(shader, "diffuse_color");
-
-	glViewport(0, 0, window_width, window_height);
-
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-
-	mat4 projection_matrix;
-	vec3 camera_position = {
-		0.0f, 1.8f, 0.0f
-	};
-	float camera_yaw = 0.0f, camera_pitch = 0.0f;
-
-	projection_matrix = glm::perspective(45.0f, (float)window_width/(float)window_height, 0.01f, 100.0f);
-
-	glUseProgram(shader);
-	glUniformMatrix4fv(uniform_in_projection_matrix, 1, GL_FALSE, glm::value_ptr(projection_matrix));
-	glUseProgram(0);
 
 	Pixmap blank_cursor_pixmap;
 	XColor blank_cursor_dummy_color;
@@ -294,6 +226,12 @@ int main(int argc, char **argv)
 				 window, blank_cursor, CurrentTime);
 
 	WindowFrameInfo frame_info = {0};
+	frame_info.window.dimentions_changed = true;
+	frame_info.window.width = window_width;
+	frame_info.window.height = window_height;
+
+	PointCloudContext point_cloud_context = {};
+	init_point_cloud(point_cloud_context);
 
 	while (!should_exit) {
 		XEvent event;
@@ -336,7 +274,6 @@ int main(int argc, char **argv)
 				if (XEventsQueued(display, QueuedAfterReading)) {
 					XEvent next_event;
 					XPeekEvent(display, &next_event);
-
 
 					if (next_event.type == KeyPress &&
 						next_event.xkey.time == event.xkey.time &&
@@ -383,71 +320,11 @@ int main(int argc, char **argv)
 		frame_info.mouse.dx = pointer_x;
 		frame_info.mouse.dy = pointer_y;
 
-		camera_yaw += (float)frame_info.mouse.dx * 0.005f;
-		camera_yaw -= floor(camera_yaw);
-
-		camera_pitch += (float)frame_info.mouse.dy * 0.005f;
-		if (camera_pitch > 1.0f) {
-			camera_pitch = 1.0f;
-		} else if (camera_pitch < -1.0f) {
-			camera_pitch = -1.0f;
-		}
-
-		vec3 move_delta = {};
-		vec3 move_final = {};
-
-		if (frame_info.keyboard.left)     {move_delta.x -= 1.0f;}
-		if (frame_info.keyboard.right)    {move_delta.x += 1.0f;}
-
-		if (frame_info.keyboard.forward)  {move_delta.z -= 1.0f;}
-		if (frame_info.keyboard.backward) {move_delta.z += 1.0f;}
-
-		move_delta /= 0.5;
-
-		if (move_delta.x != 0.0f) {
-			move_final.x += cos(PI*2*camera_yaw)/move_delta.x;
-			move_final.z += sin(PI*2*camera_yaw)/move_delta.x;
-		}
-
-		if (move_delta.z != 0.0f) {
-			move_final.x += -sin(PI*2*camera_yaw)/move_delta.z;
-			move_final.z += cos(PI*2*camera_yaw)/move_delta.z;
-			move_final.y += sin(PI*camera_pitch)/move_delta.z;
-		}
-
-		camera_position += move_final * 0.1f;
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glUseProgram(shader);
-
-		mat4 matrix;
-
-		matrix = mat4(1.0f);
-
-		matrix = glm::rotate(matrix, PI/2 * camera_pitch, vec3(1.0f, 0.0f, 0.0f));
-		matrix = glm::rotate(matrix, PI*2 * camera_yaw,   vec3(0.0f, 1.0f, 0.0f));
-		matrix = glm::translate(matrix, -camera_position);
-
-		glUniformMatrix4fv(uniform_in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
-
-		glBindVertexArray(mdl.vao);
-
-		glPointSize(5.0f);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glUniform3f(uniform_diffuse_color, 1.0f, 1.0f, 1.0f);
-		glUniform3f(uniform_emission_color, 0.0f, 0.0f, 0.0f);
-		glDrawArrays(GL_POINTS, 0, mdl.num_vertex);
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glUniform3f(uniform_diffuse_color, 0.0f, 0.0f, 0.0f);
-		glUniform3f(uniform_emission_color, 0.0f, 1.0f, 1.0f);
-		glDrawArrays(GL_TRIANGLES, 0, mdl.num_vertex);
-		glBindVertexArray(0);
-
-		glUseProgram(0);
+		tick_point_cloud(point_cloud_context, frame_info);
 
 		glXSwapBuffers(display, window);
+
+		frame_info.window.dimentions_changed = false;
 	}
 
 	glXMakeCurrent(display, None, NULL);

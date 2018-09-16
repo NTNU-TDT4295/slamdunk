@@ -9,11 +9,12 @@ struct WindowFrameInfo {
 	} keyboard;
 
 	struct {
-		float dx, dy;
+		int dx, dy;
 	} mouse;
 
 	struct {
 		unsigned int width, height;
+		bool dimentions_changed;
 
 		bool focused;
 	} window;

@@ -18,6 +18,11 @@ int arena_init(struct arena *arena, size_t capacity)
 	return 0;
 }
 
+void arena_free(arena *arena)
+{
+	free(arena->data);
+}
+
 void *arena_alloc(struct arena *arena, size_t length)
 {
 	assert(arena->head + length < arena->capacity);
