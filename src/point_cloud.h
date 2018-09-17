@@ -1,6 +1,7 @@
 #pragma once
 
 #include "octree.h"
+#include "octree_render.h"
 #include "window.h"
 #include "linmath.h"
 #include "model_loader_obj.h"
@@ -20,6 +21,7 @@ struct PointCloudContext {
 	} shader;
 
 	model mdl;
+	OctreeRender octree_render;
 };
 
 void init_point_cloud(PointCloudContext &);

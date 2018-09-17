@@ -31,20 +31,6 @@ int main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 
-	Octree point_cloud = {0};
-	point_cloud.box.center = { 0.0f, 0.0f, 0.0f };
-	point_cloud.box.radius = 100.0f;
-
-	point_cloud.insert({ -1.0f, -1.0f, -1.0f });
-	point_cloud.insert({  1.0f, -1.0f, -1.0f });
-	point_cloud.insert({ -1.0f,  1.0f, -1.0f });
-	point_cloud.insert({  1.0f,  1.0f, -1.0f });
-
-	point_cloud.insert({ -1.0f, -1.0f,  1.0f });
-	point_cloud.insert({  1.0f, -1.0f,  1.0f });
-	point_cloud.insert({ -1.0f,  1.0f,  1.0f });
-	point_cloud.insert({  1.0f,  1.0f,  1.0f });
-
 	Display *display;
 	Window root_window, window, glx_window;
 	int screen;
@@ -234,6 +220,21 @@ int main(int argc, char **argv)
 
 	PointCloudContext point_cloud_context = {};
 	init_point_cloud(point_cloud_context);
+
+	Octree *octree = &point_cloud_context.octree_render.octree;
+	octree->box.center = { 0.0f, 0.0f, 0.0f };
+	octree->box.radius = 10.0f;
+
+	octree->insert({ -1.0f, -1.0f, -1.0f });
+	octree->insert({  1.0f, -1.0f, -1.0f });
+	octree->insert({ -1.0f,  1.0f, -1.0f });
+	octree->insert({  1.0f,  1.0f, -1.0f });
+
+	octree->insert({ -1.0f, -1.0f,  1.0f });
+	octree->insert({  1.0f, -1.0f,  1.0f });
+	octree->insert({ -1.0f,  1.0f,  1.0f });
+	octree->insert({  1.0f,  1.0f,  1.0f });
+
 
 	while (!should_exit) {
 		XEvent event;

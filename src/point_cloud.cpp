@@ -34,19 +34,22 @@ void init_point_cloud(PointCloudContext &ctx) {
 		panic("Failed to load model!");
 	}
 	arena_free(&transient);
+
+	octree_render_init(ctx.octree_render);
+	ctx.octree_render.matrix_uniform = ctx.shader.in_matrix;
 }
 
 static void update_camera(PointCloudContext &ctx, const WindowFrameInfo &frame) {
 	if (frame.window.dimentions_changed) {
-		float aspect = (float)frame.window.width/(float)frame.window.height;
+		// float aspect = (float)frame.window.width/(float)frame.window.height;
 
-		mat4 projection_matrix;
-		projection_matrix = glm::perspective(45.0f, aspect, 0.01f, 100.0f);
+		// mat4 projection_matrix;
+		// projection_matrix = glm::perspective(45.0f, aspect, 0.01f, 100.0f);
 
-		glUseProgram(ctx.shader.id);
-		glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE,
-						   glm::value_ptr(projection_matrix));
-		glUseProgram(0);
+		// glUseProgram(ctx.shader.id);
+		// glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE,
+		// 				   glm::value_ptr(projection_matrix));
+		// glUseProgram(0);
 	}
 
 	ctx.camera.yaw += (float)frame.mouse.dx * 0.005f;
@@ -78,10 +81,10 @@ static void update_camera(PointCloudContext &ctx, const WindowFrameInfo &frame) 
 	if (move_delta.z != 0.0f) {
 		move_final.x += -sin(PI*2*ctx.camera.yaw)/move_delta.z;
 		move_final.z += cos(PI*2*ctx.camera.yaw)/move_delta.z;
-		move_final.y += sin(PI*ctx.camera.pitch)/move_delta.z;
+		move_final.y += sin((PI/2.0f)*ctx.camera.pitch)/move_delta.z;
 	}
 
-	ctx.camera.position += move_final * 0.1f;
+	ctx.camera.position += move_final * (frame.keyboard.accelerate ? 0.5f : 0.1f);
 
 }
 
@@ -94,27 +97,40 @@ void tick_point_cloud(PointCloudContext &ctx, const WindowFrameInfo &frame) {
 
 	mat4 matrix;
 
-	matrix = mat4(1.0f);
-
+	float aspect = (float)frame.window.width/(float)frame.window.height;
+	matrix = glm::perspective(45.0f, aspect, 0.01f, 100.0f);
 	matrix = glm::rotate(matrix, PI/2 * ctx.camera.pitch, vec3(1.0f, 0.0f, 0.0f));
 	matrix = glm::rotate(matrix, PI*2 * ctx.camera.yaw,   vec3(0.0f, 1.0f, 0.0f));
 	matrix = glm::translate(matrix, -ctx.camera.position);
 
-	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
+	glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
-	glBindVertexArray(ctx.mdl.vao);
-
-	glPointSize(5.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glUniform3f(ctx.shader.diffuse_color, 1.0f, 1.0f, 1.0f);
-	glUniform3f(ctx.shader.emission_color, 0.0f, 0.0f, 0.0f);
-	glDrawArrays(GL_POINTS, 0, ctx.mdl.num_vertex);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// glLineWidth(3.0f);
 	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
 	glUniform3f(ctx.shader.emission_color, 0.0f, 1.0f, 1.0f);
-	glDrawArrays(GL_TRIANGLES, 0, ctx.mdl.num_vertex);
-	glBindVertexArray(0);
+	octree_render_bounds(ctx.octree_render);
+
+	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
+	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
+	octree_render(ctx.octree_render);
+
+	// matrix = mat4(1.0f);
+	// matrix = glm::translate(matrix, vec3(0.0f, 0.0f, 0.0f));
+	// glUniformMatrix4fv(ctx.octree_render.matrix_uniform, 1, GL_FALSE, glm::value_ptr(matrix));
+
+	// glBindVertexArray(ctx.mdl.vao);
+
+	// glPointSize(5.0f);
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	// glUniform3f(ctx.shader.diffuse_color, 1.0f, 1.0f, 1.0f);
+	// glUniform3f(ctx.shader.emission_color, 0.0f, 0.0f, 0.0f);
+	// glDrawArrays(GL_POINTS, 0, ctx.mdl.num_vertex);
+
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
+	// glUniform3f(ctx.shader.emission_color, 0.0f, 1.0f, 1.0f);
+	// glDrawArrays(GL_TRIANGLES, 0, ctx.mdl.num_vertex);
+	// glBindVertexArray(0);
 
 	glUseProgram(0);
 }

@@ -19,7 +19,8 @@ struct OctreeNode {
 	OctreeBoundingBox box;
 	size_t num_points;
 	bool dirty;
-	int buffer_id;
+	unsigned int buffer_id;
+	unsigned int vao_id;
 
 	union {
 		OctreePoint leafs[OCTREE_LEAFS];
