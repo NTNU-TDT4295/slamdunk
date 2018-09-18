@@ -28,6 +28,13 @@
 #define BNO055_QUATERNION_DATA_Z_LSB_ADDR 0X26
 #define BNO055_QUATERNION_DATA_Z_MSB_ADDR 0X27
 
+#define BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR 0X28
+#define BNO055_LINEAR_ACCEL_DATA_X_MSB_ADDR 0X29
+#define BNO055_LINEAR_ACCEL_DATA_Y_LSB_ADDR 0X2A
+#define BNO055_LINEAR_ACCEL_DATA_Y_MSB_ADDR 0X2B
+#define BNO055_LINEAR_ACCEL_DATA_Z_LSB_ADDR 0X2C
+#define BNO055_LINEAR_ACCEL_DATA_Z_MSB_ADDR 0X2D
+
 // Why do we need to left shift by 1 here?  The address is contained
 // in a byte, but the addressing mode uses only the 7 most significant
 // bits, while the LSB is R/W
@@ -42,7 +49,14 @@ struct euler {
 	double z;
 };
 
+struct accel {
+	int16_t x;
+	int16_t y;
+	int16_t z;
+};
+
 void init_bno055();
 struct euler get_euler_sample();
+struct accel get_linear_acceleration_sample();
 
 #endif

@@ -29,6 +29,7 @@ int main(void)
 
 	uint8_t status_buf[1] = { 7 };
 	struct euler angles;
+	struct accel accelerations;
 
 	while (1) {
 		// Fetch system status
@@ -36,6 +37,7 @@ int main(void)
 		uartPutChar(status_buf[0]);
 
 		angles = get_euler_sample();
+		accelerations = get_linear_acceleration_sample();
 
 		char str[8];
 		snprintf(str, 8, "%d", (int) angles.z);

@@ -44,3 +44,20 @@ struct euler get_euler_sample()
 		.z = ((double) z) / 16.0,
 	};
 }
+
+struct accel get_linear_acceleration_sample()
+{
+	uint8_t accel_buf[6];
+	memset(accel_buf, 0, 6);
+
+	performI2CRead(BNO055_I2C_ADDRESS, BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, accel_buf, 6);
+	uint16_t x = ((int16_t) accel_buf[0]) | (((int16_t) accel_buf[1]) << 8);
+	uint16_t y = ((int16_t) accel_buf[2]) | (((int16_t) accel_buf[3]) << 8);
+	uint16_t z = ((int16_t) accel_buf[4]) | (((int16_t) accel_buf[5]) << 8);
+
+	return (struct accel) {
+		.x = x,
+		.y = y,
+		.z = x,
+	};
+}
