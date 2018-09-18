@@ -87,7 +87,9 @@ void init_i2c(void)
 	I2C_Init(I2C0, &i2cInit);
 }
 
-void performI2CTransfer(uint8_t data[], uint8_t dataLen)
+// NOTE: the address of the register must be the first byte *buf (this
+// is super stupid, TODO me)
+void performI2CTransfer(uint8_t addr, uint8_t *buf, uint8_t bytes)
 {
 	/* Transfer structure */
 	I2C_TransferSeq_TypeDef i2cTransfer;
@@ -96,11 +98,11 @@ void performI2CTransfer(uint8_t data[], uint8_t dataLen)
 	GPIO_PinOutSet(gpioPortC, 0);
 
 	/* Initializing I2C transfer */
-	i2cTransfer.addr = I2C_ADDRESS;
+	i2cTransfer.addr = addr;
 	i2cTransfer.flags = I2C_FLAG_WRITE;
 
-	i2cTransfer.buf[0].data = data;
-	i2cTransfer.buf[0].len = dataLen;
+	i2cTransfer.buf[0].data = buf;
+	i2cTransfer.buf[0].len = bytes;
 
 	// Initialize the transfer and wait for completion
 	I2C_TransferInit(I2C0, &i2cTransfer);
@@ -112,7 +114,7 @@ void performI2CTransfer(uint8_t data[], uint8_t dataLen)
 	GPIO_PinOutClear(gpioPortC, 0);
 }
 
-void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
+void performI2CRead(uint8_t addr, int8_t reg, uint8_t *buf, uint8_t bytes)
 {
 	/* Transfer structure */
 	I2C_TransferSeq_TypeDef i2cTransfer;
@@ -126,7 +128,7 @@ void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
 	GPIO_PinOutSet(gpioPortC, 0);
 
 	/* Initializing I2C transfer */
-	i2cTransfer.addr = I2C_ADDRESS;
+	i2cTransfer.addr = addr;
 	i2cTransfer.flags = I2C_FLAG_WRITE_READ;
 
 	i2cTransfer.buf[0].data = regid;

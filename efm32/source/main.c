@@ -3,10 +3,12 @@
 #include "lcd.h"
 #include "interrupt.h"
 #include "serial.h"
+#include "bno055.h"
 #include <string.h>
 
 int main(void)
 {
+	// General chip initialization
 	init();
 
 	// Interrupts (works with LCD)
@@ -18,32 +20,12 @@ int main(void)
 	// UART
 	init_uart();
 
-	// I2C
+	// I2C and the BNO055
 	init_i2c();
+	init_bno055();
 
 	// RTC
 	/* rtcSetup(); */
-
-	// Normal power mode
-	uint8_t power_mode[] = "\x3E\x00";
-	performI2CTransfer(power_mode, 2);
-
-	Delay(50);
-
-	// Page
-	uint8_t page[] = "\x07\x00";
-	performI2CTransfer(page, 2);
-
-	// Perform self test
-	uint8_t self_test[] = "\x3F\x00";
-	performI2CTransfer(self_test, 2);
-
-	Delay(50);
-
-	uint8_t mode[] = "\x3D\x0C";
-	performI2CTransfer(mode, 2);
-
-	Delay(50);
 
 	uint8_t buf[1] = { 7 };
 	uint8_t euler_buf[6];
@@ -53,13 +35,13 @@ int main(void)
 
 	while (1) {
 		// Fetch system status
-		performI2CRead(BNO055_SYS_STAT_ADDR, buf, 1);
+		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, buf, 1);
 		uartPutChar(buf[0]);
 
 		int16_t x, y, z, w;
 		double xa, ya, za, zw;
 
-		performI2CRead(BNO055_EULER_H_LSB_ADDR, euler_buf, 6);
+		performI2CRead(BNO055_I2C_ADDRESS, BNO055_EULER_H_LSB_ADDR, euler_buf, 6);
 		x = ((int16_t) euler_buf[0]) | (((int16_t) euler_buf[1]) << 8);
 		y = ((int16_t) euler_buf[2]) | (((int16_t) euler_buf[3]) << 8);
 		z = ((int16_t) euler_buf[4]) | (((int16_t) euler_buf[5]) << 8);
