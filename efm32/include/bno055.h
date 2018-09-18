@@ -1,6 +1,8 @@
 #ifndef BNO055_H
 #define BNO055_H
 
+#include "stdint.h"
+
 #define BNO055_SYS_STAT_ADDR    0x39
 #define BNO055_SYS_TRIGGER_ADDR 0x3F
 #define BNO055_PWR_MODE_ADDR    0x3E
@@ -33,5 +35,14 @@
 // eg: 0010 1000 becomes 0101 000{R/W} after the shift -- note the
 // 7-bit address that is used
 #define BNO055_I2C_ADDRESS (0x28 << 1)
+
+struct euler {
+	double x;
+	double y;
+	double z;
+};
+
+void init_bno055();
+struct euler get_euler_sample();
 
 #endif

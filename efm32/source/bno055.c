@@ -1,6 +1,7 @@
 #include "bno055.h"
 #include "serial.h"
 #include "setup.h"
+#include "string.h"
 
 void init_bno055()
 {
@@ -25,4 +26,21 @@ void init_bno055()
 	performI2CTransfer(BNO055_I2C_ADDRESS, mode, 2);
 
 	Delay(50);
+}
+
+struct euler get_euler_sample()
+{
+	uint8_t euler_buf[6];
+	memset(euler_buf, 0, 6);
+
+	performI2CRead(BNO055_I2C_ADDRESS, BNO055_EULER_H_LSB_ADDR, euler_buf, 6);
+	uint16_t x = ((int16_t) euler_buf[0]) | (((int16_t) euler_buf[1]) << 8);
+	uint16_t y = ((int16_t) euler_buf[2]) | (((int16_t) euler_buf[3]) << 8);
+	uint16_t z = ((int16_t) euler_buf[4]) | (((int16_t) euler_buf[5]) << 8);
+
+	return (struct euler) {
+		.x = ((double) x) / 16.0,
+		.y = ((double) y) / 16.0,
+		.z = ((double) z) / 16.0,
+	};
 }

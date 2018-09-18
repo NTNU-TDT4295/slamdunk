@@ -27,38 +27,18 @@ int main(void)
 	// RTC
 	/* rtcSetup(); */
 
-	uint8_t buf[1] = { 7 };
-	uint8_t euler_buf[6];
-	uint8_t quat_buf[8];
-	memset(euler_buf, 0, 6);
-	memset(quat_buf, 0, 8);
+	uint8_t status_buf[1] = { 7 };
+	struct euler angles;
 
 	while (1) {
 		// Fetch system status
-		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, buf, 1);
-		uartPutChar(buf[0]);
+		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, status_buf, 1);
+		uartPutChar(status_buf[0]);
 
-		int16_t x, y, z, w;
-		double xa, ya, za, zw;
-
-		performI2CRead(BNO055_I2C_ADDRESS, BNO055_EULER_H_LSB_ADDR, euler_buf, 6);
-		x = ((int16_t) euler_buf[0]) | (((int16_t) euler_buf[1]) << 8);
-		y = ((int16_t) euler_buf[2]) | (((int16_t) euler_buf[3]) << 8);
-		z = ((int16_t) euler_buf[4]) | (((int16_t) euler_buf[5]) << 8);
-
-		/* // Euler angles */
-		/* xa = ((double) x) / 16.0; */
-		/* /\* ya = ((double) y) / 16.0; *\/ */
-		/* /\* za = ((double) z) / 16.0; *\/ */
-
-		/* performI2CRead(BNO055_QUATERNION_DATA_W_LSB_ADDR, quat_buf, 8); */
-		/* x = ((int16_t) quat_buf[0]) | (((int16_t) quat_buf[1]) << 8); */
-		/* y = ((int16_t) quat_buf[2]) | (((int16_t) quat_buf[3]) << 8); */
-		/* z = ((int16_t) quat_buf[4]) | (((int16_t) quat_buf[5]) << 8); */
-		/* w = ((int16_t) quat_buf[6]) | (((int16_t) quat_buf[7]) << 8); */
+		angles = get_euler_sample();
 
 		char str[8];
-		snprintf(str, 8, "%d", z);
+		snprintf(str, 8, "%d", (int) angles.z);
 		SegmentLCD_Write(str);
 
 		Delay(50);
