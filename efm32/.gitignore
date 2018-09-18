@@ -1,0 +1,24 @@
+# Build directories
+build/
+builds/
+
+# Generated Files
+*.o
+*.so
+*.lib
+*.a
+
+# CTags
+*tags
+*tags_sorted_by_file
+
+# Backup files
+*~
+
+# vimfiles
+*.swp
+*.swo
+
+# Misc
+*.DS_Store
+compile_commands.json
