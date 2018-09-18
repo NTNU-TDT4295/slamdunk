@@ -28,6 +28,8 @@ constexpr string string_init(const char *text, size_t length) {
 	return string { (uint8_t *)text, length };
 }
 
+string string_init(const char *text);
+
 #define STR(x) string_init(x, sizeof(x)-1)
 #define LIT(x) (int)x.length, (char *)x.data
 

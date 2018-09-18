@@ -68,6 +68,9 @@ static void update_camera(PointCloudContext &ctx, const WindowFrameInfo &frame) 
 	if (frame.keyboard.left)     {move_delta.x -= 1.0f;}
 	if (frame.keyboard.right)    {move_delta.x += 1.0f;}
 
+	if (frame.keyboard.up)       {move_delta.y += 1.0f;}
+	if (frame.keyboard.down)     {move_delta.y -= 1.0f;}
+
 	if (frame.keyboard.forward)  {move_delta.z -= 1.0f;}
 	if (frame.keyboard.backward) {move_delta.z += 1.0f;}
 
@@ -84,8 +87,14 @@ static void update_camera(PointCloudContext &ctx, const WindowFrameInfo &frame) 
 		move_final.y += sin((PI/2.0f)*ctx.camera.pitch)/move_delta.z;
 	}
 
+	move_final.y += move_delta.y;
+
 	ctx.camera.position += move_final * (frame.keyboard.accelerate ? 0.5f : 0.1f);
 
+	if (frame.keyboard.toggle_boundary && !ctx.display_octree_boundaries_down) {
+		ctx.display_octree_boundaries = !ctx.display_octree_boundaries;
+	}
+	ctx.display_octree_boundaries_down = frame.keyboard.toggle_boundary;
 }
 
 void tick_point_cloud(PointCloudContext &ctx, const WindowFrameInfo &frame) {
@@ -98,7 +107,7 @@ void tick_point_cloud(PointCloudContext &ctx, const WindowFrameInfo &frame) {
 	mat4 matrix;
 
 	float aspect = (float)frame.window.width/(float)frame.window.height;
-	matrix = glm::perspective(45.0f, aspect, 0.01f, 100.0f);
+	matrix = glm::perspective(45.0f, aspect, 0.01f, 1000.0f);
 	matrix = glm::rotate(matrix, PI/2 * ctx.camera.pitch, vec3(1.0f, 0.0f, 0.0f));
 	matrix = glm::rotate(matrix, PI*2 * ctx.camera.yaw,   vec3(0.0f, 1.0f, 0.0f));
 	matrix = glm::translate(matrix, -ctx.camera.position);
@@ -106,9 +115,11 @@ void tick_point_cloud(PointCloudContext &ctx, const WindowFrameInfo &frame) {
 	glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
 	// glLineWidth(3.0f);
-	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
-	glUniform3f(ctx.shader.emission_color, 0.0f, 1.0f, 1.0f);
-	octree_render_bounds(ctx.octree_render);
+	if (ctx.display_octree_boundaries) {
+		glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
+		glUniform3f(ctx.shader.emission_color, 0.0f, 1.0f, 1.0f);
+		octree_render_bounds(ctx.octree_render);
+	}
 
 	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
 	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);

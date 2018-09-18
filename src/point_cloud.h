@@ -22,6 +22,8 @@ struct PointCloudContext {
 
 	model mdl;
 	OctreeRender octree_render;
+	bool display_octree_boundaries;
+	bool display_octree_boundaries_down;
 };
 
 void init_point_cloud(PointCloudContext &);

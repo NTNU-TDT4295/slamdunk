@@ -8,9 +8,9 @@
 static inline uint8_t octree_point_next_parent(OctreeBoundingBox box, OctreePoint point) {
 	uint8_t result = 0;
 
-	if (point.x > box.center.x) result |= 1;
-	if (point.y > box.center.y) result |= 2;
-	if (point.z > box.center.z) result |= 4;
+	if (point.x >= box.center.x) result |= 1;
+	if (point.y >= box.center.y) result |= 2;
+	if (point.z >= box.center.z) result |= 4;
 
 	return result;
 }
@@ -60,12 +60,17 @@ static void octree_node_insert(OctreeNode **node, OctreePoint point, OctreeBound
 	if (!*node) {
 		*node = (OctreeNode *)calloc(1, sizeof(OctreeNode));
 		(*node)->box = box;
+		// printf("Inst box %f %f %f, r=%f\n",
+		// 		(*node)->box.center.x,
+		// 		(*node)->box.center.y,
+		// 		(*node)->box.center.z,
+		// 		(*node)->box.radius);
 	}
 
 	(*node)->num_points += 1;
 	(*node)->dirty = true;
 
-	while ((*node)->num_points >= OCTREE_LEAFS + 1) {
+	while ((*node)->num_points > OCTREE_LEAFS) {
 		if ((*node)->num_points == OCTREE_LEAFS + 1) {
 			split_node(*node);
 		}
@@ -77,20 +82,25 @@ static void octree_node_insert(OctreeNode **node, OctreePoint point, OctreeBound
 		if (!*node) {
 			*node = (OctreeNode *)calloc(1, sizeof(OctreeNode));
 			(*node)->box = octree_child_box(previous_box, next_box);
+			// printf("Next box %f %f %f, r=%f\n",
+			// 	   (*node)->box.center.x,
+			// 	   (*node)->box.center.y,
+			// 	   (*node)->box.center.z,
+			// 	   (*node)->box.radius);
 		}
 
 		(*node)->num_points += 1;
 		(*node)->dirty = true;
 	}
 
-	assert(point.x > (*node)->box.center.x - (*node)->box.radius);
-	assert(point.x < (*node)->box.center.x + (*node)->box.radius);
+	assert(point.x >= (*node)->box.center.x - (*node)->box.radius);
+	assert(point.x <  (*node)->box.center.x + (*node)->box.radius);
 
-	assert(point.y > (*node)->box.center.y - (*node)->box.radius);
-	assert(point.y < (*node)->box.center.y + (*node)->box.radius);
+	assert(point.y >= (*node)->box.center.y - (*node)->box.radius);
+	assert(point.y <  (*node)->box.center.y + (*node)->box.radius);
 
-	assert(point.z > (*node)->box.center.z - (*node)->box.radius);
-	assert(point.z < (*node)->box.center.z + (*node)->box.radius);
+	assert(point.z >= (*node)->box.center.z - (*node)->box.radius);
+	assert(point.z <  (*node)->box.center.z + (*node)->box.radius);
 
 	(*node)->leafs[(*node)->num_points - 1] = point;
 }

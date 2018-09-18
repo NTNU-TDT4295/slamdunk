@@ -13,7 +13,7 @@ static size_t octree_collect_nodes(OctreeNode *node, OctreePoint *points, size_t
 
 	assert(cap_points >= node->num_points);
 
-	if (node->num_points >= OCTREE_LEAFS) {
+	if (node->num_points > OCTREE_LEAFS) {
 		size_t points_collected = 0;
 		for (size_t i = 0; i < OCTREE_CHILDREN; i++) {
 			assert(cap_points >= points_collected);
@@ -59,9 +59,6 @@ static void octree_render_update_node(OctreeRender &ctx, OctreeNode *node) {
 	if (node->dirty) {
 		OctreePoint *points = (OctreePoint *)calloc(node->num_points, sizeof(OctreePoint));
 		octree_collect_nodes(node, points, node->num_points);
-		for (size_t i = 0; i < node->num_points; i++) {
-			printf("%f %f %f\n", points[i].x, points[i].y, points[i].z);
-		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, node->buffer_id);
 		glBufferData(GL_ARRAY_BUFFER, node->num_points * sizeof(OctreePoint),
@@ -140,7 +137,7 @@ static void octree_render_bounds_internal(OctreeRender &ctx, OctreeNode *node) {
 	glBindVertexArray(ctx.cube_vao);
 	glDrawArrays(GL_LINES, 0, cube_points_length);
 
-	if (node->num_points >= OCTREE_LEAFS) {
+	if (node->num_points > OCTREE_LEAFS) {
 		for (size_t i = 0; i < OCTREE_CHILDREN; i++) {
 			octree_render_bounds_internal(ctx, node->children[i]);
 		}

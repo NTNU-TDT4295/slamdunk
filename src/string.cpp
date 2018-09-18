@@ -147,3 +147,7 @@ string string_duplicate_zeroterminate(arena *arena, string orig) {
 
 	return new_string;
 }
+
+string string_init(const char *text) {
+	return string_init(text, strlen(text));
+}

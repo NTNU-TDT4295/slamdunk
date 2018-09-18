@@ -13,6 +13,7 @@
 #include "model_loader_obj.h"
 #include "string.h"
 #include "octree.h"
+#include "octree_loader.h"
 #include "window.h"
 #include "point_cloud.h"
 
@@ -223,17 +224,19 @@ int main(int argc, char **argv)
 
 	Octree *octree = &point_cloud_context.octree_render.octree;
 	octree->box.center = { 0.0f, 0.0f, 0.0f };
-	octree->box.radius = 10.0f;
+	octree->box.radius = 1000.0f;
 
-	octree->insert({ -1.0f, -1.0f, -1.0f });
-	octree->insert({  1.0f, -1.0f, -1.0f });
-	octree->insert({ -1.0f,  1.0f, -1.0f });
-	octree->insert({  1.0f,  1.0f, -1.0f });
+	octree_load_obj(octree, "assets/models/mountain.obj");
 
-	octree->insert({ -1.0f, -1.0f,  1.0f });
-	octree->insert({  1.0f, -1.0f,  1.0f });
-	octree->insert({ -1.0f,  1.0f,  1.0f });
-	octree->insert({  1.0f,  1.0f,  1.0f });
+	// octree->insert({ -1.0f, -1.0f, -1.0f });
+	// octree->insert({  1.0f, -1.0f, -1.0f });
+	// octree->insert({ -1.0f,  1.0f, -1.0f });
+	// octree->insert({  1.0f,  1.0f, -1.0f });
+
+	// octree->insert({ -1.0f, -1.0f,  1.0f });
+	// octree->insert({  1.0f, -1.0f,  1.0f });
+	// octree->insert({ -1.0f,  1.0f,  1.0f });
+	// octree->insert({  1.0f,  1.0f,  1.0f });
 
 
 	while (!should_exit) {
