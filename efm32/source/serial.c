@@ -101,18 +101,13 @@ void init_i2c(void)
 /**************************************************************************/ /**
  * @brief  Transmitting I2C data. Will busy-wait until the transfer is complete.
  *****************************************************************************/
-void performI2CTransfer(void)
+void performI2CTransfer(uint8_t data[], uint8_t dataLen)
 {
 	/* Transfer structure */
 	I2C_TransferSeq_TypeDef i2cTransfer;
 
 	/* Setting pin to indicate transfer */
 	GPIO_PinOutSet(gpioPortC, 0);
-
-	/* uint8_t data[] = "\x3D\x08"; */
-	/* uint8_t dataLen = sizeof(data); */
-	uint8_t data[] = "\x3D\x0C";
-	uint8_t dataLen = sizeof(data);
 
 	/* Initializing I2C transfer */
 	i2cTransfer.addr = I2C_ADDRESS;
