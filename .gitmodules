@@ -1,0 +1,6 @@
+[submodule "pointcloud/lib/glad"]
+	path = pointcloud/lib/glad
+	url = https://github.com/Dav1dde/glad
+[submodule "pointcloud/lib/glm"]
+	path = pointcloud/lib/glm
+	url = https://github.com/g-truc/glm/
