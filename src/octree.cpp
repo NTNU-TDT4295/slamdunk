@@ -60,11 +60,6 @@ static void octree_node_insert(OctreeNode **node, OctreePoint point, OctreeBound
 	if (!*node) {
 		*node = (OctreeNode *)calloc(1, sizeof(OctreeNode));
 		(*node)->box = box;
-		// printf("Inst box %f %f %f, r=%f\n",
-		// 		(*node)->box.center.x,
-		// 		(*node)->box.center.y,
-		// 		(*node)->box.center.z,
-		// 		(*node)->box.radius);
 	}
 
 	(*node)->num_points += 1;
@@ -82,11 +77,6 @@ static void octree_node_insert(OctreeNode **node, OctreePoint point, OctreeBound
 		if (!*node) {
 			*node = (OctreeNode *)calloc(1, sizeof(OctreeNode));
 			(*node)->box = octree_child_box(previous_box, next_box);
-			// printf("Next box %f %f %f, r=%f\n",
-			// 	   (*node)->box.center.x,
-			// 	   (*node)->box.center.y,
-			// 	   (*node)->box.center.z,
-			// 	   (*node)->box.radius);
 		}
 
 		(*node)->num_points += 1;

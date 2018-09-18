@@ -4,13 +4,10 @@
 #include "octree_render.h"
 #include "window.h"
 #include "linmath.h"
-#include "model_loader_obj.h"
+#include "camera.h"
 
 struct PointCloudContext {
-	struct {
-		vec3 position;
-		float yaw, pitch;
-	} camera;
+	Camera camera;
 
 	struct {
 		unsigned int id;
@@ -20,7 +17,6 @@ struct PointCloudContext {
 		unsigned int diffuse_color;
 	} shader;
 
-	model mdl;
 	OctreeRender octree_render;
 	bool display_octree_boundaries;
 	bool display_octree_boundaries_down;
