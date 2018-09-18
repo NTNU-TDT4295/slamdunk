@@ -12,10 +12,9 @@
 #include "linmath.h"
 #include "model_loader_obj.h"
 #include "string.h"
-#include "octree.h"
-#include "octree_loader.h"
 #include "window.h"
 #include "point_cloud.h"
+#include "simulator.h"
 
 constexpr int INITIAL_WINDOW_WIDTH = 800;
 constexpr int INITIAL_WINDOW_HEIGHT = 800;
@@ -219,25 +218,13 @@ int main(int argc, char **argv)
 	frame.window.height = INITIAL_WINDOW_HEIGHT;
 	frame.window.dimentions_changed = true;
 
+#ifdef PROGRAM_MODE_SIMULATOR
+	SimulatorContext simulator_context = {};
+	init_simulator(simulator_context);
+#else
 	PointCloudContext point_cloud_context = {};
 	init_point_cloud(point_cloud_context);
-
-	Octree *octree = &point_cloud_context.octree_render.octree;
-	octree->box.center = { 0.0f, 0.0f, 0.0f };
-	octree->box.radius = 1000.0f;
-
-	octree_load_obj(octree, "assets/models/mountain.obj");
-
-	// octree->insert({ -1.0f, -1.0f, -1.0f });
-	// octree->insert({  1.0f, -1.0f, -1.0f });
-	// octree->insert({ -1.0f,  1.0f, -1.0f });
-	// octree->insert({  1.0f,  1.0f, -1.0f });
-
-	// octree->insert({ -1.0f, -1.0f,  1.0f });
-	// octree->insert({  1.0f, -1.0f,  1.0f });
-	// octree->insert({ -1.0f,  1.0f,  1.0f });
-	// octree->insert({  1.0f,  1.0f,  1.0f });
-
+#endif
 
 	while (!should_exit) {
 		XEvent event;
@@ -331,7 +318,11 @@ int main(int argc, char **argv)
 		frame.mouse.dx = pointer_x;
 		frame.mouse.dy = pointer_y;
 
+#ifdef PROGRAM_MODE_SIMULATOR
+		tick_simulator(simulator_context, frame);
+#else
 		tick_point_cloud(point_cloud_context, frame);
+#endif
 
 		glXSwapBuffers(display, window);
 

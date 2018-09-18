@@ -17,6 +17,9 @@ all: pc
 pc: $(SRC) $(HEADERS) $(GLM_DIR)/glm
 	$(CXX) $(CFLAGS) $(SRC) $(LDFLAGS) -o $@
 
+simulator: $(SRC) $(HEADERS) $(GLM_DIR)/glm
+	$(CXX) $(CFLAGS) $(SRC) $(LDFLAGS) -DPROGRAM_MODE_SIMULATOR -o $@
+
 
 $(GLM_DIR)/glm:
 	git submodule update --init --depth 1 $(GLM_DIR)
