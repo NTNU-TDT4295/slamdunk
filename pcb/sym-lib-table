@@ -1,4 +1,4 @@
 (sym_lib_table
-  (lib (name efm32-symbols)(type Legacy)(uri ${KIPRJMOD}/libraries/efm32-symbols.lib)(options "")(descr ""))
   (lib (name localization-symbols)(type Legacy)(uri ${KIPRJMOD}/libraries/localization-symbols.lib)(options "")(descr ""))
+  (lib (name efm32-symbols)(type Legacy)(uri ${KIPRJMOD}/libraries/efm32-symbols.lib)(options "")(descr ""))
 )
