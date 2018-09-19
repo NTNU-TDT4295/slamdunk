@@ -4,6 +4,7 @@
 #include "interrupt.h"
 #include "serial.h"
 #include "bno055.h"
+#include "sonar.h"
 #include <string.h>
 
 int main(void)
@@ -27,6 +28,9 @@ int main(void)
 	// RTC
 	/* rtcSetup(); */
 
+	// Initalize GPIO interrupts for sonar
+	init_sonar();
+
 	uint8_t status_buf[1] = { 7 };
 	struct euler angles;
 	struct accel accelerations;
@@ -41,9 +45,12 @@ int main(void)
 
 		char str[8];
 		snprintf(str, 8, "%d", (int) angles.z);
-		SegmentLCD_Write(str);
+		/* SegmentLCD_Write(str); */
 
-		Delay(50);
+		// Trigger the sonar, it will interrupt you
+		trigger_sonar();
+
+		DelayMs(100);
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)

@@ -58,6 +58,6 @@ struct accel get_linear_acceleration_sample()
 	return (struct accel) {
 		.x = x,
 		.y = y,
-		.z = x,
+		.z = z,
 	};
 }
