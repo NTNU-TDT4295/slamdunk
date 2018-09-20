@@ -1,7 +1,12 @@
 #include <stdio.h>
-
 #include "serial.h"
 
+////////////////
+// UART
+////////////////
+
+// Currently registered UART callback -- it really just prints to the
+// LCD for now
 void recv_char_cb(char c)
 {
 	static char str[LCD_BUFFER_SIZE];
@@ -19,9 +24,9 @@ void recv_char_cb(char c)
 			idx = 0;
 		}
 		break;
-    default:
-        uartPutChar(c);
-        break;
+	default:
+		uartPutChar(c);
+		break;
 	}
 
 	if ('a' <= c && c <= 'z') {
@@ -34,43 +39,32 @@ void recv_char_cb(char c)
 	SegmentLCD_Write(str);
 }
 
-void init_uart(void)
+void init_uart()
 {
-	/* LCD for proof of concept, remove later */
+	// LCD for proof of concept, remove later (TODO)
 	SegmentLCD_Init(false);
 
-    /* Setup UART for testing */
-    set_recv_callback(&recv_char_cb);
-    setup_uart();
+	/* Setup UART for testing */
+	set_recv_callback(&recv_char_cb);
+	setup_uart();
 }
 
+// Mainly for debugging purposes when you want to monitor the pins
 void echo_uart()
 {
-    char rx_data;
-    /* Echo RX to TX indefinitely */
-    for (;;) {
-        rx_data = uartGetChar();
-
-        if (rx_data) {
-            uartPutChar(rx_data);
-        }
-    }
+	char rx_data;
+	/* Echo RX to TX indefinitely */
+	for (;;) {
+		rx_data = uartGetChar();
+		if (rx_data) {
+			uartPutChar(rx_data);
+		}
+	}
 }
 
 ////////////////
 // I2C
 ////////////////
-
-// \x3D is OPR_MODE_ADDR, \x08 is IMU_PLUS (IMU) mode
-uint8_t i2c_txBuffer[] = "\x3D\x08";
-uint8_t i2c_txBufferSize = sizeof(i2c_txBuffer);
-uint8_t i2c_rxBuffer[I2C_RXBUFFER_SIZE];
-uint8_t i2c_rxBufferIndex;
-
-volatile bool i2c_rxInProgress;
-volatile bool i2c_startTx;
-
-I2C_TransferReturn_TypeDef I2CStatus;
 
 void init_i2c(void)
 {
@@ -91,17 +85,11 @@ void init_i2c(void)
 
 	/* Initializing the I2C */
 	I2C_Init(I2C0, &i2cInit);
-
-	/* Setting the status flags and index */
-	i2c_rxInProgress = false;
-	i2c_startTx = false;
-	i2c_rxBufferIndex = 0;
 }
 
-/**************************************************************************/ /**
- * @brief  Transmitting I2C data. Will busy-wait until the transfer is complete.
- *****************************************************************************/
-void performI2CTransfer(uint8_t data[], uint8_t dataLen)
+// NOTE: the address of the register must be the first byte *buf (this
+// is super stupid, TODO me)
+void performI2CTransfer(uint8_t addr, uint8_t *buf, uint8_t bytes)
 {
 	/* Transfer structure */
 	I2C_TransferSeq_TypeDef i2cTransfer;
@@ -110,29 +98,23 @@ void performI2CTransfer(uint8_t data[], uint8_t dataLen)
 	GPIO_PinOutSet(gpioPortC, 0);
 
 	/* Initializing I2C transfer */
-	i2cTransfer.addr = I2C_ADDRESS;
+	i2cTransfer.addr = addr;
 	i2cTransfer.flags = I2C_FLAG_WRITE;
 
-	i2cTransfer.buf[0].data = data;
-	i2cTransfer.buf[0].len = dataLen;
-	i2cTransfer.buf[1].data = i2c_rxBuffer;
-	i2cTransfer.buf[1].len = I2C_RXBUFFER_SIZE;
+	i2cTransfer.buf[0].data = buf;
+	i2cTransfer.buf[0].len = bytes;
 
+	// Initialize the transfer and wait for completion
 	I2C_TransferInit(I2C0, &i2cTransfer);
-
-	I2C_TransferReturn_TypeDef ret = I2C_Transfer(I2C0);
-
-	/* Sending data */
-	while (ret == i2cTransferInProgress) {
-		ret = I2C_Transfer(I2C0);
-		uartPutChar((uint8_t) ret);
+	while (I2C_Transfer(I2C0) == i2cTransferInProgress) {
+		;
 	}
 
 	/* Clearing pin to indicate end of transfer */
 	GPIO_PinOutClear(gpioPortC, 0);
 }
 
-void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
+void performI2CRead(uint8_t addr, int8_t reg, uint8_t *buf, uint8_t bytes)
 {
 	/* Transfer structure */
 	I2C_TransferSeq_TypeDef i2cTransfer;
@@ -146,7 +128,7 @@ void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
 	GPIO_PinOutSet(gpioPortC, 0);
 
 	/* Initializing I2C transfer */
-	i2cTransfer.addr = I2C_ADDRESS;
+	i2cTransfer.addr = addr;
 	i2cTransfer.flags = I2C_FLAG_WRITE_READ;
 
 	i2cTransfer.buf[0].data = regid;
@@ -155,13 +137,11 @@ void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
 	i2cTransfer.buf[1].data = buf;
 	i2cTransfer.buf[1].len = bytes;
 
-	I2CStatus = I2C_TransferInit(I2C0, &i2cTransfer);
-
-	I2C_TransferReturn_TypeDef ret = I2C_Transfer(I2C0);
-
-	/* Waiting for data */
-	while (I2CStatus == i2cTransferInProgress) {
-		I2CStatus = I2C_Transfer(I2C0);
+	// Initialize a transfer and wait for completion, note that no
+	// error handling/reporting is done (TODO)
+	I2C_TransferInit(I2C0, &i2cTransfer);
+	while (I2C_Transfer(I2C0) == i2cTransferInProgress) {
+		;
 	}
 
 	/* Clearing pin to indicate end of transfer */
@@ -169,11 +149,6 @@ void performI2CRead(int8_t reg, uint8_t *buf, uint8_t bytes)
 }
 
 void I2C0_IRQHandler(void)
-{
-	;
-}
-
-void RTC_IRQHandler(void)
 {
 	;
 }

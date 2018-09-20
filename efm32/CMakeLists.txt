@@ -65,6 +65,7 @@ set(SOURCES
     source/leds.c
     source/lcd.c
     source/interrupt.c
+    source/bno055.c
 
     bsp/src/bsp_bcc.c
     bsp/src/bsp_stk.c
