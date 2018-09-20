@@ -9,6 +9,7 @@ struct model {
 	GLuint vao;
 	GLuint vbo;
 	size_t num_vertex;
+	float *vertices;
 };
 
 bool load_obj_file(arena transient, string filename, struct model *out);

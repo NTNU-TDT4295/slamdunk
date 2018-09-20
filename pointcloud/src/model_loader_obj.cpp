@@ -159,7 +159,7 @@ bool load_obj_file(arena transient, string filename, model *out) {
 	size_t vertex_count = 3 * n_face;
 	size_t vertex_size = 8;
 
-	vertex_data = arena_allocn<float>(&transient, vertex_count * vertex_size);
+	vertex_data = (float *)calloc(vertex_count * vertex_size, sizeof(float));
 
 	for (size_t i = 0; i < n_face; i++) {
 		obj_vertex *tex = &first_node[i];
@@ -219,6 +219,7 @@ bool load_obj_file(arena transient, string filename, model *out) {
 
 	out->vao = vao;
 	out->vbo = buffer;
+	out->vertices = vertex_data;
 	out->num_vertex = n_face * 3;
 
 	return true;
