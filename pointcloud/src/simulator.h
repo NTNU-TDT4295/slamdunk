@@ -21,7 +21,7 @@ struct SimulatorContext {
 		quat rotation;
 	} sensor;
 
-	unsigned int point_vao;
+	unsigned int line_vao;
 
 	model mdl;
 	model sphere;

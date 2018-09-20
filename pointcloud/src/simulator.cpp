@@ -39,7 +39,10 @@ void init_simulator(SimulatorContext &ctx) {
 	}
 	arena_free(&transient);
 
-	constexpr OctreePoint point = { 0.0f, 0.0f, 0.0f };
+	constexpr OctreePoint line[] = {
+		{ 0.0f, 0.0f, 0.0f },
+		{ 1.0f, 1.0f, 1.0f },
+	};
 
 	GLuint vao, buffer;
 
@@ -49,8 +52,8 @@ void init_simulator(SimulatorContext &ctx) {
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(point),
-				 &point, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(line),
+				 &line, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(OctreePoint), 0);
 
@@ -59,7 +62,7 @@ void init_simulator(SimulatorContext &ctx) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	ctx.point_vao = vao;
+	ctx.line_vao = vao;
 }
 
 void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
@@ -85,6 +88,7 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 
 	glUseProgram(ctx.shader.id);
 
+	// Calculate camera matrix
 	mat4 matrix;
 
 	float aspect = (float)frame.window.width/(float)frame.window.height;
@@ -95,42 +99,52 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 
 	glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
+	// Draw the world
 	matrix = mat4(1.0f);
 	matrix = glm::translate(matrix, vec3(0.0f, 0.0f, 0.0f));
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
 	glBindVertexArray(ctx.mdl.vao);
-
-	// glPointSize(5.0f);
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	// glUniform3f(ctx.shader.diffuse_color, 1.0f, 1.0f, 1.0f);
-	// glUniform3f(ctx.shader.emission_color, 0.0f, 0.0f, 0.0f);
-	// glDrawArrays(GL_POINTS, 0, ctx.mdl.num_vertex);
-
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 	glUniform3f(ctx.shader.diffuse_color, 1.0f, 1.0f, 1.0f);
 	glUniform3f(ctx.shader.emission_color, 0.0f, 0.0f, 0.0f);
 	glDrawArrays(GL_TRIANGLES, 0, ctx.mdl.num_vertex);
 	glBindVertexArray(0);
 
-	// glPointSize(5.0f);
-	// glBindVertexArray(ctx.point_vao);
-
+	// Draw sensor sphere
 	matrix = mat4(1.0f);
 	matrix = glm::translate(matrix, ctx.sensor.position);
 	matrix = glm::scale(matrix, vec3(0.1f));
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
-	// glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
-	// glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
-	// glDrawArrays(GL_POINTS, 0, 1);
-	// glBindVertexArray(0);
-
 	glBindVertexArray(ctx.sphere.vao);
 	glUniform3f(ctx.shader.diffuse_color, 1.0f, 0.0f, 0.0f);
 	glUniform3f(ctx.shader.emission_color, 0.0f, 0.0f, 0.0f);
 	glDrawArrays(GL_TRIANGLES, 0, ctx.sphere.num_vertex);
+	glBindVertexArray(0);
+
+	// Draw sensor rays
+	glBindVertexArray(ctx.line_vao);
+	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
+	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
+
+	constexpr size_t num_lines = 16;
+	for (size_t i = 0; i < num_lines; i++) {
+
+		float angle = ((float)i / (float)num_lines) * 2 * PI;
+		float line_length = 3;
+
+		// @TODO: Raycast to find line_length
+
+		// Draw line
+		matrix = mat4(1.0f);
+		matrix = glm::translate(matrix, ctx.sensor.position);
+		matrix = glm::scale(matrix, vec3(cos(angle) * line_length,
+										 0.0f,
+										 sin(angle) * line_length));
+		glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
+		glDrawArrays(GL_LINES, 0, 2);
+	}
+
 	glBindVertexArray(0);
 
 	glUseProgram(0);
