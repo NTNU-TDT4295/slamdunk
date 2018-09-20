@@ -4,7 +4,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 2
+Sheet 1 3
 Title ""
 Date ""
 Rev ""
@@ -425,4 +425,50 @@ Wire Wire Line
 	1900 5600 1900 5800
 Wire Wire Line
 	1900 5800 3050 5800
+Wire Wire Line
+	2900 2300 3050 2300
+Wire Wire Line
+	2900 3200 3050 3200
+Wire Wire Line
+	2900 4600 3050 4600
+Wire Wire Line
+	2900 5900 3050 5900
+Text GLabel 2900 2300 0    50   Input ~ 0
+VCC_DEC
+Text GLabel 2900 3200 0    50   Input ~ 0
+VCC_DEC
+Text GLabel 2900 4600 0    50   Input ~ 0
+VCC_DEC
+Text GLabel 2900 5900 0    50   Input ~ 0
+VCC_DEC
+Text GLabel 5400 5900 2    50   Input ~ 0
+VCC_DEC
+Wire Wire Line
+	5250 5900 5400 5900
+Text GLabel 5350 3400 2    50   Input ~ 0
+VCC_DEC
+Wire Wire Line
+	5250 3400 5350 3400
+Text GLabel 2900 3100 0    50   Input ~ 0
+VSS_DEC
+Wire Wire Line
+	2900 3100 3050 3100
+Text GLabel 2900 4700 0    50   Input ~ 0
+VSS_DEC
+Wire Wire Line
+	2900 4700 3050 4700
+Text GLabel 5400 5800 2    50   Input ~ 0
+VSS_DEC
+Wire Wire Line
+	5400 5800 5250 5800
+Text GLabel 5350 3300 2    50   Input ~ 0
+VSS_DEC
+Wire Wire Line
+	5350 3300 5250 3300
+$Sheet
+S 5950 1050 600  300 
+U 5BA5978A
+F0 "decoupling" 50
+F1 "decoupling.sch" 50
+$EndSheet
 $EndSCHEMATC
