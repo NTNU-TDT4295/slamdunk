@@ -80,6 +80,12 @@ connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_b] [get_bd_ports led5_b]
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_g] [get_bd_ports led5_g]
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_r] [get_bd_ports led5_r]
 
+# UART
+create_bd_port -dir O io_uart_tx
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_tx] [get_bd_ports io_uart_tx]
+create_bd_port -dir I io_uart_rx
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_rx] [get_bd_ports io_uart_rx]
+
 # connect accelerator AXI masters to Zynq PS
 #apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/PYNQWrapper_0/mem0" Clk "Auto" }  [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
 #apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/PYNQWrapper_0/mem1" Clk "Auto" }  [get_bd_intf_pins processing_system7_0/S_AXI_HP1]
