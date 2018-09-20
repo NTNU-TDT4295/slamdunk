@@ -3,7 +3,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 2
+Sheet 1 3
 Title ""
 Date ""
 Rev ""
@@ -426,4 +426,10 @@ Wire Wire Line
 	2850 2100 3050 2100
 Wire Wire Line
 	2850 2200 3050 2200
+$Sheet
+S 1200 6300 500  600 
+U 5BA669D3
+F0 "DECOUPLING" 50
+F1 "DECOUPLING.sch" 50
+$EndSheet
 $EndSCHEMATC
