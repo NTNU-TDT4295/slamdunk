@@ -16,7 +16,15 @@ struct SimulatorContext {
 		unsigned int diffuse_color;
 	} shader;
 
+	struct {
+		vec3 position;
+		quat rotation;
+	} sensor;
+
+	unsigned int point_vao;
+
 	model mdl;
+	model sphere;
 };
 
 void init_simulator(SimulatorContext &);

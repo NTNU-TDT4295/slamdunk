@@ -5,6 +5,7 @@
 #include <glm/vec4.hpp>
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/constants.hpp>
 
 constexpr float PI = 3.14159265359f;
@@ -16,13 +17,4 @@ typedef glm::vec<4, float, QUALIFIER> vec4;
 
 typedef glm::mat<3, 3, float, QUALIFIER> mat3;
 typedef glm::mat<4, 4, float, QUALIFIER> mat4;
-
-
-
-
-
-
-
-
-
-
+typedef glm::quat quat;
