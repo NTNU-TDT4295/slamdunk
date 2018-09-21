@@ -49,6 +49,13 @@ struct euler {
 	double z;
 };
 
+struct quaternion {
+	int16_t w;
+	int16_t x;
+	int16_t y;
+	int16_t z;
+};
+
 struct accel {
 	int16_t x;
 	int16_t y;
@@ -57,6 +64,7 @@ struct accel {
 
 void init_bno055();
 struct euler get_euler_sample();
+struct quaternion get_quaternion_sample();
 struct accel get_linear_acceleration_sample();
 
 #endif

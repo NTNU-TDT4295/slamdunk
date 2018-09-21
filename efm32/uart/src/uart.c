@@ -52,7 +52,7 @@ void uartSetup(void);
 void cmuSetup(void);
 void uartPutData(uint8_t * dataPtr, uint32_t dataLen);
 uint32_t uartGetData(uint8_t * dataPtr, uint32_t dataLen);
-void    uartPutChar(uint8_t charPtr);
+void uartPutChar(uint8_t uart_channel, uint8_t ch);
 uint8_t uartGetChar(void);
 
 
@@ -220,7 +220,8 @@ uint8_t uartGetChar() {
  * @brief  uartPutChar function
  *
  *****************************************************************************/
-void uartPutChar(uint8_t ch) {
+void uartPutChar(uint8_t uart_channel, uint8_t ch)
+{
   /* Check if Tx queue has room for new data */
   if ((txBuf.pendingBytes + 1) > BUFFERSIZE)
   {
@@ -236,8 +237,10 @@ void uartPutChar(uint8_t ch) {
   txBuf.pendingBytes++;
 
   /* Enable interrupt on USART TX Buffer*/
-  USART_IntEnable(uart0, UART_IF_TXBL);
-  USART_IntEnable(uart1, UART_IF_TXBL);
+  if (uart_channel == 0)
+	  USART_IntEnable(uart0, UART_IF_TXBL);
+  else
+	  USART_IntEnable(uart1, UART_IF_TXBL);
 }
 
 /******************************************************************************
@@ -271,7 +274,7 @@ void uartPutData(uint8_t * dataPtr, uint32_t dataLen) {
   txBuf.pendingBytes += dataLen;
 
   /* Enable interrupt on USART TX Buffer*/
-  USART_IntEnable(uart0, UART_IF_TXBL);
+  /* USART_IntEnable(uart0, UART_IF_TXBL); */
   USART_IntEnable(uart1, UART_IF_TXBL);
 }
 
