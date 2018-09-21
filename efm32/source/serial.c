@@ -25,7 +25,7 @@ void recv_char_cb(char c)
 		}
 		break;
 	default:
-		uartPutChar(c);
+		uartPutChar(0, c);
 		break;
 	}
 
@@ -57,7 +57,7 @@ void echo_uart()
 	for (;;) {
 		rx_data = uartGetChar();
 		if (rx_data) {
-			uartPutChar(rx_data);
+			uartPutChar(0, rx_data);
 		}
 	}
 }
