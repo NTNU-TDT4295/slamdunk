@@ -34,7 +34,7 @@ static void simulator_in_client(net_client_context *net_ctx) {
 	ctx = (SimulatorContext *)net_ctx->user_data;
 
 	while (!net_ctx->should_quit) {
-		int8_t buffer[8];
+		int16_t buffer[4];
 
 		size_t bytes_read = 0;
 
@@ -51,13 +51,21 @@ static void simulator_in_client(net_client_context *net_ctx) {
 		}
 
 		int16_t w, x, y, z;
-		w = (((uint16_t)buffer[1] << 8) | ((uint16_t)buffer[0]));
-		x = (((uint16_t)buffer[3] << 8) | ((uint16_t)buffer[2]));
-		y = (((uint16_t)buffer[5] << 8) | ((uint16_t)buffer[4]));
-		z = (((uint16_t)buffer[7] << 8) | ((uint16_t)buffer[6]));
+
+		w = buffer[0];
+		x = buffer[1];
+		y = buffer[2];
+		z = buffer[3];
 
 		float scale = (1.0f / (1 << 14));
 		ctx->sensor.rotation = quat(w * scale, x * scale, y * scale, z * scale);
+
+		printf("%i %i %i %i\n", w, x, y, z);
+		printf("%f %f %f %f\n",
+			   ctx->sensor.rotation.w,
+			   ctx->sensor.rotation.x,
+			   ctx->sensor.rotation.y,
+			   ctx->sensor.rotation.z);
 	}
 }
 
@@ -88,7 +96,7 @@ void init_simulator(SimulatorContext &ctx) {
 	if (!load_obj_file(transient, STR("assets/models/room.obj"), &ctx.mdl)) {
 		panic("Failed to load model room!");
 	}
-	if (!load_obj_file(transient, STR("assets/models/sphere.obj"), &ctx.sphere)) {
+	if (!load_obj_file(transient, STR("assets/models/head.obj"), &ctx.sphere)) {
 		panic("Failed to load model spehere!");
 	}
 	arena_free(&transient);
@@ -177,8 +185,8 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	// Draw sensor sphere
 	matrix = mat4(1.0f);
 	matrix = glm::translate(matrix, ctx.sensor.position);
-	matrix = matrix * rotation_matrix;
 	matrix = glm::scale(matrix, vec3(0.1f));
+	matrix = matrix * rotation_matrix;
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
 	glBindVertexArray(ctx.sphere.vao);
