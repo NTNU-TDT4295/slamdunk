@@ -21,9 +21,9 @@ class UART() extends RosettaAccelerator {
 
   // Sends message on uart receive (kind of wonky, depends on number
   // of 1s in signal)
-  val uart = Module(new Sender(50000000, 9600))
-  uart.io.reset := ~io.uart_rx
-  io.uart_tx := uart.io.txd
+
+  // Pass through on pins
+   io.uart_tx := io.uart_rx
 }
 
 
@@ -42,8 +42,9 @@ class UART() extends RosettaAccelerator {
  */
 class Channel extends Bundle {
   val data = Bits(INPUT, 8)
-  val ready = Bool(OUTPUT)
-  val valid = Bool(INPUT)
+  val ready = Bool(OUTPUT) // addr, data, ctrl info is available
+  val valid = Bool(INPUT)  // dest. asserts to indicate it can accpept info
+                           // Transfer occurs when both ready and valid are high.
 }
 
 /**

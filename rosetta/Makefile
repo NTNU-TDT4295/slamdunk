@@ -93,7 +93,7 @@ update_build: pynq_script
 deploy: update_build
 	@echo ""
 	@echo "Deploying to: $(BOARD_URI)"
-	rsync -avz $(BUILD_DIR_PYNQ) $(BOARD_URI)
+	rsync --rsh='ssh -o PubkeyAuthentication=no' -avz $(BUILD_DIR_PYNQ) $(BOARD_URI)
 
 # remove everything that is built
 clean:
