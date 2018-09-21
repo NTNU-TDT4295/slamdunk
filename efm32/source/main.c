@@ -33,20 +33,23 @@ int main(void)
 
 	uint8_t status_buf[1] = { 7 };
 	struct euler angles;
+	struct quaternion quat;
 	struct accel accelerations;
 
 	while (1) {
 		// Fetch system status
 		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, status_buf, 1);
 		uartPutChar(0, status_buf[0]);
-		uartPutChar(1, status_buf[0]);
 
 		angles = get_euler_sample();
+		quat = get_quaternion_sample();
 		accelerations = get_linear_acceleration_sample();
 
+		uartPutData((uint8_t *) &quat.w, 8);
+
 		char str[8];
-		snprintf(str, 8, "%d", (int) angles.z);
-		/* SegmentLCD_Write(str); */
+		snprintf(str, 8, "%d", (int16_t) quat.y);
+		SegmentLCD_Write(str);
 
 		// Trigger the sonar, it will interrupt you
 		trigger_sonar();

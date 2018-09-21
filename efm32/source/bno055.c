@@ -45,6 +45,25 @@ struct euler get_euler_sample()
 	};
 }
 
+struct quaternion get_quaternion_sample()
+{
+	uint8_t quat_buf[8];
+	memset(quat_buf, 0, 8);
+
+	performI2CRead(BNO055_I2C_ADDRESS, BNO055_QUATERNION_DATA_W_LSB_ADDR, quat_buf, 8);
+	int16_t w = ((int16_t) quat_buf[0]) | (((int16_t) quat_buf[1]) << 8);
+	int16_t x = ((int16_t) quat_buf[2]) | (((int16_t) quat_buf[3]) << 8);
+	int16_t y = ((int16_t) quat_buf[4]) | (((int16_t) quat_buf[5]) << 8);
+	int16_t z = ((int16_t) quat_buf[6]) | (((int16_t) quat_buf[7]) << 8);
+
+	return (struct quaternion) {
+		.w = w,
+		.x = x,
+		.y = y,
+		.z = z,
+	};
+}
+
 struct accel get_linear_acceleration_sample()
 {
 	uint8_t accel_buf[6];

@@ -25,9 +25,9 @@ void sonar_callback(uint8_t pin)
 
 	TIMER0->CMD = TIMER_CMD_STOP;
 
-	char str[8];
-	snprintf(str, 8, "%d", (int) elapsed);
-	SegmentLCD_Write(str);
+	/* char str[8]; */
+	/* snprintf(str, 8, "%d", (int) elapsed); */
+	/* SegmentLCD_Write(str); */
 }
 
 void init_sonar()

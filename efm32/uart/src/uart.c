@@ -274,7 +274,7 @@ void uartPutData(uint8_t * dataPtr, uint32_t dataLen) {
   txBuf.pendingBytes += dataLen;
 
   /* Enable interrupt on USART TX Buffer*/
-  USART_IntEnable(uart0, UART_IF_TXBL);
+  /* USART_IntEnable(uart0, UART_IF_TXBL); */
   USART_IntEnable(uart1, UART_IF_TXBL);
 }
 
