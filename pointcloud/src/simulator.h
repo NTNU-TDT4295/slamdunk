@@ -4,6 +4,7 @@
 #include "linmath.h"
 #include "model_loader_obj.h"
 #include "camera.h"
+#include "net.h"
 
 struct SimulatorContext {
 	Camera camera;
@@ -22,6 +23,8 @@ struct SimulatorContext {
 	} sensor;
 
 	unsigned int line_vao;
+
+	int socket_fd;
 
 	model mdl;
 	model sphere;

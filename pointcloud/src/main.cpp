@@ -327,7 +327,14 @@ int main(int argc, char **argv)
 		glXSwapBuffers(display, window);
 
 		frame.window.dimentions_changed = false;
+		frame.tick += 1;
 	}
+
+#ifdef PROGRAM_MODE_SIMULATOR
+	// free_simulator(simulator_context, frame);
+#else
+	free_point_cloud(point_cloud_context);
+#endif
 
 	glXMakeCurrent(display, None, NULL);
 	glXDestroyContext(display, gl_context);

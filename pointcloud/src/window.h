@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 struct WindowFrameInfo {
 	struct {
 		// Populate keybindings from keybindings.h
@@ -18,4 +20,6 @@ struct WindowFrameInfo {
 
 		bool focused;
 	} window;
+
+	uint64_t tick;
 };

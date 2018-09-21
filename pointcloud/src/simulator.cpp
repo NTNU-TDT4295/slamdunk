@@ -3,9 +3,31 @@
 #include "opengl.h"
 #include "utils.h"
 #include "octree.h"
+#include <stdio.h>
+#include <sys/socket.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+void send_point_data(int fd, vec3 point) {
+	int32_t buffer[3];
+
+	if (fd == -1) {
+		return;
+	}
+
+	buffer[0] = (int32_t)(point.x * 1000.0f);
+	buffer[1] = (int32_t)(point.y * 1000.0f);
+	buffer[2] = (int32_t)(point.z * 1000.0f);
+
+	ssize_t err;
+	err = send(fd, buffer, sizeof(buffer), 0);
+	if (err < 0) {
+		perror("send");
+		return;
+	}
+
+}
 
 void init_simulator(SimulatorContext &ctx) {
 	ctx.camera.position = { 0.0f, 1.8f, 0.0f };
@@ -63,6 +85,8 @@ void init_simulator(SimulatorContext &ctx) {
 	glBindVertexArray(0);
 
 	ctx.line_vao = vao;
+
+	ctx.socket_fd = net_client_connect("127.0.0.1", "6000");
 }
 
 void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
@@ -135,14 +159,21 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 
 		// @TODO: Raycast to find line_length
 
+		vec3 point = vec3(cos(angle) * line_length,
+						  0.0f,
+						  sin(angle) * line_length);
+
 		// Draw line
 		matrix = mat4(1.0f);
 		matrix = glm::translate(matrix, ctx.sensor.position);
-		matrix = glm::scale(matrix, vec3(cos(angle) * line_length,
-										 0.0f,
-										 sin(angle) * line_length));
+		matrix = glm::scale(matrix, point);
 		glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 		glDrawArrays(GL_LINES, 0, 2);
+
+		if (frame.tick % 100 == 0) {
+			point += ctx.sensor.position;
+			send_point_data(ctx.socket_fd, point);
+		}
 	}
 
 	glBindVertexArray(0);

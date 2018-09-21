@@ -6,6 +6,9 @@
 #include "linmath.h"
 #include "camera.h"
 
+#include "net.h"
+#include "pointqueue.h"
+
 struct PointCloudContext {
 	Camera camera;
 
@@ -20,7 +23,12 @@ struct PointCloudContext {
 	OctreeRender octree_render;
 	bool display_octree_boundaries;
 	bool display_octree_boundaries_down;
+
+	net_context net;
+
+	PointQueue queue;
 };
 
 void init_point_cloud(PointCloudContext &);
+void free_point_cloud(PointCloudContext &);
 void tick_point_cloud(PointCloudContext &, const WindowFrameInfo &);

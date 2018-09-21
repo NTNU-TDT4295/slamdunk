@@ -7,6 +7,39 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <stdio.h>
+#include <sys/socket.h>
+
+void point_cloud_net_client_callback(net_client_context *net_ctx) {
+	PointCloudContext *ctx;
+	ctx = (PointCloudContext *)net_ctx->user_data;
+	(void) ctx;
+
+	while (!net_ctx->should_quit) {
+		int32_t buffer[3];
+		size_t bytes_read = 0;
+
+		while (bytes_read < sizeof(buffer)) {
+			int err = recv(net_ctx->socket_fd, ((uint8_t *)buffer) + bytes_read, sizeof(buffer) - bytes_read, 0);
+			if (err < 0) {
+				perror("recv");
+				return;
+			} else if (err == 0) {
+				return;
+			}
+
+			bytes_read += err;
+		}
+
+		vec3 point;
+		point.x = (float)buffer[0] / 1000.0f;
+		point.y = (float)buffer[1] / 1000.0f;
+		point.z = (float)buffer[2] / 1000.0f;
+
+		ctx->queue.push(point);
+	}
+}
+
 void init_point_cloud(PointCloudContext &ctx) {
 	ctx.camera.position = { 0.0f, 1.8f, 0.0f };
 
@@ -37,10 +70,22 @@ void init_point_cloud(PointCloudContext &ctx) {
 	octree->box.radius = 1000.0f;
 
 	octree_load_obj(octree, "assets/models/mountain.obj");
+
+	point_queue_init(ctx.queue, 1024);
+
+	ctx.net.client_callback = point_cloud_net_client_callback;
+	ctx.net.user_data = &ctx;
+	net_init(&ctx.net, "0.0.0.0", "6000");
 }
 
 void tick_point_cloud(PointCloudContext &ctx, const WindowFrameInfo &frame) {
 	update_camera(ctx.camera, frame);
+
+	vec3 point;
+	while (ctx.queue.pop(&point)) {
+		OctreePoint p = { point.x, point.y, point.z };
+		ctx.octree_render.octree.insert(p);
+	}
 
 	if (frame.keyboard.toggle_boundary && !ctx.display_octree_boundaries_down) {
 		ctx.display_octree_boundaries = !ctx.display_octree_boundaries;
@@ -72,4 +117,8 @@ void tick_point_cloud(PointCloudContext &ctx, const WindowFrameInfo &frame) {
 	octree_render(ctx.octree_render);
 
 	glUseProgram(0);
+}
+
+void free_point_cloud(PointCloudContext &ctx) {
+	net_shutdown(&ctx.net);
 }

@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <cmath>
+
+constexpr float merge_limit = 0.0001f;
 
 static inline uint8_t octree_point_next_parent(OctreeBoundingBox box, OctreePoint point) {
 	uint8_t result = 0;
@@ -95,9 +98,34 @@ static void octree_node_insert(OctreeNode **node, OctreePoint point, OctreeBound
 	(*node)->leafs[(*node)->num_points - 1] = point;
 }
 
+static bool octree_has_equal_point(OctreeNode *node, OctreePoint point) {
+	if (!node) {
+		return false;
+	}
+	if (node->num_points > OCTREE_LEAFS) {
+		uint8_t next_box = octree_point_next_parent(node->box, point);
+
+		return octree_has_equal_point(node->children[next_box], point);
+	} else {
+		for (size_t i = 0; i < node->num_points; i++) {
+			if (fabsf(node->leafs[i].x - point.x) < merge_limit &&
+				fabsf(node->leafs[i].y - point.y) < merge_limit &&
+				fabsf(node->leafs[i].z - point.z) < merge_limit) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 void Octree::insert(OctreePoint point) {
 	OctreeNode **node;
 	node = &this->root;
+
+	if (octree_has_equal_point(*node, point)) {
+		return;
+	}
 
 	octree_node_insert(node, point, this->box);
 }
