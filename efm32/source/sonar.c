@@ -11,9 +11,19 @@ void sonar_callback(uint8_t pin)
 
 	TIMER0->CNT = 0;
 	TIMER0->CMD = TIMER_CMD_START;
-	while (GPIO_PinInGet(gpioPortD, 2));
+
+	while (GPIO_PinInGet(gpioPortD, 2)) {
+		// Gernal purpose timers are 16-bit, we need to extend
+		// this to account for overflow later (TODO)
+		if (TIMER0->CNT > 65000) {
+			elapsed = 0;
+			break;
+		} else {
+			elapsed = TIMER0->CNT;
+		}
+	}
+
 	TIMER0->CMD = TIMER_CMD_STOP;
-	elapsed = TIMER0->CNT;
 
 	char str[8];
 	snprintf(str, 8, "%d", (int) elapsed);

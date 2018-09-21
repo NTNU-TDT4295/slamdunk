@@ -50,7 +50,7 @@ int main(void)
 		// Trigger the sonar, it will interrupt you
 		trigger_sonar();
 
-		DelayMs(100);
+		DelayMs(50);
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)
