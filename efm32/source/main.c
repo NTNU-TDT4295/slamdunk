@@ -39,6 +39,7 @@ int main(void)
 		// Fetch system status
 		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, status_buf, 1);
 		uartPutChar(0, status_buf[0]);
+		uartPutChar(1, status_buf[0]);
 
 		angles = get_euler_sample();
 		accelerations = get_linear_acceleration_sample();
