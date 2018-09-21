@@ -123,6 +123,7 @@ void Octree::insert(OctreePoint point) {
 	OctreeNode **node;
 	node = &this->root;
 
+	// Filter out points that are equal to existing points.
 	if (octree_has_equal_point(*node, point)) {
 		return;
 	}

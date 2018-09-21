@@ -228,6 +228,8 @@ int main(int argc, char **argv)
 
 	while (!should_exit) {
 		XEvent event;
+		bool skip_mouse = false;
+
 		while (XPending(display) > 0) {
 			bool key_down = true;
 
@@ -239,6 +241,7 @@ int main(int argc, char **argv)
 					frame.window.width  = event.xconfigure.width;
 					frame.window.height = event.xconfigure.height;
 					frame.window.dimentions_changed = true;
+					skip_mouse = true;
 
 					glViewport(0, 0, frame.window.width, frame.window.height);
 				}
@@ -250,14 +253,21 @@ int main(int argc, char **argv)
 				}
 				break;
 
-			case EnterNotify:
+			// case EnterNotify:
 			case FocusIn:
 				frame.window.focused = true;
+				skip_mouse = true;
+
+				XGrabPointer(display, window, False, 0,
+							 GrabModeAsync, GrabModeAsync,
+							 window, blank_cursor, CurrentTime);
 				break;
 
-			case LeaveNotify:
+			// case LeaveNotify:
 			case FocusOut:
 				frame.window.focused = false;
+				XUngrabPointer(display, CurrentTime);
+
 #define KEYBINDING(name, key) frame.keyboard.name = false;
 #include "keybindings.h"
 #undef KEYBINDING
@@ -302,12 +312,14 @@ int main(int argc, char **argv)
 		Window _dc_win;
 
 		if (frame.window.focused) {
-			XQueryPointer(display, window, &_dc_win, &_dc_win,
-						&_dc_int, &_dc_int,
-						&pointer_x, &pointer_y, &_dc_uint);
+			if (!skip_mouse) {
+				XQueryPointer(display, window, &_dc_win, &_dc_win,
+							&_dc_int, &_dc_int,
+							&pointer_x, &pointer_y, &_dc_uint);
 
-			pointer_x -= frame.window.width / 2;
-			pointer_y -= frame.window.height / 2;
+				pointer_x -= frame.window.width / 2;
+				pointer_y -= frame.window.height / 2;
+			}
 
 			XWarpPointer(display, None, window, 0, 0, 0, 0,
 						 frame.window.width / 2,

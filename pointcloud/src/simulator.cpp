@@ -170,7 +170,7 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 		glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 		glDrawArrays(GL_LINES, 0, 2);
 
-		if (frame.tick % 100 == 0) {
+		if (frame.tick % 10 == 0 || true) {
 			point += ctx.sensor.position;
 			send_point_data(ctx.socket_fd, point);
 		}

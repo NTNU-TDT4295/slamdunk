@@ -12,7 +12,7 @@ HEADERS:=$(find $(SRC_DIR) -name *.h)
 
 GLAD:=PYTHONPATH=$(PYTHONPATH):$(GLAD_DIR) python -m glad
 
-all: pc
+all: pc simulator
 
 pc: $(SRC) $(HEADERS) $(GLM_DIR)/glm
 	$(CXX) $(CFLAGS) $(SRC) $(LDFLAGS) -o $@
