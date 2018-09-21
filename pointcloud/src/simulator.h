@@ -26,6 +26,8 @@ struct SimulatorContext {
 
 	int socket_fd;
 
+	net_context net_in;
+
 	model mdl;
 	model sphere;
 };

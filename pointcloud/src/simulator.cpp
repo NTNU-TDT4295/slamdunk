@@ -29,6 +29,38 @@ void send_point_data(int fd, vec3 point) {
 
 }
 
+static void simulator_in_client(net_client_context *net_ctx) {
+	SimulatorContext *ctx;
+	ctx = (SimulatorContext *)net_ctx->user_data;
+
+	while (!net_ctx->should_quit) {
+		int8_t buffer[8];
+
+		size_t bytes_read = 0;
+
+		while (bytes_read < sizeof(buffer)) {
+			int err = recv(net_ctx->socket_fd, ((uint8_t *)buffer) + bytes_read, sizeof(buffer) - bytes_read, 0);
+			if (err < 0) {
+				perror("recv");
+				return;
+			} else if (err == 0) {
+				return;
+			}
+
+			bytes_read += err;
+		}
+
+		int16_t w, x, y, z;
+		w = (((uint16_t)buffer[1] << 8) | ((uint16_t)buffer[0]));
+		x = (((uint16_t)buffer[3] << 8) | ((uint16_t)buffer[2]));
+		y = (((uint16_t)buffer[5] << 8) | ((uint16_t)buffer[4]));
+		z = (((uint16_t)buffer[7] << 8) | ((uint16_t)buffer[6]));
+
+		float scale = (1.0f / (1 << 14));
+		ctx->sensor.rotation = quat(w * scale, x * scale, y * scale, z * scale);
+	}
+}
+
 void init_simulator(SimulatorContext &ctx) {
 	ctx.camera.position = { 0.0f, 1.8f, 0.0f };
 
@@ -87,6 +119,12 @@ void init_simulator(SimulatorContext &ctx) {
 	ctx.line_vao = vao;
 
 	ctx.socket_fd = net_client_connect("127.0.0.1", "6000");
+
+	ctx.net_in.user_data = &ctx;
+	ctx.net_in.client_callback = simulator_in_client;
+	net_init(&ctx.net_in, "0.0.0.0", "6001");
+
+	ctx.sensor.rotation = glm::angleAxis(PI / 4, vec3(1.0f, 0.0f, 0.0f));
 }
 
 void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
@@ -134,9 +172,12 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	glDrawArrays(GL_TRIANGLES, 0, ctx.mdl.num_vertex);
 	glBindVertexArray(0);
 
+	mat4 rotation_matrix = glm::mat4_cast(ctx.sensor.rotation);
+
 	// Draw sensor sphere
 	matrix = mat4(1.0f);
 	matrix = glm::translate(matrix, ctx.sensor.position);
+	matrix = matrix * rotation_matrix;
 	matrix = glm::scale(matrix, vec3(0.1f));
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
@@ -163,14 +204,17 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 						  0.0f,
 						  sin(angle) * line_length);
 
+
 		// Draw line
 		matrix = mat4(1.0f);
 		matrix = glm::translate(matrix, ctx.sensor.position);
+		matrix = matrix * rotation_matrix;
 		matrix = glm::scale(matrix, point);
 		glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 		glDrawArrays(GL_LINES, 0, 2);
 
 		if (frame.tick % 10 == 0 || true) {
+			point = (rotation_matrix * vec4(point, 1.0f));
 			point += ctx.sensor.position;
 			send_point_data(ctx.socket_fd, point);
 		}
