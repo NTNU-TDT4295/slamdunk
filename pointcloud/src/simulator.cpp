@@ -62,7 +62,7 @@ static void simulator_in_client(net_client_context *net_ctx) {
 		z = buffer[3];
 
 		float scale = (1.0f / (1 << 14));
-		ctx->sensor.rotation = quat(w * scale, x * scale, y * scale, z * scale);
+		ctx->sensor.rotation = quat(w * scale, x * scale, z * scale, y * scale);
 
 		printf("%i %i %i %i\n", w, x, y, z);
 		printf("%f %f %f %f\n",
