@@ -12,6 +12,11 @@
 #define POWER_MODE_LOWPOWER 0x01
 #define POWER_MODE_SUSPEND  0x02
 
+#define BNO055_INT_MSK          0x0F
+#define BNO055_INT_EN           0x10
+#define BNO055_ACC_AM_THRES     0x11
+#define BNO055_ACC_INT_Settings 0x12
+
 #define BNO055_EULER_H_LSB_ADDR 0X1A
 #define BNO055_EULER_H_MSB_ADDR 0X1B
 #define BNO055_EULER_R_LSB_ADDR 0X1C
@@ -62,7 +67,9 @@ struct accel {
 	int16_t z;
 };
 
+void accelerometer_callback(uint8_t pin);
 void init_bno055();
+void init_accelerometer_int();
 struct euler get_euler_sample();
 struct quaternion get_quaternion_sample();
 struct accel get_linear_acceleration_sample();
