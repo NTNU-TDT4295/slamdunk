@@ -5,7 +5,6 @@
 #include "octree.h"
 #include <stdio.h>
 #include <sys/socket.h>
-#include "raycast.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -101,7 +100,7 @@ void init_simulator(SimulatorContext &ctx) {
 	if (!load_obj_file(transient, STR("assets/models/room.obj"), &ctx.mdl)) {
 		panic("Failed to load model room!");
 	}
-	if (!load_obj_file(transient, STR("assets/models/sphere.obj"), &ctx.sphere)) {
+	if (!load_obj_file(transient, STR("assets/models/head.obj"), &ctx.sphere)) {
 		panic("Failed to load model spehere!");
 	}
 	arena_free(&transient);
@@ -192,8 +191,9 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	// Draw sensor sphere
 	matrix = mat4(1.0f);
 	matrix = glm::translate(matrix, ctx.sensor.position);
-	matrix = glm::scale(matrix, vec3(0.1f));
 	matrix = matrix * rotation_matrix;
+	// matrix = glm::rotate(matrix, -PI / 2.0f, vec3(1.0f, 0.0f, 0.0f));
+	matrix = glm::scale(matrix, vec3(0.1f));
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
 	glBindVertexArray(ctx.sphere.vao);

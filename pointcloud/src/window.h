@@ -23,3 +23,11 @@ struct WindowFrameInfo {
 
 	uint64_t tick;
 };
+
+struct WindowProcs {
+	void (*init)(void **);
+	void (*tick)(void *, const WindowFrameInfo &);
+	void (*free)(void *);
+};
+
+int run_window(int argc, char *argv[], WindowProcs procs);

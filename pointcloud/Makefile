@@ -1,24 +1,49 @@
-GLAD_DIR:=lib/glad
-GLAD_OUT_DIR:=build/glad
-GLM_DIR:=lib/glm
-SRC_DIR := src/
+BUILD_DIR:=./build
+LIB_DIR:=./lib
+GLAD_DIR:=$(LIB_DIR)/glad
+GLAD_OUT_DIR:=$(BUILD_DIR)/glad
+GLM_DIR:=$(LIB_DIR)/glm
+SRC_DIR:=./src
 
-CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include/ -I$(GLM_DIR)
-LDFLAGS:=-lX11 -lGL -lGLU -ldl
+CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(GLM_DIR)
+LDFLAGS:=-lX11 -lGL -lGLU -ldl -pthread
 
-SRC=$(shell find $(SRC_DIR) -name *.cpp)
-SRC+= build/glad/glad.o build/glad/glad_glx.o
-HEADERS:=$(find $(SRC_DIR) -name *.h)
+SRC=$(shell find $(SRC_DIR)/ -name *.cpp)
+HEADERS:=$(find $(SRC_DIR)/ -name *.h)
+
+GLAD_INCLUDES=$(GLAD_OUT_DIR)/src/glad.c $(GLAD_OUT_DIR)/src/glad_glx.c
+GLAD_OBJ=$(GLAD_OUT_DIR)/glad.o $(GLAD_OUT_DIR)/glad_glx.o
 
 GLAD:=PYTHONPATH=$(PYTHONPATH):$(GLAD_DIR) python -m glad
 
-all: pc simulator
+all: pc sim
 
-pc: $(SRC) $(HEADERS) $(GLM_DIR)/glm
-	$(CXX) $(CFLAGS) $(SRC) $(LDFLAGS) -o $@
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(GLM_DIR)/glm $(GLAD_INCLUDES)
+	@mkdir -p $(dir $@)
+	$(CXX) -c $(CFLAGS) $< -o $@
 
-simulator: $(SRC) $(HEADERS) $(GLM_DIR)/glm
-	$(CXX) $(CFLAGS) $(SRC) $(LDFLAGS) -DPROGRAM_MODE_SIMULATOR -o $@
+
+COMMON_SRC=$(shell find $(SRC_DIR)/ -path "$(SRC_DIR)/bin" -prune -o -name '*.cpp' -print)
+
+
+# Build point cloud
+PC_SRC=$(shell find $(SRC_DIR)/bin/pc/ -name '*.cpp') $(COMMON_SRC)
+PC_OBJ=$(PC_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
+
+foo:
+	echo $(PC_SRC)
+	echo $(PC_OBJ)
+
+pc: $(PC_OBJ)
+	$(CXX) $(LDFLAGS) $(PC_OBJ) -o $@
+
+
+# Build simulator
+SIM_SRC=$(shell find $(SRC_DIR)/bin/sim/ -name '*.cpp') $(COMMON_SRC)
+SIM_OBJ=$(SIM_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
+
+sim: $(SIM_OBJ)
+	$(CXX) $(LDFLAGS) $(SIM_OBJ) -o $@
 
 
 $(GLM_DIR)/glm:
@@ -27,6 +52,7 @@ $(GLM_DIR)/glm:
 
 # Fetch and build GLAD
 $(GLAD_DIR)/main.py:
+	echo "checkout glad"
 	git submodule update --init --depth 1 $(GLAD_DIR)
 
 $(GLAD_OUT_DIR)/src/glad.c: $(GLAD_DIR)/main.py
@@ -38,16 +64,21 @@ $(GLAD_OUT_DIR)/src/glad_glx.c: $(GLAD_DIR)/main.py $(GLAD_OUT_DIR)/src/glad.c
 $(GLAD_OUT_DIR)/%.o: $(GLAD_OUT_DIR)/src/%.c
 	$(CC) -c -I$(GLAD_OUT_DIR)/include/ $< -o $@
 
+# $(GLAD_OUT_DIR)/include/%.h: $(GLAD_OUT_DIR)/src/%.c
+
 clean:
-	-rm pc
+	-rm -f pc
+	-rm -f sim
+	-rm -f build/*.o
+	-rm -rf build/bin/
 .PHONY: clean
 
 clean-glad:
-	-rm -r $(GLAD_OUT_DIR)
-	-rm pc
+	-rm -rf $(GLAD_OUT_DIR)
+	-rm -f pc
 .PHONY: clean
 
 purge: clean
-	rm -r build
+	rm -rf build
 	git submodule deinit --all
 .PHONY: purge

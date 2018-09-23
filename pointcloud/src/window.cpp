@@ -26,7 +26,7 @@ static int context_error_handler(Display *display, XErrorEvent *ev) {
 	return 0;
 }
 
-int main(int argc, char **argv)
+int run_window(int argc, char **argv, WindowProcs procs)
 {
 	(void)argc;
 	(void)argv;
@@ -218,13 +218,8 @@ int main(int argc, char **argv)
 	frame.window.height = INITIAL_WINDOW_HEIGHT;
 	frame.window.dimentions_changed = true;
 
-#ifdef PROGRAM_MODE_SIMULATOR
-	SimulatorContext simulator_context = {};
-	init_simulator(simulator_context);
-#else
-	PointCloudContext point_cloud_context = {};
-	init_point_cloud(point_cloud_context);
-#endif
+	void *context;
+	procs.init(&context);
 
 	while (!should_exit) {
 		XEvent event;
@@ -330,11 +325,7 @@ int main(int argc, char **argv)
 		frame.mouse.dx = pointer_x;
 		frame.mouse.dy = pointer_y;
 
-#ifdef PROGRAM_MODE_SIMULATOR
-		tick_simulator(simulator_context, frame);
-#else
-		tick_point_cloud(point_cloud_context, frame);
-#endif
+		procs.tick(context, frame);
 
 		glXSwapBuffers(display, window);
 
@@ -342,11 +333,7 @@ int main(int argc, char **argv)
 		frame.tick += 1;
 	}
 
-#ifdef PROGRAM_MODE_SIMULATOR
-	// free_simulator(simulator_context, frame);
-#else
-	free_point_cloud(point_cloud_context);
-#endif
+	procs.free(context);
 
 	glXMakeCurrent(display, None, NULL);
 	glXDestroyContext(display, gl_context);
@@ -355,4 +342,6 @@ int main(int argc, char **argv)
 
 	XDestroyWindow(display, window);
 	XCloseDisplay(display);
+
+	return 0;
 }
