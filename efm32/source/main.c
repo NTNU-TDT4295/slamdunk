@@ -41,20 +41,20 @@ int main(void)
 		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, status_buf, 1);
 		uartPutChar(0, status_buf[0]);
 
+		// Fetch samples for sensors available
 		angles = get_euler_sample();
 		quat = get_quaternion_sample();
 		accelerations = get_linear_acceleration_sample();
 
+		// Send quaternion data
 		uartPutData((uint8_t *) &quat.w, 8);
 
-		char str[8];
-		snprintf(str, 8, "%d", (int16_t) quat.y);
-		SegmentLCD_Write(str);
-
 		// Trigger the sonar, it will interrupt you
-		trigger_sonar();
+		/* trigger_sonar(); */
 
-		DelayMs(50);
+		// Testing of accelerometer data
+		/* accelerations = get_linear_acceleration_sample(); */
+		/* uartPutData((uint8_t *) &accelerations.x, 6); */
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)

@@ -79,9 +79,9 @@ struct euler get_euler_sample()
 	memset(euler_buf, 0, 6);
 
 	performI2CRead(BNO055_I2C_ADDRESS, BNO055_EULER_H_LSB_ADDR, euler_buf, 6);
-	uint16_t x = ((int16_t) euler_buf[0]) | (((int16_t) euler_buf[1]) << 8);
-	uint16_t y = ((int16_t) euler_buf[2]) | (((int16_t) euler_buf[3]) << 8);
-	uint16_t z = ((int16_t) euler_buf[4]) | (((int16_t) euler_buf[5]) << 8);
+	int16_t x = ((int16_t) euler_buf[0]) | (((int16_t) euler_buf[1]) << 8);
+	int16_t y = ((int16_t) euler_buf[2]) | (((int16_t) euler_buf[3]) << 8);
+	int16_t z = ((int16_t) euler_buf[4]) | (((int16_t) euler_buf[5]) << 8);
 
 	return (struct euler) {
 		.x = ((double) x) / 16.0,
@@ -115,9 +115,9 @@ struct accel get_linear_acceleration_sample()
 	memset(accel_buf, 0, 6);
 
 	performI2CRead(BNO055_I2C_ADDRESS, BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, accel_buf, 6);
-	uint16_t x = ((int16_t) accel_buf[0]) | (((int16_t) accel_buf[1]) << 8);
-	uint16_t y = ((int16_t) accel_buf[2]) | (((int16_t) accel_buf[3]) << 8);
-	uint16_t z = ((int16_t) accel_buf[4]) | (((int16_t) accel_buf[5]) << 8);
+	int16_t x = ((int16_t) accel_buf[0]) | (((int16_t) accel_buf[1]) << 8);
+	int16_t y = ((int16_t) accel_buf[2]) | (((int16_t) accel_buf[3]) << 8);
+	int16_t z = ((int16_t) accel_buf[4]) | (((int16_t) accel_buf[5]) << 8);
 
 	return (struct accel) {
 		.x = x,
