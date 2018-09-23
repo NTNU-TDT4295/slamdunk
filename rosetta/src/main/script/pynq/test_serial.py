@@ -1,6 +1,7 @@
 import serial
 import socket
 import time
+import struct
 
 remote_ip_addr = '193.35.55.93'
 remote_port = 6001
@@ -23,7 +24,7 @@ def reflect(serial_port, socket):
         try:
             socket.sendall(recv)
             print(recv)
-        except BrokenPipeError:
+        except (BrokenPipeError, ConnectionResetError):
             return
 
 def main():
