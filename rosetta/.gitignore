@@ -102,7 +102,6 @@ local.properties
 ### C template
 # Object files
 *.o
-*.ko
 *.obj
 *.elf
 
