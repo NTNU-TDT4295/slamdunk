@@ -5,6 +5,7 @@
 #include "model_loader_obj.h"
 #include "camera.h"
 #include "net.h"
+#include "TriangleMesh.h"
 
 struct SimulatorContext {
 	Camera camera;
@@ -30,6 +31,8 @@ struct SimulatorContext {
 
 	model mdl;
 	model sphere;
+
+	TriangleMesh *mdl_mesh;
 };
 
 void init_simulator(SimulatorContext &);

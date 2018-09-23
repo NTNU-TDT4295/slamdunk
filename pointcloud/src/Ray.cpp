@@ -1,5 +1,7 @@
 #include "Ray.h"
 
+constexpr float BIAS = 1e-8;
+
 Ray::Ray()
 {
 	origin = vec3(0);

@@ -1,18 +1,14 @@
 #pragma once
-#include "Globals.h"
 
 class BBox
 {
-public:
-	BBox()
-	{}
-	BBox(vec3 min_, vec3 max_)
-	{
+ public:
+	BBox() {}
+	BBox(vec3 min_, vec3 max_) {
 		bounds[0] = min_;
 		bounds[1] = max_;
 	}
-	BBox& extendBy(const vec3 &p)
-	{
+	BBox& extendBy(const vec3 &p) {
 		if(p.x < bounds[0].x) bounds[0].x = p.x;
 		if(p.y < bounds[0].y) bounds[0].y = p.y;
 		if(p.z < bounds[0].z) bounds[0].z = p.z;
@@ -23,8 +19,7 @@ public:
 		return *this;
 	}
 
-	float GetIntersection(const Ray &r) const
-	{
+	float GetIntersection(const Ray &r) const {
 		float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
 		tmin = (bounds[r.sign[0]].x - r.GetOrigin().x) * r.invDir.x;
@@ -53,8 +48,7 @@ public:
 
 		float t = tmin;
 
-		if(t < 0)
-		{
+		if(t < 0) {
 			t = tmax;
 			if(t < 0) return false;
 		}
@@ -64,7 +58,7 @@ public:
 
 	vec3 bounds[2];
 
-private:
+ private:
 	vec3 min;
 	vec3 max;
 };

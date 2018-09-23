@@ -5,15 +5,19 @@
 #include "octree.h"
 #include <stdio.h>
 #include <sys/socket.h>
+#include "raycast.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void send_point_data(int fd, vec3 point) {
+constexpr float max_ray_length = 5.0f;
+
+
+int send_point_data(int fd, vec3 point) {
 	int32_t buffer[3];
 
 	if (fd == -1) {
-		return;
+		return -1;
 	}
 
 	buffer[0] = (int32_t)(point.x * 1000.0f);
@@ -24,9 +28,10 @@ void send_point_data(int fd, vec3 point) {
 	err = send(fd, buffer, sizeof(buffer), 0);
 	if (err < 0) {
 		perror("send");
-		return;
+		return -1;
 	}
 
+	return 0;
 }
 
 static void simulator_in_client(net_client_context *net_ctx) {
@@ -96,10 +101,12 @@ void init_simulator(SimulatorContext &ctx) {
 	if (!load_obj_file(transient, STR("assets/models/room.obj"), &ctx.mdl)) {
 		panic("Failed to load model room!");
 	}
-	if (!load_obj_file(transient, STR("assets/models/head.obj"), &ctx.sphere)) {
+	if (!load_obj_file(transient, STR("assets/models/sphere.obj"), &ctx.sphere)) {
 		panic("Failed to load model spehere!");
 	}
 	arena_free(&transient);
+
+	ctx.mdl_mesh = new TriangleMesh("assets/models/room.obj");
 
 	constexpr OctreePoint line[] = {
 		{ 0.0f, 0.0f, 0.0f },
@@ -200,18 +207,24 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
 	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
 
-	constexpr size_t num_lines = 16;
+	constexpr size_t num_lines = 64;
 	for (size_t i = 0; i < num_lines; i++) {
 
 		float angle = ((float)i / (float)num_lines) * 2 * PI;
-		float line_length = 3;
+		float ray_length;
 
-		// @TODO: Raycast to find line_length
+		vec3 point = vec3(cos(angle), 0.0f, sin(angle));
+		vec3 direction = rotation_matrix * vec4(point, 1.0f);
 
-		vec3 point = vec3(cos(angle) * line_length,
-						  0.0f,
-						  sin(angle) * line_length);
+		Ray ray = Ray(ctx.sensor.position, direction);
 
+		ray_length = ctx.mdl_mesh->GetIntersection(ray);
+
+		if (ray_length < 0 || ray_length > max_ray_length) {
+			continue;
+		}
+
+		point = point * ray_length;
 
 		// Draw line
 		matrix = mat4(1.0f);
@@ -224,7 +237,10 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 		if (frame.tick % 10 == 0 || true) {
 			point = (rotation_matrix * vec4(point, 1.0f));
 			point += ctx.sensor.position;
-			send_point_data(ctx.socket_fd, point);
+			int err = send_point_data(ctx.socket_fd, point);
+			if (err) {
+				ctx.socket_fd = -1;
+			}
 		}
 	}
 

@@ -1,9 +1,7 @@
 #pragma once
-#define TINYOBJLOADER_IMPLEMENTATION
 #include "Triangle.h"
 #include "linmath.h"
 #include "tiny_obj_loader.h"
-#include "Globals.h"
 #include <iostream>
 #include <memory>
 

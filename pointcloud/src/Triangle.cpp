@@ -19,16 +19,17 @@ vec3 Triangle::GetNormalAt(const vec3 &)
 	return normal; // Has to be inverted for some reason
 }
 
+constexpr float BIAS = 1e-8;
+
 float Triangle::GetIntersection(const Ray &ray, float &u, float &v)
 {
-	 
 	vec3 v0v1 = v1 - v0;
 	vec3 v0v2 = v2 - v0;
 	vec3 pvec = glm::cross(ray.GetDirection(), v0v2);
 	float det = glm::dot(v0v1, pvec);
 
 	// ray and triangle are parallel if det is close to 0
-	if(abs(det) < BIAS) return false;
+	if(fabsf(det) < BIAS) return false;
 
 	float invDet = 1 / det;
 

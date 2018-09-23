@@ -69,7 +69,7 @@ void init_point_cloud(PointCloudContext &ctx) {
 	octree->box.center = { 0.0f, 0.0f, 0.0f };
 	octree->box.radius = 1000.0f;
 
-	octree_load_obj(octree, "assets/models/mountain.obj");
+	// octree_load_obj(octree, "assets/models/mountain.obj");
 
 	point_queue_init(ctx.queue, 1024);
 

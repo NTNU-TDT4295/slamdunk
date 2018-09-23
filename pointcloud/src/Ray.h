@@ -1,6 +1,5 @@
 #pragma once
 #include "linmath.h"
-#include "Globals.h"
 
 struct Ray
 {
