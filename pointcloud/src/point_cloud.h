@@ -24,6 +24,9 @@ struct PointCloudContext {
 	bool display_octree_boundaries;
 	bool display_octree_boundaries_down;
 
+	unsigned int axis_vao;
+	unsigned int axis_vbo;
+
 	net_context net;
 
 	PointQueue queue;

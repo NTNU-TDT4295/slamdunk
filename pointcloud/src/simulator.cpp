@@ -138,7 +138,7 @@ void init_simulator(SimulatorContext &ctx) {
 	ctx.net_in.client_callback = simulator_in_client;
 	net_init(&ctx.net_in, "0.0.0.0", "6001");
 
-	ctx.sensor.rotation = glm::angleAxis(PI / 4, vec3(1.0f, 0.0f, 0.0f));
+	// ctx.sensor.rotation = glm::angleAxis(PI / 4, vec3(1.0f, 0.0f, 0.0f));
 }
 
 void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {

@@ -40,6 +40,34 @@ void point_cloud_net_client_callback(net_client_context *net_ctx) {
 	}
 }
 
+constexpr float axis_size = 1000.0f;
+constexpr OctreePoint axis_lines[] = {
+	{ -axis_size, 0.0f, 0.0f }, {  axis_size, 0.0f, 0.0f },
+	{ 0.0f, -axis_size, 0.0f }, {  0.0f, axis_size, 0.0f },
+	{ 0.0f, 0.0f, -axis_size }, {  0.0f, 0.0f, axis_size },
+};
+constexpr size_t axis_lines_length = sizeof(axis_lines) / sizeof(OctreePoint);
+
+static void init_axis(PointCloudContext &ctx) {
+	GLuint vao, buffer;
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(axis_lines), axis_lines, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(OctreePoint), 0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	ctx.axis_vao = vao;
+	ctx.axis_vbo = buffer;
+}
+
 void init_point_cloud(PointCloudContext &ctx) {
 	ctx.camera.position = { 0.0f, 1.8f, 0.0f };
 
@@ -72,6 +100,8 @@ void init_point_cloud(PointCloudContext &ctx) {
 	// octree_load_obj(octree, "assets/models/mountain.obj");
 
 	point_queue_init(ctx.queue, 1024);
+
+	init_axis(ctx);
 
 	ctx.net.client_callback = point_cloud_net_client_callback;
 	ctx.net.user_data = &ctx;
@@ -116,9 +146,20 @@ void tick_point_cloud(PointCloudContext &ctx, const WindowFrameInfo &frame) {
 	glUniform3f(ctx.shader.emission_color, 1.0f, 1.0f, 1.0f);
 	octree_render(ctx.octree_render);
 
+	matrix = mat4(1.0f);
+	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
+
+	glBindVertexArray(ctx.axis_vao);
+	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
+	glUniform3f(ctx.shader.emission_color, 1.0f, 1.0f, 1.0f);
+	glDrawArrays(GL_LINES, 0, axis_lines_length);
+	glBindVertexArray(0);
+
 	glUseProgram(0);
 }
 
 void free_point_cloud(PointCloudContext &ctx) {
 	net_shutdown(&ctx.net);
+	glDeleteVertexArrays(1, &ctx.axis_vao);
+	glDeleteBuffers(1, &ctx.axis_vbo);
 }
