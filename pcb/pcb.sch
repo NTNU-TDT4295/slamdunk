@@ -4,7 +4,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 3
+Sheet 1 4
 Title ""
 Date ""
 Rev ""
@@ -323,10 +323,10 @@ F0 "DEBUG" 50
 F1 "DEBUG.sch" 50
 F2 "LED_1" I R 2200 2500 50 
 F3 "LED_2" I R 2200 2600 50 
-F4 "LED_3" I R 2200 2700 50 
-F5 "LED_4" I R 2200 2800 50 
-F6 "SW_1" I R 2200 3250 50 
-F7 "SW_2" I R 2200 3350 50 
+F4 "LED_3" I R 2200 3250 50 
+F5 "LED_4" I R 2200 3350 50 
+F6 "SW_1" I R 2200 2700 50 
+F7 "SW_2" I R 2200 2800 50 
 F8 "SW_3" I R 2200 3450 50 
 F9 "SW_4" I R 2200 3550 50 
 $EndSheet
@@ -334,18 +334,6 @@ Wire Wire Line
 	2200 2500 3050 2500
 Wire Wire Line
 	2200 2600 3050 2600
-Wire Wire Line
-	2200 3250 2650 3250
-Wire Wire Line
-	2650 3250 2650 2700
-Wire Wire Line
-	2650 2700 3050 2700
-Wire Wire Line
-	2200 3350 2700 3350
-Wire Wire Line
-	2700 3350 2700 2800
-Wire Wire Line
-	2700 2800 3050 2800
 $Comp
 L Device:Crystal_GND23 Y1
 U 1 1 5BA4C88D
@@ -536,10 +524,6 @@ F 3 "~" H 1900 6300 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	3050 6500 2100 6500
-Wire Wire Line
-	2100 6400 3050 6400
-Wire Wire Line
 	3050 6300 2100 6300
 Wire Wire Line
 	2100 6200 3050 6200
@@ -578,4 +562,78 @@ Wire Wire Line
 	5250 2300 6800 2300
 Text Notes 7150 1750 0    50   ~ 0
 Generic I/O
+$Sheet
+S 2300 6300 550  700 
+U 5BAA6CA9
+F0 "levelswitch" 50
+F1 "levelswitch.sch" 50
+F2 "LV" I R 2850 6800 50 
+F3 "HV" I R 2850 6900 50 
+F4 "GND" I L 2300 6900 50 
+F5 "LV1" I R 2850 6400 50 
+F6 "LV2" I R 2850 6500 50 
+F7 "HV1" I L 2300 6400 50 
+F8 "HV2" I L 2300 6500 50 
+$EndSheet
+Wire Wire Line
+	3050 6400 2850 6400
+Wire Wire Line
+	2850 6500 3050 6500
+Wire Wire Line
+	2300 6400 2100 6400
+Wire Wire Line
+	2100 6500 2300 6500
+Wire Wire Line
+	2200 2700 3050 2700
+Wire Wire Line
+	2200 2800 3050 2800
+$Comp
+L Connector:Conn_01x04_Male J?
+U 1 1 5BAE10AA
+P 2500 3450
+F 0 "J?" H 2473 3330 50  0000 R CNN
+F 1 "Conn_01x04_Male" H 2473 3421 50  0000 R CNN
+F 2 "" H 2500 3450 50  0001 C CNN
+F 3 "~" H 2500 3450 50  0001 C CNN
+	1    2500 3450
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	2300 3250 2200 3250
+Wire Wire Line
+	2300 3350 2200 3350
+Wire Wire Line
+	2300 3450 2200 3450
+Wire Wire Line
+	2300 3550 2200 3550
+Text Notes 2400 3700 0    50   ~ 0
+Debug pynq\n
+Text Notes 2300 2400 0    50   ~ 0
+debug EFM
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BAF583C
+P 3350 6800
+F 0 "#PWR?" H 3350 6650 50  0001 C CNN
+F 1 "+3.3V" V 3365 6928 50  0000 L CNN
+F 2 "" H 3350 6800 50  0001 C CNN
+F 3 "" H 3350 6800 50  0001 C CNN
+	1    3350 6800
+	0    1    1    0   
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5BAF58B4
+P 3500 6900
+F 0 "#PWR?" H 3500 6750 50  0001 C CNN
+F 1 "+5V" V 3515 7028 50  0000 L CNN
+F 2 "" H 3500 6900 50  0001 C CNN
+F 3 "" H 3500 6900 50  0001 C CNN
+	1    3500 6900
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3350 6800 2850 6800
+Wire Wire Line
+	3500 6900 2850 6900
 $EndSCHEMATC

@@ -2,4 +2,5 @@
   (lib (name localization-symbols)(type Legacy)(uri ${KIPRJMOD}/libraries/localization-symbols.lib)(options "")(descr ""))
   (lib (name efm32-symbols)(type Legacy)(uri ${KIPRJMOD}/libraries/efm32-symbols.lib)(options "")(descr ""))
   (lib (name freetronics_schematic)(type Legacy)(uri ${KIPRJMOD}/libraries/freetronics_schematic.lib)(options "")(descr ""))
+  (lib (name BSS138-FDICT-ND)(type Legacy)(uri /home/jan/Desktop/BSS138-FDICT-ND.lib)(options "")(descr ""))
 )
