@@ -4,7 +4,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 9 10
+Sheet 8 10
 Title ""
 Date ""
 Rev ""
@@ -22,7 +22,7 @@ AR Path="/5BB1F813" Ref="U?"  Part="1"
 AR Path="/5BB1F7DF/5BB1F813" Ref="U4"  Part="1" 
 F 0 "U4" V 5599 4578 50  0000 L CNN
 F 1 "lidar" V 5690 4578 50  0000 L CNN
-F 2 "" H 5500 4050 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical" H 5500 4050 50  0001 C CNN
 F 3 "" H 5500 4050 50  0001 C CNN
 	1    5500 4050
 	0    1    1    0   

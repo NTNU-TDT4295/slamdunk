@@ -4,7 +4,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 6 10
+Sheet 5 10
 Title ""
 Date ""
 Rev ""
@@ -22,7 +22,7 @@ AR Path="/5BAD9D96" Ref="J?"  Part="1"
 AR Path="/5BAD9CF1/5BAD9D96" Ref="J2"  Part="1" 
 F 0 "J2" V 5554 3830 50  0000 L CNN
 F 1 "Conn_02x03_Counter_Clockwise" V 5645 3830 50  0000 L CNN
-F 2 "" H 5550 3650 50  0001 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_2x03_P2.54mm_Vertical" H 5550 3650 50  0001 C CNN
 F 3 "~" H 5550 3650 50  0001 C CNN
 	1    5550 3650
 	0    1    1    0   

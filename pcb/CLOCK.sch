@@ -22,7 +22,7 @@ AR Path="/5BAEAA1C" Ref="Y?"  Part="1"
 AR Path="/5BAEA9B3/5BAEAA1C" Ref="Y1"  Part="1" 
 F 0 "Y1" H 6000 4050 50  0000 L CNN
 F 1 "Crystal_GND23" H 6000 3850 50  0000 L CNN
-F 2 "" H 5800 3950 50  0001 C CNN
+F 2 "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm_HandSoldering" H 5800 3950 50  0001 C CNN
 F 3 "~" H 5800 3950 50  0001 C CNN
 	1    5800 3950
 	1    0    0    -1  

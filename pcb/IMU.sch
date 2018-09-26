@@ -22,7 +22,7 @@ AR Path="/5BB1BB38" Ref="U?"  Part="1"
 AR Path="/5BB1BAF2/5BB1BB38" Ref="U3"  Part="1" 
 F 0 "U3" V 6021 3622 50  0000 R CNN
 F 1 "IMU" V 5930 3622 50  0000 R CNN
-F 2 "" V 6150 3850 50  0001 C CNN
+F 2 "localization-footprints:IMU" V 6150 3850 50  0001 C CNN
 F 3 "" V 6150 3850 50  0001 C CNN
 	1    6000 3950
 	0    -1   -1   0   
