@@ -145,4 +145,5 @@
   (lib (name dk_TVS-Diodes)(type Legacy)(uri ${KIPRJMOD}/libraries/digikey-symbols/dk_TVS-Diodes.lib)(options "")(descr ""))
   (lib (name dk_TVS-Mixed-Technology)(type Legacy)(uri ${KIPRJMOD}/libraries/digikey-symbols/dk_TVS-Mixed-Technology.lib)(options "")(descr ""))
   (lib (name dk_USB-DVI-HDMI-Connectors)(type Legacy)(uri ${KIPRJMOD}/libraries/digikey-symbols/dk_USB-DVI-HDMI-Connectors.lib)(options "")(descr ""))
+  (lib (name DMPro17-rescue)(type Legacy)(uri ${KIPRJMOD}/libraries/DMPro17-rescue.lib)(options "")(descr ""))
 )

@@ -1,0 +1,451 @@
+EESchema Schematic File Version 4
+LIBS:pcb-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 10 10
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Device:R R?
+U 1 1 5BAB9F55
+P 3300 5200
+AR Path="/5BAA6CA9/5BAB9F55" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F55" Ref="R?"  Part="1" 
+F 0 "R?" H 3370 5246 50  0000 L CNN
+F 1 "10k" H 3370 5155 50  0000 L CNN
+F 2 "" V 3230 5200 50  0001 C CNN
+F 3 "~" H 3300 5200 50  0001 C CNN
+	1    3300 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BAB9F5C
+P 3300 4550
+AR Path="/5BAA6CA9/5BAB9F5C" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F5C" Ref="R?"  Part="1" 
+F 0 "R?" H 3370 4596 50  0000 L CNN
+F 1 "10k" H 3370 4505 50  0000 L CNN
+F 2 "" V 3230 4550 50  0001 C CNN
+F 3 "~" H 3300 4550 50  0001 C CNN
+	1    3300 4550
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3350 4950 3150 4950
+Wire Wire Line
+	3150 4950 3150 5200
+Wire Wire Line
+	3450 5200 3650 5200
+Wire Wire Line
+	3650 5200 3650 5300
+Wire Wire Line
+	3650 5050 3650 5200
+Connection ~ 3650 5200
+Wire Wire Line
+	3650 4650 3650 4550
+Wire Wire Line
+	3450 4550 3650 4550
+Connection ~ 3650 4550
+Wire Wire Line
+	3150 4550 2950 4550
+Wire Wire Line
+	3150 5200 2950 5200
+Connection ~ 3150 5200
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BAB9F8D
+P 3550 4850
+AR Path="/5BAA6CA9/5BAB9F8D" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F8D" Ref="Q?"  Part="1" 
+F 0 "Q?" V 3800 4850 50  0000 C CNN
+F 1 "BSS138" V 3891 4850 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 3750 4775 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 3550 4850 50  0001 L CNN
+	1    3550 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 4950 3350 4850
+$Comp
+L localization-symbols:HC-SR04 U?
+U 1 1 5BABA401
+P 4500 3500
+F 0 "U?" H 4728 3515 50  0000 L CNN
+F 1 "HC-SR04" H 4728 3424 50  0000 L CNN
+F 2 "" H 4500 3350 50  0001 C CNN
+F 3 "" H 4500 3350 50  0001 C CNN
+	1    4500 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BABB70B
+P 2950 5200
+F 0 "#PWR?" H 2950 5050 50  0001 C CNN
+F 1 "+3.3V" H 2965 5373 50  0000 C CNN
+F 2 "" H 2950 5200 50  0001 C CNN
+F 3 "" H 2950 5200 50  0001 C CNN
+	1    2950 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5BABC095
+P 2950 4550
+F 0 "#PWR?" H 2950 4400 50  0001 C CNN
+F 1 "VCC" H 2968 4723 50  0000 C CNN
+F 2 "" H 2950 4550 50  0001 C CNN
+F 3 "" H 2950 4550 50  0001 C CNN
+	1    2950 4550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5BABC2C1
+P 4350 3700
+F 0 "#PWR?" H 4350 3550 50  0001 C CNN
+F 1 "VCC" H 4368 3873 50  0000 C CNN
+F 2 "" H 4350 3700 50  0001 C CNN
+F 3 "" H 4350 3700 50  0001 C CNN
+	1    4350 3700
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5BABC33B
+P 4650 3700
+F 0 "#PWR?" H 4650 3450 50  0001 C CNN
+F 1 "GND" H 4655 3527 50  0000 C CNN
+F 2 "" H 4650 3700 50  0001 C CNN
+F 3 "" H 4650 3700 50  0001 C CNN
+	1    4650 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BABCF71
+P 4700 5200
+AR Path="/5BAA6CA9/5BABCF71" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BABCF71" Ref="R?"  Part="1" 
+F 0 "R?" H 4770 5246 50  0000 L CNN
+F 1 "10k" H 4770 5155 50  0000 L CNN
+F 2 "" V 4630 5200 50  0001 C CNN
+F 3 "~" H 4700 5200 50  0001 C CNN
+	1    4700 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BABCF78
+P 4700 4550
+AR Path="/5BAA6CA9/5BABCF78" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BABCF78" Ref="R?"  Part="1" 
+F 0 "R?" H 4770 4596 50  0000 L CNN
+F 1 "10k" H 4770 4505 50  0000 L CNN
+F 2 "" V 4630 4550 50  0001 C CNN
+F 3 "~" H 4700 4550 50  0001 C CNN
+	1    4700 4550
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	4750 4950 4550 4950
+Wire Wire Line
+	4550 4950 4550 5200
+Wire Wire Line
+	4850 5200 5050 5200
+Wire Wire Line
+	5050 5200 5050 5300
+Wire Wire Line
+	5050 5050 5050 5200
+Connection ~ 5050 5200
+Wire Wire Line
+	5050 4650 5050 4550
+Wire Wire Line
+	4850 4550 5050 4550
+Connection ~ 5050 4550
+Wire Wire Line
+	4550 4550 4350 4550
+Wire Wire Line
+	4550 5200 4350 5200
+Connection ~ 4550 5200
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BABCF8C
+P 4950 4850
+AR Path="/5BAA6CA9/5BABCF8C" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BABCF8C" Ref="Q?"  Part="1" 
+F 0 "Q?" V 5200 4850 50  0000 C CNN
+F 1 "BSS138" V 5291 4850 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 5150 4775 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 4950 4850 50  0001 L CNN
+	1    4950 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4750 4950 4750 4850
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BABCF94
+P 4350 5200
+F 0 "#PWR?" H 4350 5050 50  0001 C CNN
+F 1 "+3.3V" H 4365 5373 50  0000 C CNN
+F 2 "" H 4350 5200 50  0001 C CNN
+F 3 "" H 4350 5200 50  0001 C CNN
+	1    4350 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5BABCF9A
+P 4350 4550
+F 0 "#PWR?" H 4350 4400 50  0001 C CNN
+F 1 "VCC" H 4368 4723 50  0000 C CNN
+F 2 "" H 4350 4550 50  0001 C CNN
+F 3 "" H 4350 4550 50  0001 C CNN
+	1    4350 4550
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	4450 3700 4450 4350
+Wire Wire Line
+	3650 4350 3650 4550
+Wire Wire Line
+	3650 4350 4450 4350
+Wire Wire Line
+	4550 3700 4550 4350
+Wire Wire Line
+	4550 4350 5050 4350
+Wire Wire Line
+	5050 4350 5050 4550
+Text HLabel 3650 5300 3    50   Input ~ 0
+TRIG_1
+Text HLabel 5050 5300 3    50   Input ~ 0
+ECHO_1
+$Comp
+L Device:R R?
+U 1 1 5BABDC8E
+P 6200 5200
+AR Path="/5BAA6CA9/5BABDC8E" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BABDC8E" Ref="R?"  Part="1" 
+F 0 "R?" H 6270 5246 50  0000 L CNN
+F 1 "10k" H 6270 5155 50  0000 L CNN
+F 2 "" V 6130 5200 50  0001 C CNN
+F 3 "~" H 6200 5200 50  0001 C CNN
+	1    6200 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BABDC95
+P 6200 4550
+AR Path="/5BAA6CA9/5BABDC95" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BABDC95" Ref="R?"  Part="1" 
+F 0 "R?" H 6270 4596 50  0000 L CNN
+F 1 "10k" H 6270 4505 50  0000 L CNN
+F 2 "" V 6130 4550 50  0001 C CNN
+F 3 "~" H 6200 4550 50  0001 C CNN
+	1    6200 4550
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	6250 4950 6050 4950
+Wire Wire Line
+	6050 4950 6050 5200
+Wire Wire Line
+	6350 5200 6550 5200
+Wire Wire Line
+	6550 5200 6550 5300
+Wire Wire Line
+	6550 5050 6550 5200
+Connection ~ 6550 5200
+Wire Wire Line
+	6550 4650 6550 4550
+Wire Wire Line
+	6350 4550 6550 4550
+Connection ~ 6550 4550
+Wire Wire Line
+	6050 4550 5850 4550
+Wire Wire Line
+	6050 5200 5850 5200
+Connection ~ 6050 5200
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BABDCA8
+P 6450 4850
+AR Path="/5BAA6CA9/5BABDCA8" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BABDCA8" Ref="Q?"  Part="1" 
+F 0 "Q?" V 6700 4850 50  0000 C CNN
+F 1 "BSS138" V 6791 4850 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 6650 4775 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 6450 4850 50  0001 L CNN
+	1    6450 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6250 4950 6250 4850
+$Comp
+L localization-symbols:HC-SR04 U?
+U 1 1 5BABDCB0
+P 7400 3500
+F 0 "U?" H 7628 3515 50  0000 L CNN
+F 1 "HC-SR04" H 7628 3424 50  0000 L CNN
+F 2 "" H 7400 3350 50  0001 C CNN
+F 3 "" H 7400 3350 50  0001 C CNN
+	1    7400 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BABDCB7
+P 5850 5200
+F 0 "#PWR?" H 5850 5050 50  0001 C CNN
+F 1 "+3.3V" H 5865 5373 50  0000 C CNN
+F 2 "" H 5850 5200 50  0001 C CNN
+F 3 "" H 5850 5200 50  0001 C CNN
+	1    5850 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5BABDCBD
+P 5850 4550
+F 0 "#PWR?" H 5850 4400 50  0001 C CNN
+F 1 "VCC" H 5868 4723 50  0000 C CNN
+F 2 "" H 5850 4550 50  0001 C CNN
+F 3 "" H 5850 4550 50  0001 C CNN
+	1    5850 4550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5BABDCC3
+P 7250 3700
+F 0 "#PWR?" H 7250 3550 50  0001 C CNN
+F 1 "VCC" H 7268 3873 50  0000 C CNN
+F 2 "" H 7250 3700 50  0001 C CNN
+F 3 "" H 7250 3700 50  0001 C CNN
+	1    7250 3700
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5BABDCC9
+P 7550 3700
+F 0 "#PWR?" H 7550 3450 50  0001 C CNN
+F 1 "GND" H 7555 3527 50  0000 C CNN
+F 2 "" H 7550 3700 50  0001 C CNN
+F 3 "" H 7550 3700 50  0001 C CNN
+	1    7550 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BABDCCF
+P 7600 5200
+AR Path="/5BAA6CA9/5BABDCCF" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BABDCCF" Ref="R?"  Part="1" 
+F 0 "R?" H 7670 5246 50  0000 L CNN
+F 1 "10k" H 7670 5155 50  0000 L CNN
+F 2 "" V 7530 5200 50  0001 C CNN
+F 3 "~" H 7600 5200 50  0001 C CNN
+	1    7600 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BABDCD6
+P 7600 4550
+AR Path="/5BAA6CA9/5BABDCD6" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BABDCD6" Ref="R?"  Part="1" 
+F 0 "R?" H 7670 4596 50  0000 L CNN
+F 1 "10k" H 7670 4505 50  0000 L CNN
+F 2 "" V 7530 4550 50  0001 C CNN
+F 3 "~" H 7600 4550 50  0001 C CNN
+	1    7600 4550
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7650 4950 7450 4950
+Wire Wire Line
+	7450 4950 7450 5200
+Wire Wire Line
+	7750 5200 7950 5200
+Wire Wire Line
+	7950 5200 7950 5300
+Wire Wire Line
+	7950 5050 7950 5200
+Connection ~ 7950 5200
+Wire Wire Line
+	7950 4650 7950 4550
+Wire Wire Line
+	7750 4550 7950 4550
+Connection ~ 7950 4550
+Wire Wire Line
+	7450 4550 7250 4550
+Wire Wire Line
+	7450 5200 7250 5200
+Connection ~ 7450 5200
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BABDCE9
+P 7850 4850
+AR Path="/5BAA6CA9/5BABDCE9" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BABDCE9" Ref="Q?"  Part="1" 
+F 0 "Q?" V 8100 4850 50  0000 C CNN
+F 1 "BSS138" V 8191 4850 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8050 4775 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 7850 4850 50  0001 L CNN
+	1    7850 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7650 4950 7650 4850
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BABDCF1
+P 7250 5200
+F 0 "#PWR?" H 7250 5050 50  0001 C CNN
+F 1 "+3.3V" H 7265 5373 50  0000 C CNN
+F 2 "" H 7250 5200 50  0001 C CNN
+F 3 "" H 7250 5200 50  0001 C CNN
+	1    7250 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5BABDCF7
+P 7250 4550
+F 0 "#PWR?" H 7250 4400 50  0001 C CNN
+F 1 "VCC" H 7268 4723 50  0000 C CNN
+F 2 "" H 7250 4550 50  0001 C CNN
+F 3 "" H 7250 4550 50  0001 C CNN
+	1    7250 4550
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7350 3700 7350 4350
+Wire Wire Line
+	6550 4350 6550 4550
+Wire Wire Line
+	6550 4350 7350 4350
+Wire Wire Line
+	7450 3700 7450 4350
+Wire Wire Line
+	7450 4350 7950 4350
+Wire Wire Line
+	7950 4350 7950 4550
+Text HLabel 6550 5300 3    50   Input ~ 0
+TRIG_2
+Text HLabel 7950 5300 3    50   Input ~ 0
+ECHO_2
+$EndSCHEMATC
