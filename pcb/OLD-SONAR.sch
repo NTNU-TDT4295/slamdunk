@@ -15,68 +15,6 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L Device:R R?
-U 1 1 5BAB9F55
-P 3300 5200
-AR Path="/5BAA6CA9/5BAB9F55" Ref="R?"  Part="1" 
-AR Path="/5BAB97A9/5BAB9F55" Ref="R7"  Part="1" 
-F 0 "R7" H 3370 5246 50  0000 L CNN
-F 1 "10k" H 3370 5155 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 3230 5200 50  0001 C CNN
-F 3 "~" H 3300 5200 50  0001 C CNN
-	1    3300 5200
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:R R?
-U 1 1 5BAB9F5C
-P 3300 4550
-AR Path="/5BAA6CA9/5BAB9F5C" Ref="R?"  Part="1" 
-AR Path="/5BAB97A9/5BAB9F5C" Ref="R6"  Part="1" 
-F 0 "R6" H 3370 4596 50  0000 L CNN
-F 1 "10k" H 3370 4505 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 3230 4550 50  0001 C CNN
-F 3 "~" H 3300 4550 50  0001 C CNN
-	1    3300 4550
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	3350 4950 3150 4950
-Wire Wire Line
-	3150 4950 3150 5200
-Wire Wire Line
-	3450 5200 3650 5200
-Wire Wire Line
-	3650 5200 3650 5300
-Wire Wire Line
-	3650 5050 3650 5200
-Connection ~ 3650 5200
-Wire Wire Line
-	3650 4650 3650 4550
-Wire Wire Line
-	3450 4550 3650 4550
-Connection ~ 3650 4550
-Wire Wire Line
-	3150 4550 2950 4550
-Wire Wire Line
-	3150 5200 2950 5200
-Connection ~ 3150 5200
-$Comp
-L Transistor_FET:BSS138 Q?
-U 1 1 5BAB9F8D
-P 3550 4850
-AR Path="/5BAA6CA9/5BAB9F8D" Ref="Q?"  Part="1" 
-AR Path="/5BAB97A9/5BAB9F8D" Ref="Q1"  Part="1" 
-F 0 "Q1" V 3800 4850 50  0000 C CNN
-F 1 "BSS138" V 3891 4850 50  0000 C CNN
-F 2 "digikey-footprints:SOT-23-3" H 3750 4775 50  0001 L CIN
-F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 3550 4850 50  0001 L CNN
-	1    3550 4850
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3350 4950 3350 4850
-$Comp
 L localization-symbols:HC-SR04 U5
 U 1 1 5BABA401
 P 4500 3500
@@ -86,28 +24,6 @@ F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 4500 3350 50 
 F 3 "" H 4500 3350 50  0001 C CNN
 	1    4500 3500
 	1    0    0    -1  
-$EndComp
-$Comp
-L power:+3.3V #PWR02
-U 1 1 5BABB70B
-P 2950 5200
-F 0 "#PWR02" H 2950 5050 50  0001 C CNN
-F 1 "+3.3V" H 2965 5373 50  0000 C CNN
-F 2 "" H 2950 5200 50  0001 C CNN
-F 3 "" H 2950 5200 50  0001 C CNN
-	1    2950 5200
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:VCC #PWR01
-U 1 1 5BABC095
-P 2950 4550
-F 0 "#PWR01" H 2950 4400 50  0001 C CNN
-F 1 "VCC" H 2968 4723 50  0000 C CNN
-F 2 "" H 2950 4550 50  0001 C CNN
-F 3 "" H 2950 4550 50  0001 C CNN
-	1    2950 4550
-	0    -1   -1   0   
 $EndComp
 $Comp
 L power:VCC #PWR029
@@ -139,7 +55,7 @@ AR Path="/5BAA6CA9/5BABCF71" Ref="R?"  Part="1"
 AR Path="/5BAB97A9/5BABCF71" Ref="R9"  Part="1" 
 F 0 "R9" H 4770 5246 50  0000 L CNN
 F 1 "10k" H 4770 5155 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 4630 5200 50  0001 C CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 4630 5200 50  0001 C CNN
 F 3 "~" H 4700 5200 50  0001 C CNN
 	1    4700 5200
 	0    -1   -1   0   
@@ -152,7 +68,7 @@ AR Path="/5BAA6CA9/5BABCF78" Ref="R?"  Part="1"
 AR Path="/5BAB97A9/5BABCF78" Ref="R8"  Part="1" 
 F 0 "R8" H 4770 4596 50  0000 L CNN
 F 1 "10k" H 4770 4505 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 4630 4550 50  0001 C CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 4630 4550 50  0001 C CNN
 F 3 "~" H 4700 4550 50  0001 C CNN
 	1    4700 4550
 	0    -1   -1   0   
@@ -218,11 +134,9 @@ $EndComp
 Wire Wire Line
 	4450 3700 4450 4350
 Wire Wire Line
-	3650 4350 3650 4550
-Wire Wire Line
 	3650 4350 4450 4350
 Wire Wire Line
-	4550 3700 4550 4350
+	4550 3700 4550 3950
 Wire Wire Line
 	4550 4350 5050 4350
 Wire Wire Line
@@ -231,68 +145,6 @@ Text HLabel 3650 5300 3    50   Input ~ 0
 TRIG_1
 Text HLabel 5050 5300 3    50   Input ~ 0
 ECHO_1
-$Comp
-L Device:R R?
-U 1 1 5BABDC8E
-P 6200 5200
-AR Path="/5BAA6CA9/5BABDC8E" Ref="R?"  Part="1" 
-AR Path="/5BAB97A9/5BABDC8E" Ref="R11"  Part="1" 
-F 0 "R11" H 6270 5246 50  0000 L CNN
-F 1 "10k" H 6270 5155 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 6130 5200 50  0001 C CNN
-F 3 "~" H 6200 5200 50  0001 C CNN
-	1    6200 5200
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:R R?
-U 1 1 5BABDC95
-P 6200 4550
-AR Path="/5BAA6CA9/5BABDC95" Ref="R?"  Part="1" 
-AR Path="/5BAB97A9/5BABDC95" Ref="R10"  Part="1" 
-F 0 "R10" H 6270 4596 50  0000 L CNN
-F 1 "10k" H 6270 4505 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 6130 4550 50  0001 C CNN
-F 3 "~" H 6200 4550 50  0001 C CNN
-	1    6200 4550
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	6250 4950 6050 4950
-Wire Wire Line
-	6050 4950 6050 5200
-Wire Wire Line
-	6350 5200 6550 5200
-Wire Wire Line
-	6550 5200 6550 5300
-Wire Wire Line
-	6550 5050 6550 5200
-Connection ~ 6550 5200
-Wire Wire Line
-	6550 4650 6550 4550
-Wire Wire Line
-	6350 4550 6550 4550
-Connection ~ 6550 4550
-Wire Wire Line
-	6050 4550 5850 4550
-Wire Wire Line
-	6050 5200 5850 5200
-Connection ~ 6050 5200
-$Comp
-L Transistor_FET:BSS138 Q?
-U 1 1 5BABDCA8
-P 6450 4850
-AR Path="/5BAA6CA9/5BABDCA8" Ref="Q?"  Part="1" 
-AR Path="/5BAB97A9/5BABDCA8" Ref="Q3"  Part="1" 
-F 0 "Q3" V 6700 4850 50  0000 C CNN
-F 1 "BSS138" V 6791 4850 50  0000 C CNN
-F 2 "digikey-footprints:SOT-23-3" H 6650 4775 50  0001 L CIN
-F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 6450 4850 50  0001 L CNN
-	1    6450 4850
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6250 4950 6250 4850
 $Comp
 L localization-symbols:HC-SR04 U6
 U 1 1 5BABDCB0
@@ -303,28 +155,6 @@ F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 7400 3350 50 
 F 3 "" H 7400 3350 50  0001 C CNN
 	1    7400 3500
 	1    0    0    -1  
-$EndComp
-$Comp
-L power:+3.3V #PWR034
-U 1 1 5BABDCB7
-P 5850 5200
-F 0 "#PWR034" H 5850 5050 50  0001 C CNN
-F 1 "+3.3V" H 5865 5373 50  0000 C CNN
-F 2 "" H 5850 5200 50  0001 C CNN
-F 3 "" H 5850 5200 50  0001 C CNN
-	1    5850 5200
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:VCC #PWR033
-U 1 1 5BABDCBD
-P 5850 4550
-F 0 "#PWR033" H 5850 4400 50  0001 C CNN
-F 1 "VCC" H 5868 4723 50  0000 C CNN
-F 2 "" H 5850 4550 50  0001 C CNN
-F 3 "" H 5850 4550 50  0001 C CNN
-	1    5850 4550
-	0    -1   -1   0   
 $EndComp
 $Comp
 L power:VCC #PWR035
@@ -356,7 +186,7 @@ AR Path="/5BAA6CA9/5BABDCCF" Ref="R?"  Part="1"
 AR Path="/5BAB97A9/5BABDCCF" Ref="R13"  Part="1" 
 F 0 "R13" H 7670 5246 50  0000 L CNN
 F 1 "10k" H 7670 5155 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 7530 5200 50  0001 C CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 7530 5200 50  0001 C CNN
 F 3 "~" H 7600 5200 50  0001 C CNN
 	1    7600 5200
 	0    -1   -1   0   
@@ -369,7 +199,7 @@ AR Path="/5BAA6CA9/5BABDCD6" Ref="R?"  Part="1"
 AR Path="/5BAB97A9/5BABDCD6" Ref="R12"  Part="1" 
 F 0 "R12" H 7670 4596 50  0000 L CNN
 F 1 "10k" H 7670 4505 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 7530 4550 50  0001 C CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 7530 4550 50  0001 C CNN
 F 3 "~" H 7600 4550 50  0001 C CNN
 	1    7600 4550
 	0    -1   -1   0   
@@ -433,13 +263,11 @@ F 3 "" H 7250 4550 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	7350 3700 7350 4350
-Wire Wire Line
-	6550 4350 6550 4550
+	7350 3700 7350 4050
 Wire Wire Line
 	6550 4350 7350 4350
 Wire Wire Line
-	7450 3700 7450 4350
+	7450 3700 7450 3950
 Wire Wire Line
 	7450 4350 7950 4350
 Wire Wire Line
@@ -448,4 +276,270 @@ Text HLabel 6550 5300 3    50   Input ~ 0
 TRIG_2
 Text HLabel 7950 5300 3    50   Input ~ 0
 ECHO_2
+Wire Wire Line
+	6550 4350 6550 4550
+$Comp
+L power:VCC #PWR033
+U 1 1 5BABDCBD
+P 5850 4550
+F 0 "#PWR033" H 5850 4400 50  0001 C CNN
+F 1 "VCC" H 5868 4723 50  0000 C CNN
+F 2 "" H 5850 4550 50  0001 C CNN
+F 3 "" H 5850 4550 50  0001 C CNN
+	1    5850 4550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR034
+U 1 1 5BABDCB7
+P 5850 5200
+F 0 "#PWR034" H 5850 5050 50  0001 C CNN
+F 1 "+3.3V" H 5865 5373 50  0000 C CNN
+F 2 "" H 5850 5200 50  0001 C CNN
+F 3 "" H 5850 5200 50  0001 C CNN
+	1    5850 5200
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	6250 4950 6250 4850
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BABDCA8
+P 6450 4850
+AR Path="/5BAA6CA9/5BABDCA8" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BABDCA8" Ref="Q3"  Part="1" 
+F 0 "Q3" V 6700 4850 50  0000 C CNN
+F 1 "BSS138" V 6791 4850 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 6650 4775 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 6450 4850 50  0001 L CNN
+	1    6450 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6050 5200 5850 5200
+Wire Wire Line
+	6050 4550 5850 4550
+Wire Wire Line
+	6350 4550 6550 4550
+Connection ~ 6550 4550
+Wire Wire Line
+	6550 4650 6550 4550
+Wire Wire Line
+	6550 5050 6550 5200
+Wire Wire Line
+	6550 5200 6550 5300
+Connection ~ 6550 5200
+Wire Wire Line
+	6350 5200 6550 5200
+Wire Wire Line
+	6050 4950 6050 5200
+Wire Wire Line
+	6250 4950 6050 4950
+$Comp
+L Device:R R?
+U 1 1 5BABDC95
+P 6200 4550
+AR Path="/5BAA6CA9/5BABDC95" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BABDC95" Ref="R10"  Part="1" 
+F 0 "R10" H 6270 4596 50  0000 L CNN
+F 1 "10k" H 6270 4505 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6130 4550 50  0001 C CNN
+F 3 "~" H 6200 4550 50  0001 C CNN
+	1    6200 4550
+	0    -1   -1   0   
+$EndComp
+Connection ~ 6050 5200
+$Comp
+L Device:R R?
+U 1 1 5BABDC8E
+P 6200 5200
+AR Path="/5BAA6CA9/5BABDC8E" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BABDC8E" Ref="R11"  Part="1" 
+F 0 "R11" H 6270 5246 50  0000 L CNN
+F 1 "10k" H 6270 5155 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6130 5200 50  0001 C CNN
+F 3 "~" H 6200 5200 50  0001 C CNN
+	1    6200 5200
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3650 4350 3650 4550
+$Comp
+L power:VCC #PWR01
+U 1 1 5BABC095
+P 2950 4550
+F 0 "#PWR01" H 2950 4400 50  0001 C CNN
+F 1 "VCC" H 2968 4723 50  0000 C CNN
+F 2 "" H 2950 4550 50  0001 C CNN
+F 3 "" H 2950 4550 50  0001 C CNN
+	1    2950 4550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR02
+U 1 1 5BABB70B
+P 2950 5200
+F 0 "#PWR02" H 2950 5050 50  0001 C CNN
+F 1 "+3.3V" H 2965 5373 50  0000 C CNN
+F 2 "" H 2950 5200 50  0001 C CNN
+F 3 "" H 2950 5200 50  0001 C CNN
+	1    2950 5200
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3350 4950 3350 4850
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BAB9F8D
+P 3550 4850
+AR Path="/5BAA6CA9/5BAB9F8D" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F8D" Ref="Q1"  Part="1" 
+F 0 "Q1" V 3800 4850 50  0000 C CNN
+F 1 "BSS138" V 3891 4850 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 3750 4775 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 3550 4850 50  0001 L CNN
+	1    3550 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3150 5200 2950 5200
+Wire Wire Line
+	3150 4550 2950 4550
+Wire Wire Line
+	3450 4550 3650 4550
+Connection ~ 3650 4550
+Wire Wire Line
+	3650 4650 3650 4550
+Wire Wire Line
+	3650 5050 3650 5200
+Wire Wire Line
+	3650 5200 3650 5300
+Connection ~ 3650 5200
+Wire Wire Line
+	3450 5200 3650 5200
+Wire Wire Line
+	3150 4950 3150 5200
+Wire Wire Line
+	3350 4950 3150 4950
+$Comp
+L Device:R R?
+U 1 1 5BAB9F5C
+P 3300 4550
+AR Path="/5BAA6CA9/5BAB9F5C" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F5C" Ref="R6"  Part="1" 
+F 0 "R6" H 3370 4596 50  0000 L CNN
+F 1 "10k" H 3370 4505 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 3230 4550 50  0001 C CNN
+F 3 "~" H 3300 4550 50  0001 C CNN
+	1    3300 4550
+	0    -1   -1   0   
+$EndComp
+Connection ~ 3150 5200
+$Comp
+L Device:R R?
+U 1 1 5BAB9F55
+P 3300 5200
+AR Path="/5BAA6CA9/5BAB9F55" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F55" Ref="R7"  Part="1" 
+F 0 "R7" H 3370 5246 50  0000 L CNN
+F 1 "10k" H 3370 5155 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 3230 5200 50  0001 C CNN
+F 3 "~" H 3300 5200 50  0001 C CNN
+	1    3300 5200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L localization-symbols:HC-SR04 U7
+U 1 1 5BB2DED4
+P 3600 3550
+F 0 "U7" H 3828 3565 50  0000 L CNN
+F 1 "HC-SR04" H 3828 3474 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 3600 3400 50  0001 C CNN
+F 3 "" H 3600 3400 50  0001 C CNN
+	1    3600 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L localization-symbols:HC-SR04 U8
+U 1 1 5BB2EB7D
+P 6600 3500
+F 0 "U8" H 6828 3515 50  0000 L CNN
+F 1 "HC-SR04" H 6828 3424 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 6600 3350 50  0001 C CNN
+F 3 "" H 6600 3350 50  0001 C CNN
+	1    6600 3500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7350 4050 6550 4050
+Wire Wire Line
+	6550 4050 6550 3700
+Connection ~ 7350 4050
+Wire Wire Line
+	7350 4050 7350 4350
+Wire Wire Line
+	7450 3950 6650 3950
+Wire Wire Line
+	6650 3950 6650 3700
+Connection ~ 7450 3950
+Wire Wire Line
+	7450 3950 7450 4350
+Wire Wire Line
+	3650 3750 3650 3950
+Wire Wire Line
+	3650 3950 4550 3950
+Connection ~ 4550 3950
+Wire Wire Line
+	4550 3950 4550 4050
+Wire Wire Line
+	4550 4050 3550 4050
+Wire Wire Line
+	3550 4050 3550 3750
+Connection ~ 4550 4050
+Wire Wire Line
+	4550 4050 4550 4350
+$Comp
+L power:GND #PWR0103
+U 1 1 5BB35522
+P 3750 3750
+F 0 "#PWR0103" H 3750 3500 50  0001 C CNN
+F 1 "GND" H 3755 3577 50  0000 C CNN
+F 2 "" H 3750 3750 50  0001 C CNN
+F 3 "" H 3750 3750 50  0001 C CNN
+	1    3750 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0104
+U 1 1 5BB355C4
+P 6750 3700
+F 0 "#PWR0104" H 6750 3450 50  0001 C CNN
+F 1 "GND" H 6755 3527 50  0000 C CNN
+F 2 "" H 6750 3700 50  0001 C CNN
+F 3 "" H 6750 3700 50  0001 C CNN
+	1    6750 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VCC #PWR0105
+U 1 1 5BB3561D
+P 6450 3700
+F 0 "#PWR0105" H 6450 3550 50  0001 C CNN
+F 1 "VCC" H 6468 3873 50  0000 C CNN
+F 2 "" H 6450 3700 50  0001 C CNN
+F 3 "" H 6450 3700 50  0001 C CNN
+	1    6450 3700
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:VCC #PWR0106
+U 1 1 5BB356DF
+P 3450 3750
+F 0 "#PWR0106" H 3450 3600 50  0001 C CNN
+F 1 "VCC" H 3468 3923 50  0000 C CNN
+F 2 "" H 3450 3750 50  0001 C CNN
+F 3 "" H 3450 3750 50  0001 C CNN
+	1    3450 3750
+	-1   0    0    1   
+$EndComp
 $EndSCHEMATC

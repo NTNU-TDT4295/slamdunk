@@ -17,30 +17,30 @@ $EndDescr
 $Comp
 L Connector_Generic:Conn_02x03_Counter_Clockwise J?
 U 1 1 5BAD9D96
-P 5550 3650
+P 6850 4050
 AR Path="/5BAD9D96" Ref="J?"  Part="1" 
 AR Path="/5BAD9CF1/5BAD9D96" Ref="J2"  Part="1" 
-F 0 "J2" V 5554 3830 50  0000 L CNN
-F 1 "Conn_02x03_Counter_Clockwise" V 5645 3830 50  0000 L CNN
-F 2 "Connector_PinSocket_2.54mm:PinSocket_2x03_P2.54mm_Vertical" H 5550 3650 50  0001 C CNN
-F 3 "~" H 5550 3650 50  0001 C CNN
-	1    5550 3650
-	0    1    1    0   
+F 0 "J2" V 6854 4230 50  0000 L CNN
+F 1 "Conn_02x03_Counter_Clockwise" V 6945 4230 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_2x03_P2.54mm_Vertical" H 6850 4050 50  0001 C CNN
+F 3 "~" H 6850 4050 50  0001 C CNN
+	1    6850 4050
+	0    -1   -1   0   
 $EndComp
-Text HLabel 5550 4050 3    50   Input ~ 0
+Text HLabel 6950 4350 3    50   Input ~ 0
 MOSI
-Text HLabel 5650 3350 1    50   Input ~ 0
+Text HLabel 6750 3650 1    50   Input ~ 0
 MISO
-Text HLabel 5550 3350 1    50   Input ~ 0
+Text HLabel 6950 3650 1    50   Input ~ 0
 SCLK
-Text HLabel 5450 3350 1    50   Input ~ 0
+Text HLabel 6850 4350 3    50   Input ~ 0
 SS
 Wire Wire Line
-	5450 3350 5450 3450
+	6850 4350 6850 4250
 Wire Wire Line
-	5550 3350 5550 3450
+	6950 3650 6950 3750
 Wire Wire Line
-	5650 3350 5650 3450
+	6750 3650 6750 3750
 Wire Wire Line
-	5550 4050 5550 3950
+	6950 4350 6950 4250
 $EndSCHEMATC
