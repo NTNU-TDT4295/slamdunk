@@ -3,4 +3,5 @@
   (lib (name digikey-footprints)(type KiCad)(uri ${KIPRJMOD}/libraries/footprints/digikey-footprints.pretty)(options "")(descr ""))
   (lib (name localization-footprints)(type KiCad)(uri ${KIPRJMOD}/libraries/footprints/localization-footprints.pretty)(options "")(descr ""))
   (lib (name myfootprint)(type KiCad)(uri ${KIPRJMOD}/libraries/footprints/myfootprint.pretty)(options "")(descr ""))
+  (lib (name "Adafruit BNO055")(type KiCad)(uri "/home/jan/Adafruit-BNO055-Breakout-PCB-master/Adafruit BNO055.pretty")(options "")(descr ""))
 )

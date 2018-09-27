@@ -20,7 +20,7 @@ U 1 1 5BAAE2EF
 P 5850 3950
 F 0 "J1" H 5900 4567 50  0000 C CNN
 F 1 "Conn_02x10_Odd_Even" H 5900 4476 50  0000 C CNN
-F 2 "Connector_Multicomp:Multicomp_MC9A22-2034_2x10_P2.54mm_Horizontal" H 5850 3950 50  0001 C CNN
+F 2 "Connector_Multicomp:Multicomp_MC9A12-2034_2x10_P2.54mm_Vertical" H 5850 3950 50  0001 C CNN
 F 3 "~" H 5850 3950 50  0001 C CNN
 	1    5850 3950
 	1    0    0    -1  
