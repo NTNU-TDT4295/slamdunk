@@ -15,14 +15,14 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Sheet
-S 2100 1500 600  500 
+S 5650 4600 600  500 
 U 5BA41DB8
 F0 "EFM_DEBUG" 50
 F1 "EFM_DEBUG.sch" 50
-F2 "LED_1" I R 2700 1600 50 
-F3 "LED_2" I R 2700 1700 50 
-F4 "SW_1" I R 2700 1800 50 
-F5 "SW_2" I R 2700 1900 50 
+F2 "LED_1" I L 5650 5000 50 
+F3 "LED_2" I L 5650 4900 50 
+F4 "SW_1" I L 5650 4800 50 
+F5 "SW_2" I L 5650 4700 50 
 $EndSheet
 $Sheet
 S 5950 1050 600  500 
@@ -59,23 +59,15 @@ MCU_RST
 Text Label 3050 2300 2    50   ~ 0
 IOVDD_DEC
 $Sheet
-S 6200 4800 550  500 
+S 2050 6000 550  500 
 U 5BAD9CF1
 F0 "SPI" 50
 F1 "SPI.sch" 50
-F2 "MOSI" I L 6200 4900 50 
-F3 "MISO" I L 6200 5000 50 
-F4 "SCLK" I L 6200 5100 50 
-F5 "SS" I L 6200 5200 50 
+F2 "MOSI" I R 2600 6100 50 
+F3 "MISO" I R 2600 6200 50 
+F4 "SCLK" I R 2600 6300 50 
+F5 "SS" I R 2600 6400 50 
 $EndSheet
-Wire Wire Line
-	5250 5200 6200 5200
-Wire Wire Line
-	5250 5100 6200 5100
-Wire Wire Line
-	5250 5000 6200 5000
-Wire Wire Line
-	5250 4900 6200 4900
 $Sheet
 S 2100 5600 500  150 
 U 5BAEA9B3
@@ -112,28 +104,22 @@ Wire Wire Line
 Wire Wire Line
 	5850 1250 5950 1250
 $Sheet
-S 5300 6150 550  300 
+S 2350 3650 550  300 
 U 5BB1BAF2
 F0 "IMU" 50
 F1 "IMU.sch" 50
-F2 "RST" I L 5300 6200 50 
-F3 "SCL" I L 5300 6300 50 
-F4 "SDA" I L 5300 6400 50 
+F2 "RST" I R 2900 3900 50 
+F3 "SCL" I R 2900 3800 50 
+F4 "SDA" I R 2900 3700 50 
 $EndSheet
-Wire Wire Line
-	5250 6200 5300 6200
-Wire Wire Line
-	5250 6300 5300 6300
-Wire Wire Line
-	5250 6400 5300 6400
 $Sheet
-S 6250 6150 500  300 
+S 5850 2950 500  300 
 U 5BB1F7DF
 F0 "LIDAR" 50
 F1 "LIDAR.sch" 50
-F2 "RX" I L 6250 6200 50 
-F3 "TX" I L 6250 6300 50 
-F4 "MOTO_CTRL" I L 6250 6400 50 
+F2 "RX" I L 5850 3100 50 
+F3 "TX" I L 5850 3200 50 
+F4 "MOTO_CTRL" I L 5850 3000 50 
 $EndSheet
 Text Label 5250 5900 0    50   ~ 0
 IOVDD_DEC
@@ -220,9 +206,9 @@ Text Label 7550 5450 2    50   ~ 0
 PYNQ_SDA
 Text Label 7550 5550 2    50   ~ 0
 PYNQ_SCL
-Text Label 3050 5400 2    50   ~ 0
+Text Label 5250 6100 0    50   ~ 0
 PYNQ_SDA
-Text Label 3050 5500 2    50   ~ 0
+Text Label 5250 6000 0    50   ~ 0
 PYNQ_SCL
 $Sheet
 S 1100 3250 550  1250
@@ -510,10 +496,6 @@ Wire Wire Line
 Wire Wire Line
 	7650 2650 7950 2650
 Connection ~ 7950 2650
-Wire Wire Line
-	2700 1600 3050 1600
-Wire Wire Line
-	2700 1700 3050 1700
 $Comp
 L efm32-symbols:EFM32GG980 U1
 U 1 1 5BA3611F
@@ -525,36 +507,6 @@ F 3 "" H 3050 1600 60  0000 C CNN
 	1    3050 1600
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	6250 6400 5900 6400
-Wire Wire Line
-	5900 6400 5900 4600
-Wire Wire Line
-	5900 4600 5250 4600
-Wire Wire Line
-	1650 3400 3050 3400
-Wire Wire Line
-	1650 3700 3050 3700
-Wire Wire Line
-	1650 3800 3050 3800
-Wire Wire Line
-	1650 4100 3050 4100
-Wire Wire Line
-	1650 4200 3050 4200
-Wire Wire Line
-	1650 3300 2600 3300
-Wire Wire Line
-	2600 3300 2600 2800
-Wire Wire Line
-	2600 2800 3050 2800
-Text Label 5250 3200 0    50   ~ 0
-PF6
-Text Label 5250 3100 0    50   ~ 0
-PF7
-Text Label 6250 6300 2    50   ~ 0
-PF6
-Text Label 6250 6200 2    50   ~ 0
-PF7
 Text Label 1650 3600 0    50   ~ 0
 PF10
 Text Label 1650 3500 0    50   ~ 0
@@ -579,4 +531,60 @@ Text Label 3050 2000 2    50   ~ 0
 PA4
 Text Label 3050 1900 2    50   ~ 0
 PA3
+Wire Wire Line
+	2600 6100 3050 6100
+Wire Wire Line
+	2600 6200 3050 6200
+Wire Wire Line
+	2600 6300 3050 6300
+Wire Wire Line
+	2600 6400 3050 6400
+Wire Wire Line
+	2900 3700 3050 3700
+Wire Wire Line
+	2900 3800 3050 3800
+Wire Wire Line
+	2900 3900 3050 3900
+Text Label 1650 3300 0    50   ~ 0
+PD5
+Text Label 1650 3400 0    50   ~ 0
+PD6
+Text Label 1650 3700 0    50   ~ 0
+PB11
+Text Label 1650 3800 0    50   ~ 0
+PB12
+Text Label 1650 4100 0    50   ~ 0
+PB4
+Text Label 1650 4200 0    50   ~ 0
+PB5
+Text Label 5250 6500 0    50   ~ 0
+PD5
+Text Label 5250 6400 0    50   ~ 0
+PD6
+Text Label 3050 5400 2    50   ~ 0
+PB11
+Text Label 3050 5500 2    50   ~ 0
+PB12
+Text Label 3050 2800 2    50   ~ 0
+PB4
+Text Label 3050 2900 2    50   ~ 0
+PB5
+Wire Wire Line
+	5850 3200 5250 3200
+Wire Wire Line
+	5250 3100 5850 3100
+Wire Wire Line
+	5850 3000 5250 3000
+Wire Wire Line
+	5650 5000 5250 5000
+Wire Wire Line
+	5650 4900 5250 4900
+Text Label 5650 4700 2    50   ~ 0
+PC0
+Text Label 5650 4800 2    50   ~ 0
+PC1
+Text Label 3050 3300 2    50   ~ 0
+PC0
+Text Label 3050 3400 2    50   ~ 0
+PC1
 $EndSCHEMATC

@@ -1643,4 +1643,24 @@ Wire Wire Line
 	9400 1950 10700 1950
 Wire Wire Line
 	10700 1950 10700 3450
+$Comp
+L dk_Slide-Switches:EG1218 S?
+U 1 1 5BC0AE93
+P 1250 850
+F 0 "S?" H 1250 1129 50  0000 C CNN
+F 1 "EG1218" H 1250 1038 50  0000 C CNN
+F 2 "digikey-footprints:Switch_Slide_11.6x4mm_EG1218" H 1450 1050 50  0001 L CNN
+F 3 "http://spec_sheets.e-switch.com/specs/P040040.pdf" H 1450 1150 60  0001 L CNN
+F 4 "EG1903-ND" H 1450 1250 60  0001 L CNN "Digi-Key_PN"
+F 5 "EG1218" H 1450 1350 60  0001 L CNN "MPN"
+F 6 "Switches" H 1450 1450 60  0001 L CNN "Category"
+F 7 "Slide Switches" H 1450 1550 60  0001 L CNN "Family"
+F 8 "http://spec_sheets.e-switch.com/specs/P040040.pdf" H 1450 1650 60  0001 L CNN "DK_Datasheet_Link"
+F 9 "/product-detail/en/e-switch/EG1218/EG1903-ND/101726" H 1450 1750 60  0001 L CNN "DK_Detail_Page"
+F 10 "SWITCH SLIDE SPDT 200MA 30V" H 1450 1850 60  0001 L CNN "Description"
+F 11 "E-Switch" H 1450 1950 60  0001 L CNN "Manufacturer"
+F 12 "Active" H 1450 2050 60  0001 L CNN "Status"
+	1    1250 850 
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
