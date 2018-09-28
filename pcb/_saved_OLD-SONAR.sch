@@ -1,0 +1,1646 @@
+EESchema Schematic File Version 4
+LIBS:pcb-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 9 10
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+Text HLabel 2000 3150 3    50   Input ~ 0
+AD1
+Text HLabel 2450 4050 3    50   Input ~ 0
+AD2
+$Comp
+L power:VCC #PWR01
+U 1 1 5BABC095
+P 1400 2600
+F 0 "#PWR01" H 1400 2450 50  0001 C CNN
+F 1 "VCC" H 1418 2773 50  0000 C CNN
+F 2 "" H 1400 2600 50  0001 C CNN
+F 3 "" H 1400 2600 50  0001 C CNN
+	1    1400 2600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR02
+U 1 1 5BABB70B
+P 1250 3150
+F 0 "#PWR02" H 1250 3000 50  0001 C CNN
+F 1 "+3.3V" H 1265 3323 50  0000 C CNN
+F 2 "" H 1250 3150 50  0001 C CNN
+F 3 "" H 1250 3150 50  0001 C CNN
+	1    1250 3150
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BAB9F8D
+P 1600 2850
+AR Path="/5BAA6CA9/5BAB9F8D" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F8D" Ref="Q1"  Part="1" 
+F 0 "Q1" V 1850 2850 50  0000 C CNN
+F 1 "BSS138" V 1941 2850 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 1800 2775 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 1600 2850 50  0001 L CNN
+	1    1600 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BAB9F5C
+P 1550 2600
+AR Path="/5BAA6CA9/5BAB9F5C" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F5C" Ref="R6"  Part="1" 
+F 0 "R6" H 1620 2646 50  0000 L CNN
+F 1 "10k" H 1620 2555 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 1480 2600 50  0001 C CNN
+F 3 "~" H 1550 2600 50  0001 C CNN
+	1    1550 2600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BAB9F55
+P 1450 3150
+AR Path="/5BAA6CA9/5BAB9F55" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BAB9F55" Ref="R7"  Part="1" 
+F 0 "R7" H 1520 3196 50  0000 L CNN
+F 1 "10k" H 1520 3105 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 1380 3150 50  0001 C CNN
+F 3 "~" H 1450 3150 50  0001 C CNN
+	1    1450 3150
+	0    -1   -1   0   
+$EndComp
+$Comp
+L localization-symbols:ULTRASONIC-GPIO U?
+U 1 1 5BAE6861
+P 2200 1100
+F 0 "U?" H 2678 1215 50  0000 L CNN
+F 1 "ULTRASONIC-GPIO" H 2678 1124 50  0000 L CNN
+F 2 "" H 2200 1100 50  0001 C CNN
+F 3 "" H 2200 1100 50  0001 C CNN
+	1    2200 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L DMPro17-rescue:GND #PWR?
+U 1 1 5BAE790E
+P 2200 1200
+F 0 "#PWR?" H 2200 950 50  0001 C CNN
+F 1 "GND" H 2205 1027 50  0000 C CNN
+F 2 "" H 2200 1200 50  0001 C CNN
+F 3 "" H 2200 1200 50  0001 C CNN
+	1    2200 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L DMPro17-rescue:GND #PWR?
+U 1 1 5BAE7A70
+P 2500 1200
+F 0 "#PWR?" H 2500 950 50  0001 C CNN
+F 1 "GND" H 2505 1027 50  0000 C CNN
+F 2 "" H 2500 1200 50  0001 C CNN
+F 3 "" H 2500 1200 50  0001 C CNN
+	1    2500 1200
+	1    0    0    -1  
+$EndComp
+Text HLabel 3450 3150 3    50   Input ~ 0
+AD3_RX
+Text HLabel 3900 4050 3    50   Input ~ 0
+AD4_TX
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BAE9D0A
+P 2000 2600
+F 0 "JP?" H 2000 2746 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 2000 2837 50  0000 C CNN
+F 2 "" H 2000 2600 50  0001 C CNN
+F 3 "~" H 2000 2600 50  0001 C CNN
+	1    2000 2600
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BAEA03A
+P 1350 1450
+F 0 "JP?" V 1396 1552 50  0000 L CNN
+F 1 "Jumper_NC_Dual" V 1305 1552 50  0000 L CNN
+F 2 "" H 1350 1450 50  0001 C CNN
+F 3 "~" H 1350 1450 50  0001 C CNN
+	1    1350 1450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BAEA0E5
+P 1350 2050
+F 0 "JP?" V 1396 2152 50  0000 L CNN
+F 1 "Jumper_NC_Dual" V 1305 2152 50  0000 L CNN
+F 2 "" H 1350 2050 50  0001 C CNN
+F 3 "~" H 1350 2050 50  0001 C CNN
+	1    1350 2050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:VCC #PWR?
+U 1 1 5BAEA311
+P 1350 1200
+F 0 "#PWR?" H 1350 1050 50  0001 C CNN
+F 1 "VCC" V 1368 1327 50  0000 L CNN
+F 2 "" H 1350 1200 50  0001 C CNN
+F 3 "" H 1350 1200 50  0001 C CNN
+	1    1350 1200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:+3.3V #PWR?
+U 1 1 5BAEA3DB
+P 1350 1700
+F 0 "#PWR?" H 1350 1550 50  0001 C CNN
+F 1 "+3.3V" V 1365 1828 50  0000 L CNN
+F 2 "" H 1350 1700 50  0001 C CNN
+F 3 "" H 1350 1700 50  0001 C CNN
+	1    1350 1700
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:+3.3V #PWR?
+U 1 1 5BAEA522
+P 1350 2300
+F 0 "#PWR?" H 1350 2150 50  0001 C CNN
+F 1 "+3.3V" V 1365 2428 50  0000 L CNN
+F 2 "" H 1350 2300 50  0001 C CNN
+F 3 "" H 1350 2300 50  0001 C CNN
+	1    1350 2300
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:VCC #PWR?
+U 1 1 5BAEA8F9
+P 1350 1800
+F 0 "#PWR?" H 1350 1650 50  0001 C CNN
+F 1 "VCC" V 1368 1927 50  0000 L CNN
+F 2 "" H 1350 1800 50  0001 C CNN
+F 3 "" H 1350 1800 50  0001 C CNN
+	1    1350 1800
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1450 1450 1900 1450
+Wire Wire Line
+	1900 1450 1900 1200
+Wire Wire Line
+	1450 2050 2400 2050
+Wire Wire Line
+	2400 2050 2400 1200
+Wire Wire Line
+	1950 2900 2000 2900
+Wire Wire Line
+	2350 2900 2350 2600
+Wire Wire Line
+	2350 2600 2250 2600
+Wire Wire Line
+	2000 2500 2000 1200
+Wire Wire Line
+	2100 2400 2100 1200
+Wire Wire Line
+	2300 2000 2300 1200
+Wire Wire Line
+	2600 1900 2600 1200
+Wire Wire Line
+	1700 2600 1750 2600
+Wire Wire Line
+	1700 2650 1700 2600
+Connection ~ 1700 2600
+Wire Wire Line
+	1300 3150 1300 2850
+Wire Wire Line
+	1300 2850 1400 2850
+Wire Wire Line
+	1600 3150 1700 3150
+Wire Wire Line
+	1700 3150 1700 3050
+Wire Wire Line
+	1250 3150 1300 3150
+Connection ~ 1300 3150
+Connection ~ 1700 3150
+Wire Wire Line
+	2000 3150 2000 2900
+Wire Wire Line
+	1700 3150 2000 3150
+Connection ~ 2000 2900
+Wire Wire Line
+	2000 2900 2350 2900
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB091BD
+P 1850 3500
+F 0 "#PWR?" H 1850 3350 50  0001 C CNN
+F 1 "VCC" H 1868 3673 50  0000 C CNN
+F 2 "" H 1850 3500 50  0001 C CNN
+F 3 "" H 1850 3500 50  0001 C CNN
+	1    1850 3500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB091C3
+P 1700 4050
+F 0 "#PWR?" H 1700 3900 50  0001 C CNN
+F 1 "+3.3V" H 1715 4223 50  0000 C CNN
+F 2 "" H 1700 4050 50  0001 C CNN
+F 3 "" H 1700 4050 50  0001 C CNN
+	1    1700 4050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB091C9
+P 2050 3750
+AR Path="/5BAA6CA9/5BB091C9" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB091C9" Ref="Q?"  Part="1" 
+F 0 "Q?" V 2300 3750 50  0000 C CNN
+F 1 "BSS138" V 2391 3750 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 2250 3675 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 2050 3750 50  0001 L CNN
+	1    2050 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB091D0
+P 2000 3500
+AR Path="/5BAA6CA9/5BB091D0" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB091D0" Ref="R?"  Part="1" 
+F 0 "R?" H 2070 3546 50  0000 L CNN
+F 1 "10k" H 2070 3455 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 1930 3500 50  0001 C CNN
+F 3 "~" H 2000 3500 50  0001 C CNN
+	1    2000 3500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB091D7
+P 1900 4050
+AR Path="/5BAA6CA9/5BB091D7" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB091D7" Ref="R?"  Part="1" 
+F 0 "R?" H 1970 4096 50  0000 L CNN
+F 1 "10k" H 1970 4005 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 1830 4050 50  0001 C CNN
+F 3 "~" H 1900 4050 50  0001 C CNN
+	1    1900 4050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB091DE
+P 2450 3500
+F 0 "JP?" H 2450 3646 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 2450 3737 50  0000 C CNN
+F 2 "" H 2450 3500 50  0001 C CNN
+F 3 "~" H 2450 3500 50  0001 C CNN
+	1    2450 3500
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	2400 3800 2450 3800
+Wire Wire Line
+	2800 3800 2800 3500
+Wire Wire Line
+	2800 3500 2700 3500
+Wire Wire Line
+	2150 3500 2200 3500
+Wire Wire Line
+	2150 3550 2150 3500
+Connection ~ 2150 3500
+Wire Wire Line
+	1750 4050 1750 3750
+Wire Wire Line
+	1750 3750 1850 3750
+Wire Wire Line
+	2050 4050 2150 4050
+Wire Wire Line
+	2150 4050 2150 3950
+Wire Wire Line
+	1700 4050 1750 4050
+Connection ~ 1750 4050
+Connection ~ 2150 4050
+Wire Wire Line
+	2450 4050 2450 3800
+Wire Wire Line
+	2150 4050 2450 4050
+Connection ~ 2450 3800
+Wire Wire Line
+	2450 3800 2800 3800
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB09919
+P 2850 2600
+F 0 "#PWR?" H 2850 2450 50  0001 C CNN
+F 1 "VCC" H 2868 2773 50  0000 C CNN
+F 2 "" H 2850 2600 50  0001 C CNN
+F 3 "" H 2850 2600 50  0001 C CNN
+	1    2850 2600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB0991F
+P 2700 3150
+F 0 "#PWR?" H 2700 3000 50  0001 C CNN
+F 1 "+3.3V" H 2715 3323 50  0000 C CNN
+F 2 "" H 2700 3150 50  0001 C CNN
+F 3 "" H 2700 3150 50  0001 C CNN
+	1    2700 3150
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB09925
+P 3050 2850
+AR Path="/5BAA6CA9/5BB09925" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB09925" Ref="Q?"  Part="1" 
+F 0 "Q?" V 3300 2850 50  0000 C CNN
+F 1 "BSS138" V 3391 2850 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 3250 2775 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 3050 2850 50  0001 L CNN
+	1    3050 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB0992C
+P 3000 2600
+AR Path="/5BAA6CA9/5BB0992C" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB0992C" Ref="R?"  Part="1" 
+F 0 "R?" H 3070 2646 50  0000 L CNN
+F 1 "10k" H 3070 2555 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 2930 2600 50  0001 C CNN
+F 3 "~" H 3000 2600 50  0001 C CNN
+	1    3000 2600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB09933
+P 2900 3150
+AR Path="/5BAA6CA9/5BB09933" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB09933" Ref="R?"  Part="1" 
+F 0 "R?" H 2970 3196 50  0000 L CNN
+F 1 "10k" H 2970 3105 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 2830 3150 50  0001 C CNN
+F 3 "~" H 2900 3150 50  0001 C CNN
+	1    2900 3150
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB0993A
+P 3450 2600
+F 0 "JP?" H 3450 2746 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 3450 2837 50  0000 C CNN
+F 2 "" H 3450 2600 50  0001 C CNN
+F 3 "~" H 3450 2600 50  0001 C CNN
+	1    3450 2600
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3400 2900 3450 2900
+Wire Wire Line
+	3800 2900 3800 2600
+Wire Wire Line
+	3800 2600 3700 2600
+Wire Wire Line
+	3150 2600 3200 2600
+Wire Wire Line
+	3150 2650 3150 2600
+Connection ~ 3150 2600
+Wire Wire Line
+	2750 3150 2750 2850
+Wire Wire Line
+	2750 2850 2850 2850
+Wire Wire Line
+	3050 3150 3150 3150
+Wire Wire Line
+	3150 3150 3150 3050
+Wire Wire Line
+	2700 3150 2750 3150
+Connection ~ 2750 3150
+Connection ~ 3150 3150
+Wire Wire Line
+	3450 3150 3450 2900
+Wire Wire Line
+	3150 3150 3450 3150
+Connection ~ 3450 2900
+Wire Wire Line
+	3450 2900 3800 2900
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB0A3FC
+P 3300 3500
+F 0 "#PWR?" H 3300 3350 50  0001 C CNN
+F 1 "VCC" H 3318 3673 50  0000 C CNN
+F 2 "" H 3300 3500 50  0001 C CNN
+F 3 "" H 3300 3500 50  0001 C CNN
+	1    3300 3500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB0A402
+P 3150 4050
+F 0 "#PWR?" H 3150 3900 50  0001 C CNN
+F 1 "+3.3V" H 3165 4223 50  0000 C CNN
+F 2 "" H 3150 4050 50  0001 C CNN
+F 3 "" H 3150 4050 50  0001 C CNN
+	1    3150 4050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB0A408
+P 3500 3750
+AR Path="/5BAA6CA9/5BB0A408" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB0A408" Ref="Q?"  Part="1" 
+F 0 "Q?" V 3750 3750 50  0000 C CNN
+F 1 "BSS138" V 3841 3750 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 3700 3675 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 3500 3750 50  0001 L CNN
+	1    3500 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB0A40F
+P 3450 3500
+AR Path="/5BAA6CA9/5BB0A40F" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB0A40F" Ref="R?"  Part="1" 
+F 0 "R?" H 3520 3546 50  0000 L CNN
+F 1 "10k" H 3520 3455 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 3380 3500 50  0001 C CNN
+F 3 "~" H 3450 3500 50  0001 C CNN
+	1    3450 3500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB0A416
+P 3350 4050
+AR Path="/5BAA6CA9/5BB0A416" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB0A416" Ref="R?"  Part="1" 
+F 0 "R?" H 3420 4096 50  0000 L CNN
+F 1 "10k" H 3420 4005 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 3280 4050 50  0001 C CNN
+F 3 "~" H 3350 4050 50  0001 C CNN
+	1    3350 4050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB0A41D
+P 3900 3500
+F 0 "JP?" H 3900 3646 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 3900 3737 50  0000 C CNN
+F 2 "" H 3900 3500 50  0001 C CNN
+F 3 "~" H 3900 3500 50  0001 C CNN
+	1    3900 3500
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3850 3800 3900 3800
+Wire Wire Line
+	4250 3800 4250 3500
+Wire Wire Line
+	4250 3500 4150 3500
+Wire Wire Line
+	3600 3500 3650 3500
+Wire Wire Line
+	3600 3550 3600 3500
+Connection ~ 3600 3500
+Wire Wire Line
+	3200 4050 3200 3750
+Wire Wire Line
+	3200 3750 3300 3750
+Wire Wire Line
+	3500 4050 3600 4050
+Wire Wire Line
+	3600 4050 3600 3950
+Wire Wire Line
+	3150 4050 3200 4050
+Connection ~ 3200 4050
+Connection ~ 3600 4050
+Wire Wire Line
+	3900 4050 3900 3800
+Wire Wire Line
+	3600 4050 3900 4050
+Connection ~ 3900 3800
+Wire Wire Line
+	3900 3800 4250 3800
+Wire Wire Line
+	2450 3400 2450 2400
+Wire Wire Line
+	2450 2400 2100 2400
+Wire Wire Line
+	3450 2500 3450 2000
+Wire Wire Line
+	3450 2000 2300 2000
+Wire Wire Line
+	2600 1900 3900 1900
+Wire Wire Line
+	3900 1900 3900 3400
+Text HLabel 5300 3200 3    50   Input ~ 0
+BD1
+Text HLabel 5750 4100 3    50   Input ~ 0
+BD2
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB106F4
+P 4700 2650
+F 0 "#PWR?" H 4700 2500 50  0001 C CNN
+F 1 "VCC" H 4718 2823 50  0000 C CNN
+F 2 "" H 4700 2650 50  0001 C CNN
+F 3 "" H 4700 2650 50  0001 C CNN
+	1    4700 2650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB106FA
+P 4550 3200
+F 0 "#PWR?" H 4550 3050 50  0001 C CNN
+F 1 "+3.3V" H 4565 3373 50  0000 C CNN
+F 2 "" H 4550 3200 50  0001 C CNN
+F 3 "" H 4550 3200 50  0001 C CNN
+	1    4550 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB10700
+P 4900 2900
+AR Path="/5BAA6CA9/5BB10700" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB10700" Ref="Q?"  Part="1" 
+F 0 "Q?" V 5150 2900 50  0000 C CNN
+F 1 "BSS138" V 5241 2900 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 5100 2825 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 4900 2900 50  0001 L CNN
+	1    4900 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB10707
+P 4850 2650
+AR Path="/5BAA6CA9/5BB10707" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB10707" Ref="R?"  Part="1" 
+F 0 "R?" H 4920 2696 50  0000 L CNN
+F 1 "10k" H 4920 2605 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 4780 2650 50  0001 C CNN
+F 3 "~" H 4850 2650 50  0001 C CNN
+	1    4850 2650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB1070E
+P 4750 3200
+AR Path="/5BAA6CA9/5BB1070E" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB1070E" Ref="R?"  Part="1" 
+F 0 "R?" H 4820 3246 50  0000 L CNN
+F 1 "10k" H 4820 3155 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 4680 3200 50  0001 C CNN
+F 3 "~" H 4750 3200 50  0001 C CNN
+	1    4750 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L localization-symbols:ULTRASONIC-GPIO U?
+U 1 1 5BB10715
+P 5500 1150
+F 0 "U?" H 5978 1265 50  0000 L CNN
+F 1 "ULTRASONIC-GPIO" H 5978 1174 50  0000 L CNN
+F 2 "" H 5500 1150 50  0001 C CNN
+F 3 "" H 5500 1150 50  0001 C CNN
+	1    5500 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L DMPro17-rescue:GND #PWR?
+U 1 1 5BB1071C
+P 5500 1250
+F 0 "#PWR?" H 5500 1000 50  0001 C CNN
+F 1 "GND" H 5505 1077 50  0000 C CNN
+F 2 "" H 5500 1250 50  0001 C CNN
+F 3 "" H 5500 1250 50  0001 C CNN
+	1    5500 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L DMPro17-rescue:GND #PWR?
+U 1 1 5BB10722
+P 5800 1250
+F 0 "#PWR?" H 5800 1000 50  0001 C CNN
+F 1 "GND" H 5805 1077 50  0000 C CNN
+F 2 "" H 5800 1250 50  0001 C CNN
+F 3 "" H 5800 1250 50  0001 C CNN
+	1    5800 1250
+	1    0    0    -1  
+$EndComp
+Text HLabel 6750 3200 3    50   Input ~ 0
+BD3_RX
+Text HLabel 7200 4100 3    50   Input ~ 0
+BD4_TX
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB1072A
+P 5300 2650
+F 0 "JP?" H 5300 2796 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 5300 2887 50  0000 C CNN
+F 2 "" H 5300 2650 50  0001 C CNN
+F 3 "~" H 5300 2650 50  0001 C CNN
+	1    5300 2650
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB10731
+P 4650 1500
+F 0 "JP?" V 4696 1602 50  0000 L CNN
+F 1 "Jumper_NC_Dual" V 4605 1602 50  0000 L CNN
+F 2 "" H 4650 1500 50  0001 C CNN
+F 3 "~" H 4650 1500 50  0001 C CNN
+	1    4650 1500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB10738
+P 4650 2100
+F 0 "JP?" V 4696 2202 50  0000 L CNN
+F 1 "Jumper_NC_Dual" V 4605 2202 50  0000 L CNN
+F 2 "" H 4650 2100 50  0001 C CNN
+F 3 "~" H 4650 2100 50  0001 C CNN
+	1    4650 2100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:VCC #PWR?
+U 1 1 5BB1073F
+P 4650 1250
+F 0 "#PWR?" H 4650 1100 50  0001 C CNN
+F 1 "VCC" V 4668 1377 50  0000 L CNN
+F 2 "" H 4650 1250 50  0001 C CNN
+F 3 "" H 4650 1250 50  0001 C CNN
+	1    4650 1250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:+3.3V #PWR?
+U 1 1 5BB10745
+P 4650 1750
+F 0 "#PWR?" H 4650 1600 50  0001 C CNN
+F 1 "+3.3V" V 4665 1878 50  0000 L CNN
+F 2 "" H 4650 1750 50  0001 C CNN
+F 3 "" H 4650 1750 50  0001 C CNN
+	1    4650 1750
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:+3.3V #PWR?
+U 1 1 5BB1074B
+P 4650 2350
+F 0 "#PWR?" H 4650 2200 50  0001 C CNN
+F 1 "+3.3V" V 4665 2478 50  0000 L CNN
+F 2 "" H 4650 2350 50  0001 C CNN
+F 3 "" H 4650 2350 50  0001 C CNN
+	1    4650 2350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:VCC #PWR?
+U 1 1 5BB10751
+P 4650 1850
+F 0 "#PWR?" H 4650 1700 50  0001 C CNN
+F 1 "VCC" V 4668 1977 50  0000 L CNN
+F 2 "" H 4650 1850 50  0001 C CNN
+F 3 "" H 4650 1850 50  0001 C CNN
+	1    4650 1850
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	4750 1500 5200 1500
+Wire Wire Line
+	5200 1500 5200 1250
+Wire Wire Line
+	4750 2100 5700 2100
+Wire Wire Line
+	5700 2100 5700 1250
+Wire Wire Line
+	5250 2950 5300 2950
+Wire Wire Line
+	5650 2950 5650 2650
+Wire Wire Line
+	5650 2650 5550 2650
+Wire Wire Line
+	5300 2550 5300 1250
+Wire Wire Line
+	5400 2450 5400 1250
+Wire Wire Line
+	5600 2050 5600 1250
+Wire Wire Line
+	5900 1950 5900 1250
+Wire Wire Line
+	5000 2650 5050 2650
+Wire Wire Line
+	5000 2700 5000 2650
+Connection ~ 5000 2650
+Wire Wire Line
+	4600 3200 4600 2900
+Wire Wire Line
+	4600 2900 4700 2900
+Wire Wire Line
+	4900 3200 5000 3200
+Wire Wire Line
+	5000 3200 5000 3100
+Wire Wire Line
+	4550 3200 4600 3200
+Connection ~ 4600 3200
+Connection ~ 5000 3200
+Wire Wire Line
+	5300 3200 5300 2950
+Wire Wire Line
+	5000 3200 5300 3200
+Connection ~ 5300 2950
+Wire Wire Line
+	5300 2950 5650 2950
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB10770
+P 5150 3550
+F 0 "#PWR?" H 5150 3400 50  0001 C CNN
+F 1 "VCC" H 5168 3723 50  0000 C CNN
+F 2 "" H 5150 3550 50  0001 C CNN
+F 3 "" H 5150 3550 50  0001 C CNN
+	1    5150 3550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB10776
+P 5000 4100
+F 0 "#PWR?" H 5000 3950 50  0001 C CNN
+F 1 "+3.3V" H 5015 4273 50  0000 C CNN
+F 2 "" H 5000 4100 50  0001 C CNN
+F 3 "" H 5000 4100 50  0001 C CNN
+	1    5000 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB1077C
+P 5350 3800
+AR Path="/5BAA6CA9/5BB1077C" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB1077C" Ref="Q?"  Part="1" 
+F 0 "Q?" V 5600 3800 50  0000 C CNN
+F 1 "BSS138" V 5691 3800 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 5550 3725 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 5350 3800 50  0001 L CNN
+	1    5350 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB10783
+P 5300 3550
+AR Path="/5BAA6CA9/5BB10783" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB10783" Ref="R?"  Part="1" 
+F 0 "R?" H 5370 3596 50  0000 L CNN
+F 1 "10k" H 5370 3505 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 5230 3550 50  0001 C CNN
+F 3 "~" H 5300 3550 50  0001 C CNN
+	1    5300 3550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB1078A
+P 5200 4100
+AR Path="/5BAA6CA9/5BB1078A" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB1078A" Ref="R?"  Part="1" 
+F 0 "R?" H 5270 4146 50  0000 L CNN
+F 1 "10k" H 5270 4055 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 5130 4100 50  0001 C CNN
+F 3 "~" H 5200 4100 50  0001 C CNN
+	1    5200 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB10791
+P 5750 3550
+F 0 "JP?" H 5750 3696 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 5750 3787 50  0000 C CNN
+F 2 "" H 5750 3550 50  0001 C CNN
+F 3 "~" H 5750 3550 50  0001 C CNN
+	1    5750 3550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5700 3850 5750 3850
+Wire Wire Line
+	6100 3850 6100 3550
+Wire Wire Line
+	6100 3550 6000 3550
+Wire Wire Line
+	5450 3550 5500 3550
+Wire Wire Line
+	5450 3600 5450 3550
+Connection ~ 5450 3550
+Wire Wire Line
+	5050 4100 5050 3800
+Wire Wire Line
+	5050 3800 5150 3800
+Wire Wire Line
+	5350 4100 5450 4100
+Wire Wire Line
+	5450 4100 5450 4000
+Wire Wire Line
+	5000 4100 5050 4100
+Connection ~ 5050 4100
+Connection ~ 5450 4100
+Wire Wire Line
+	5750 4100 5750 3850
+Wire Wire Line
+	5450 4100 5750 4100
+Connection ~ 5750 3850
+Wire Wire Line
+	5750 3850 6100 3850
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB107A9
+P 6150 2650
+F 0 "#PWR?" H 6150 2500 50  0001 C CNN
+F 1 "VCC" H 6168 2823 50  0000 C CNN
+F 2 "" H 6150 2650 50  0001 C CNN
+F 3 "" H 6150 2650 50  0001 C CNN
+	1    6150 2650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB107AF
+P 6000 3200
+F 0 "#PWR?" H 6000 3050 50  0001 C CNN
+F 1 "+3.3V" H 6015 3373 50  0000 C CNN
+F 2 "" H 6000 3200 50  0001 C CNN
+F 3 "" H 6000 3200 50  0001 C CNN
+	1    6000 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB107B5
+P 6350 2900
+AR Path="/5BAA6CA9/5BB107B5" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB107B5" Ref="Q?"  Part="1" 
+F 0 "Q?" V 6600 2900 50  0000 C CNN
+F 1 "BSS138" V 6691 2900 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 6550 2825 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 6350 2900 50  0001 L CNN
+	1    6350 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB107BC
+P 6300 2650
+AR Path="/5BAA6CA9/5BB107BC" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB107BC" Ref="R?"  Part="1" 
+F 0 "R?" H 6370 2696 50  0000 L CNN
+F 1 "10k" H 6370 2605 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6230 2650 50  0001 C CNN
+F 3 "~" H 6300 2650 50  0001 C CNN
+	1    6300 2650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB107C3
+P 6200 3200
+AR Path="/5BAA6CA9/5BB107C3" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB107C3" Ref="R?"  Part="1" 
+F 0 "R?" H 6270 3246 50  0000 L CNN
+F 1 "10k" H 6270 3155 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6130 3200 50  0001 C CNN
+F 3 "~" H 6200 3200 50  0001 C CNN
+	1    6200 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB107CA
+P 6750 2650
+F 0 "JP?" H 6750 2796 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 6750 2887 50  0000 C CNN
+F 2 "" H 6750 2650 50  0001 C CNN
+F 3 "~" H 6750 2650 50  0001 C CNN
+	1    6750 2650
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6700 2950 6750 2950
+Wire Wire Line
+	7100 2950 7100 2650
+Wire Wire Line
+	7100 2650 7000 2650
+Wire Wire Line
+	6450 2650 6500 2650
+Wire Wire Line
+	6450 2700 6450 2650
+Connection ~ 6450 2650
+Wire Wire Line
+	6050 3200 6050 2900
+Wire Wire Line
+	6050 2900 6150 2900
+Wire Wire Line
+	6350 3200 6450 3200
+Wire Wire Line
+	6450 3200 6450 3100
+Wire Wire Line
+	6000 3200 6050 3200
+Connection ~ 6050 3200
+Connection ~ 6450 3200
+Wire Wire Line
+	6750 3200 6750 2950
+Wire Wire Line
+	6450 3200 6750 3200
+Connection ~ 6750 2950
+Wire Wire Line
+	6750 2950 7100 2950
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB107E2
+P 6600 3550
+F 0 "#PWR?" H 6600 3400 50  0001 C CNN
+F 1 "VCC" H 6618 3723 50  0000 C CNN
+F 2 "" H 6600 3550 50  0001 C CNN
+F 3 "" H 6600 3550 50  0001 C CNN
+	1    6600 3550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB107E8
+P 6450 4100
+F 0 "#PWR?" H 6450 3950 50  0001 C CNN
+F 1 "+3.3V" H 6465 4273 50  0000 C CNN
+F 2 "" H 6450 4100 50  0001 C CNN
+F 3 "" H 6450 4100 50  0001 C CNN
+	1    6450 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB107EE
+P 6800 3800
+AR Path="/5BAA6CA9/5BB107EE" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB107EE" Ref="Q?"  Part="1" 
+F 0 "Q?" V 7050 3800 50  0000 C CNN
+F 1 "BSS138" V 7141 3800 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 7000 3725 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 6800 3800 50  0001 L CNN
+	1    6800 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB107F5
+P 6750 3550
+AR Path="/5BAA6CA9/5BB107F5" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB107F5" Ref="R?"  Part="1" 
+F 0 "R?" H 6820 3596 50  0000 L CNN
+F 1 "10k" H 6820 3505 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6680 3550 50  0001 C CNN
+F 3 "~" H 6750 3550 50  0001 C CNN
+	1    6750 3550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB107FC
+P 6650 4100
+AR Path="/5BAA6CA9/5BB107FC" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB107FC" Ref="R?"  Part="1" 
+F 0 "R?" H 6720 4146 50  0000 L CNN
+F 1 "10k" H 6720 4055 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6580 4100 50  0001 C CNN
+F 3 "~" H 6650 4100 50  0001 C CNN
+	1    6650 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB10803
+P 7200 3550
+F 0 "JP?" H 7200 3696 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 7200 3787 50  0000 C CNN
+F 2 "" H 7200 3550 50  0001 C CNN
+F 3 "~" H 7200 3550 50  0001 C CNN
+	1    7200 3550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7150 3850 7200 3850
+Wire Wire Line
+	7550 3850 7550 3550
+Wire Wire Line
+	7550 3550 7450 3550
+Wire Wire Line
+	6900 3550 6950 3550
+Wire Wire Line
+	6900 3600 6900 3550
+Connection ~ 6900 3550
+Wire Wire Line
+	6500 4100 6500 3800
+Wire Wire Line
+	6500 3800 6600 3800
+Wire Wire Line
+	6800 4100 6900 4100
+Wire Wire Line
+	6900 4100 6900 4000
+Wire Wire Line
+	6450 4100 6500 4100
+Connection ~ 6500 4100
+Connection ~ 6900 4100
+Wire Wire Line
+	7200 4100 7200 3850
+Wire Wire Line
+	6900 4100 7200 4100
+Connection ~ 7200 3850
+Wire Wire Line
+	7200 3850 7550 3850
+Wire Wire Line
+	5750 3450 5750 2450
+Wire Wire Line
+	5750 2450 5400 2450
+Wire Wire Line
+	6750 2550 6750 2050
+Wire Wire Line
+	6750 2050 5600 2050
+Wire Wire Line
+	5900 1950 7200 1950
+Wire Wire Line
+	7200 1950 7200 3450
+Text HLabel 8800 3200 3    50   Input ~ 0
+CD1
+Text HLabel 9250 4100 3    50   Input ~ 0
+CD2
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB1483F
+P 8200 2650
+F 0 "#PWR?" H 8200 2500 50  0001 C CNN
+F 1 "VCC" H 8218 2823 50  0000 C CNN
+F 2 "" H 8200 2650 50  0001 C CNN
+F 3 "" H 8200 2650 50  0001 C CNN
+	1    8200 2650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB14845
+P 8050 3200
+F 0 "#PWR?" H 8050 3050 50  0001 C CNN
+F 1 "+3.3V" H 8065 3373 50  0000 C CNN
+F 2 "" H 8050 3200 50  0001 C CNN
+F 3 "" H 8050 3200 50  0001 C CNN
+	1    8050 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB1484B
+P 8400 2900
+AR Path="/5BAA6CA9/5BB1484B" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB1484B" Ref="Q?"  Part="1" 
+F 0 "Q?" V 8650 2900 50  0000 C CNN
+F 1 "BSS138" V 8741 2900 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 8600 2825 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8400 2900 50  0001 L CNN
+	1    8400 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB14852
+P 8350 2650
+AR Path="/5BAA6CA9/5BB14852" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB14852" Ref="R?"  Part="1" 
+F 0 "R?" H 8420 2696 50  0000 L CNN
+F 1 "10k" H 8420 2605 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 8280 2650 50  0001 C CNN
+F 3 "~" H 8350 2650 50  0001 C CNN
+	1    8350 2650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB14859
+P 8250 3200
+AR Path="/5BAA6CA9/5BB14859" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB14859" Ref="R?"  Part="1" 
+F 0 "R?" H 8320 3246 50  0000 L CNN
+F 1 "10k" H 8320 3155 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 8180 3200 50  0001 C CNN
+F 3 "~" H 8250 3200 50  0001 C CNN
+	1    8250 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L localization-symbols:ULTRASONIC-GPIO U?
+U 1 1 5BB14860
+P 9000 1150
+F 0 "U?" H 9478 1265 50  0000 L CNN
+F 1 "ULTRASONIC-GPIO" H 9478 1174 50  0000 L CNN
+F 2 "" H 9000 1150 50  0001 C CNN
+F 3 "" H 9000 1150 50  0001 C CNN
+	1    9000 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L DMPro17-rescue:GND #PWR?
+U 1 1 5BB14867
+P 9000 1250
+F 0 "#PWR?" H 9000 1000 50  0001 C CNN
+F 1 "GND" H 9005 1077 50  0000 C CNN
+F 2 "" H 9000 1250 50  0001 C CNN
+F 3 "" H 9000 1250 50  0001 C CNN
+	1    9000 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L DMPro17-rescue:GND #PWR?
+U 1 1 5BB1486D
+P 9300 1250
+F 0 "#PWR?" H 9300 1000 50  0001 C CNN
+F 1 "GND" H 9305 1077 50  0000 C CNN
+F 2 "" H 9300 1250 50  0001 C CNN
+F 3 "" H 9300 1250 50  0001 C CNN
+	1    9300 1250
+	1    0    0    -1  
+$EndComp
+Text HLabel 10250 3200 3    50   Input ~ 0
+C3_RX
+Text HLabel 10700 4100 3    50   Input ~ 0
+CD4_TX
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB14875
+P 8800 2650
+F 0 "JP?" H 8800 2796 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 8800 2887 50  0000 C CNN
+F 2 "" H 8800 2650 50  0001 C CNN
+F 3 "~" H 8800 2650 50  0001 C CNN
+	1    8800 2650
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB1487C
+P 8150 1500
+F 0 "JP?" V 8196 1602 50  0000 L CNN
+F 1 "Jumper_NC_Dual" V 8105 1602 50  0000 L CNN
+F 2 "" H 8150 1500 50  0001 C CNN
+F 3 "~" H 8150 1500 50  0001 C CNN
+	1    8150 1500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB14883
+P 8150 2100
+F 0 "JP?" V 8196 2202 50  0000 L CNN
+F 1 "Jumper_NC_Dual" V 8105 2202 50  0000 L CNN
+F 2 "" H 8150 2100 50  0001 C CNN
+F 3 "~" H 8150 2100 50  0001 C CNN
+	1    8150 2100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:VCC #PWR?
+U 1 1 5BB1488A
+P 8150 1250
+F 0 "#PWR?" H 8150 1100 50  0001 C CNN
+F 1 "VCC" V 8168 1377 50  0000 L CNN
+F 2 "" H 8150 1250 50  0001 C CNN
+F 3 "" H 8150 1250 50  0001 C CNN
+	1    8150 1250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:+3.3V #PWR?
+U 1 1 5BB14890
+P 8150 1750
+F 0 "#PWR?" H 8150 1600 50  0001 C CNN
+F 1 "+3.3V" V 8165 1878 50  0000 L CNN
+F 2 "" H 8150 1750 50  0001 C CNN
+F 3 "" H 8150 1750 50  0001 C CNN
+	1    8150 1750
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:+3.3V #PWR?
+U 1 1 5BB14896
+P 8150 2350
+F 0 "#PWR?" H 8150 2200 50  0001 C CNN
+F 1 "+3.3V" V 8165 2478 50  0000 L CNN
+F 2 "" H 8150 2350 50  0001 C CNN
+F 3 "" H 8150 2350 50  0001 C CNN
+	1    8150 2350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L DMPro17-rescue:VCC #PWR?
+U 1 1 5BB1489C
+P 8150 1850
+F 0 "#PWR?" H 8150 1700 50  0001 C CNN
+F 1 "VCC" V 8168 1977 50  0000 L CNN
+F 2 "" H 8150 1850 50  0001 C CNN
+F 3 "" H 8150 1850 50  0001 C CNN
+	1    8150 1850
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	8250 1500 8700 1500
+Wire Wire Line
+	8700 1500 8700 1250
+Wire Wire Line
+	8250 2100 9200 2100
+Wire Wire Line
+	9200 2100 9200 1250
+Wire Wire Line
+	8750 2950 8800 2950
+Wire Wire Line
+	9150 2950 9150 2650
+Wire Wire Line
+	9150 2650 9050 2650
+Wire Wire Line
+	8800 2550 8800 1250
+Wire Wire Line
+	8900 2450 8900 1250
+Wire Wire Line
+	9100 2050 9100 1250
+Wire Wire Line
+	9400 1950 9400 1250
+Wire Wire Line
+	8500 2650 8550 2650
+Wire Wire Line
+	8500 2700 8500 2650
+Connection ~ 8500 2650
+Wire Wire Line
+	8100 3200 8100 2900
+Wire Wire Line
+	8100 2900 8200 2900
+Wire Wire Line
+	8400 3200 8500 3200
+Wire Wire Line
+	8500 3200 8500 3100
+Wire Wire Line
+	8050 3200 8100 3200
+Connection ~ 8100 3200
+Connection ~ 8500 3200
+Wire Wire Line
+	8800 3200 8800 2950
+Wire Wire Line
+	8500 3200 8800 3200
+Connection ~ 8800 2950
+Wire Wire Line
+	8800 2950 9150 2950
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB148BB
+P 8650 3550
+F 0 "#PWR?" H 8650 3400 50  0001 C CNN
+F 1 "VCC" H 8668 3723 50  0000 C CNN
+F 2 "" H 8650 3550 50  0001 C CNN
+F 3 "" H 8650 3550 50  0001 C CNN
+	1    8650 3550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB148C1
+P 8500 4100
+F 0 "#PWR?" H 8500 3950 50  0001 C CNN
+F 1 "+3.3V" H 8515 4273 50  0000 C CNN
+F 2 "" H 8500 4100 50  0001 C CNN
+F 3 "" H 8500 4100 50  0001 C CNN
+	1    8500 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB148C7
+P 8850 3800
+AR Path="/5BAA6CA9/5BB148C7" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB148C7" Ref="Q?"  Part="1" 
+F 0 "Q?" V 9100 3800 50  0000 C CNN
+F 1 "BSS138" V 9191 3800 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 9050 3725 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8850 3800 50  0001 L CNN
+	1    8850 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB148CE
+P 8800 3550
+AR Path="/5BAA6CA9/5BB148CE" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB148CE" Ref="R?"  Part="1" 
+F 0 "R?" H 8870 3596 50  0000 L CNN
+F 1 "10k" H 8870 3505 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 8730 3550 50  0001 C CNN
+F 3 "~" H 8800 3550 50  0001 C CNN
+	1    8800 3550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB148D5
+P 8700 4100
+AR Path="/5BAA6CA9/5BB148D5" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB148D5" Ref="R?"  Part="1" 
+F 0 "R?" H 8770 4146 50  0000 L CNN
+F 1 "10k" H 8770 4055 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 8630 4100 50  0001 C CNN
+F 3 "~" H 8700 4100 50  0001 C CNN
+	1    8700 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB148DC
+P 9250 3550
+F 0 "JP?" H 9250 3696 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 9250 3787 50  0000 C CNN
+F 2 "" H 9250 3550 50  0001 C CNN
+F 3 "~" H 9250 3550 50  0001 C CNN
+	1    9250 3550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	9200 3850 9250 3850
+Wire Wire Line
+	9600 3850 9600 3550
+Wire Wire Line
+	9600 3550 9500 3550
+Wire Wire Line
+	8950 3550 9000 3550
+Wire Wire Line
+	8950 3600 8950 3550
+Connection ~ 8950 3550
+Wire Wire Line
+	8550 4100 8550 3800
+Wire Wire Line
+	8550 3800 8650 3800
+Wire Wire Line
+	8850 4100 8950 4100
+Wire Wire Line
+	8950 4100 8950 4000
+Wire Wire Line
+	8500 4100 8550 4100
+Connection ~ 8550 4100
+Connection ~ 8950 4100
+Wire Wire Line
+	9250 4100 9250 3850
+Wire Wire Line
+	8950 4100 9250 4100
+Connection ~ 9250 3850
+Wire Wire Line
+	9250 3850 9600 3850
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB148F4
+P 9650 2650
+F 0 "#PWR?" H 9650 2500 50  0001 C CNN
+F 1 "VCC" H 9668 2823 50  0000 C CNN
+F 2 "" H 9650 2650 50  0001 C CNN
+F 3 "" H 9650 2650 50  0001 C CNN
+	1    9650 2650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB148FA
+P 9500 3200
+F 0 "#PWR?" H 9500 3050 50  0001 C CNN
+F 1 "+3.3V" H 9515 3373 50  0000 C CNN
+F 2 "" H 9500 3200 50  0001 C CNN
+F 3 "" H 9500 3200 50  0001 C CNN
+	1    9500 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB14900
+P 9850 2900
+AR Path="/5BAA6CA9/5BB14900" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB14900" Ref="Q?"  Part="1" 
+F 0 "Q?" V 10100 2900 50  0000 C CNN
+F 1 "BSS138" V 10191 2900 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 10050 2825 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 9850 2900 50  0001 L CNN
+	1    9850 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB14907
+P 9800 2650
+AR Path="/5BAA6CA9/5BB14907" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB14907" Ref="R?"  Part="1" 
+F 0 "R?" H 9870 2696 50  0000 L CNN
+F 1 "10k" H 9870 2605 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 9730 2650 50  0001 C CNN
+F 3 "~" H 9800 2650 50  0001 C CNN
+	1    9800 2650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB1490E
+P 9700 3200
+AR Path="/5BAA6CA9/5BB1490E" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB1490E" Ref="R?"  Part="1" 
+F 0 "R?" H 9770 3246 50  0000 L CNN
+F 1 "10k" H 9770 3155 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 9630 3200 50  0001 C CNN
+F 3 "~" H 9700 3200 50  0001 C CNN
+	1    9700 3200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB14915
+P 10250 2650
+F 0 "JP?" H 10250 2796 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 10250 2887 50  0000 C CNN
+F 2 "" H 10250 2650 50  0001 C CNN
+F 3 "~" H 10250 2650 50  0001 C CNN
+	1    10250 2650
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	10200 2950 10250 2950
+Wire Wire Line
+	10600 2950 10600 2650
+Wire Wire Line
+	10600 2650 10500 2650
+Wire Wire Line
+	9950 2650 10000 2650
+Wire Wire Line
+	9950 2700 9950 2650
+Connection ~ 9950 2650
+Wire Wire Line
+	9550 3200 9550 2900
+Wire Wire Line
+	9550 2900 9650 2900
+Wire Wire Line
+	9850 3200 9950 3200
+Wire Wire Line
+	9950 3200 9950 3100
+Wire Wire Line
+	9500 3200 9550 3200
+Connection ~ 9550 3200
+Connection ~ 9950 3200
+Wire Wire Line
+	10250 3200 10250 2950
+Wire Wire Line
+	9950 3200 10250 3200
+Connection ~ 10250 2950
+Wire Wire Line
+	10250 2950 10600 2950
+$Comp
+L power:VCC #PWR?
+U 1 1 5BB1492D
+P 10100 3550
+F 0 "#PWR?" H 10100 3400 50  0001 C CNN
+F 1 "VCC" H 10118 3723 50  0000 C CNN
+F 2 "" H 10100 3550 50  0001 C CNN
+F 3 "" H 10100 3550 50  0001 C CNN
+	1    10100 3550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5BB14933
+P 9950 4100
+F 0 "#PWR?" H 9950 3950 50  0001 C CNN
+F 1 "+3.3V" H 9965 4273 50  0000 C CNN
+F 2 "" H 9950 4100 50  0001 C CNN
+F 3 "" H 9950 4100 50  0001 C CNN
+	1    9950 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Transistor_FET:BSS138 Q?
+U 1 1 5BB14939
+P 10300 3800
+AR Path="/5BAA6CA9/5BB14939" Ref="Q?"  Part="1" 
+AR Path="/5BAB97A9/5BB14939" Ref="Q?"  Part="1" 
+F 0 "Q?" V 10550 3800 50  0000 C CNN
+F 1 "BSS138" V 10641 3800 50  0000 C CNN
+F 2 "digikey-footprints:SOT-23-3" H 10500 3725 50  0001 L CIN
+F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 10300 3800 50  0001 L CNN
+	1    10300 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB14940
+P 10250 3550
+AR Path="/5BAA6CA9/5BB14940" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB14940" Ref="R?"  Part="1" 
+F 0 "R?" H 10320 3596 50  0000 L CNN
+F 1 "10k" H 10320 3505 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 10180 3550 50  0001 C CNN
+F 3 "~" H 10250 3550 50  0001 C CNN
+	1    10250 3550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BB14947
+P 10150 4100
+AR Path="/5BAA6CA9/5BB14947" Ref="R?"  Part="1" 
+AR Path="/5BAB97A9/5BB14947" Ref="R?"  Part="1" 
+F 0 "R?" H 10220 4146 50  0000 L CNN
+F 1 "10k" H 10220 4055 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 10080 4100 50  0001 C CNN
+F 3 "~" H 10150 4100 50  0001 C CNN
+	1    10150 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:Jumper_NC_Dual JP?
+U 1 1 5BB1494E
+P 10700 3550
+F 0 "JP?" H 10700 3696 50  0000 C CNN
+F 1 "Jumper_NC_Dual" H 10700 3787 50  0000 C CNN
+F 2 "" H 10700 3550 50  0001 C CNN
+F 3 "~" H 10700 3550 50  0001 C CNN
+	1    10700 3550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	10650 3850 10700 3850
+Wire Wire Line
+	11050 3850 11050 3550
+Wire Wire Line
+	11050 3550 10950 3550
+Wire Wire Line
+	10400 3550 10450 3550
+Wire Wire Line
+	10400 3600 10400 3550
+Connection ~ 10400 3550
+Wire Wire Line
+	10000 4100 10000 3800
+Wire Wire Line
+	10000 3800 10100 3800
+Wire Wire Line
+	10300 4100 10400 4100
+Wire Wire Line
+	10400 4100 10400 4000
+Wire Wire Line
+	9950 4100 10000 4100
+Connection ~ 10000 4100
+Connection ~ 10400 4100
+Wire Wire Line
+	10700 4100 10700 3850
+Wire Wire Line
+	10400 4100 10700 4100
+Connection ~ 10700 3850
+Wire Wire Line
+	10700 3850 11050 3850
+Wire Wire Line
+	9250 3450 9250 2450
+Wire Wire Line
+	9250 2450 8900 2450
+Wire Wire Line
+	10250 2550 10250 2050
+Wire Wire Line
+	10250 2050 9100 2050
+Wire Wire Line
+	9400 1950 10700 1950
+Wire Wire Line
+	10700 1950 10700 3450
+$EndSCHEMATC

@@ -1,29 +1,6 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# Connector:Conn_01x03_Female
-#
-DEF Connector:Conn_01x03_Female J 0 40 Y N 1 F N
-F0 "J" 0 200 50 H V C CNN
-F1 "Connector:Conn_01x03_Female" 0 -200 50 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-$FPLIST
- Connector*:*_1x??_*
-$ENDFPLIST
-DRAW
-A 0 -100 20 901 -901 1 1 6 N 0 -80 0 -120
-A 0 0 20 901 -901 1 1 6 N 0 20 0 -20
-A 0 100 20 901 -901 1 1 6 N 0 120 0 80
-P 2 1 1 6 -50 -100 -20 -100 N
-P 2 1 1 6 -50 0 -20 0 N
-P 2 1 1 6 -50 100 -20 100 N
-X Pin_1 1 -200 100 150 R 50 50 1 1 P
-X Pin_2 2 -200 0 150 R 50 50 1 1 P
-X Pin_3 3 -200 -100 150 R 50 50 1 1 P
-ENDDRAW
-ENDDEF
-#
 # Connector_Generic:Conn_02x03_Counter_Clockwise
 #
 DEF Connector_Generic:Conn_02x03_Counter_Clockwise J 0 40 Y N 1 F N
@@ -103,6 +80,34 @@ X Pin_6 6 300 200 150 L 50 50 1 1 P
 X Pin_7 7 -200 100 150 R 50 50 1 1 P
 X Pin_8 8 300 100 150 L 50 50 1 1 P
 X Pin_9 9 -200 0 150 R 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# DMPro17-rescue:+3.3V
+#
+DEF DMPro17-rescue:+3.3V #PWR 0 0 Y Y 1 F P
+F0 "#PWR" 0 -150 50 H I C CNN
+F1 "DMPro17-rescue:+3.3V" 0 140 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+P 2 0 1 0 -30 50 0 100 N
+P 2 0 1 0 0 0 0 100 N
+P 2 0 1 0 0 100 30 50 N
+X +3V3 1 0 0 0 U 50 50 1 1 W N
+ENDDRAW
+ENDDEF
+#
+# DMPro17-rescue:GND
+#
+DEF DMPro17-rescue:GND #PWR 0 0 Y Y 1 F P
+F0 "#PWR" 0 -250 50 H I C CNN
+F1 "DMPro17-rescue:GND" 0 -150 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+P 6 0 1 0 0 0 0 -50 50 -50 0 -100 -50 -50 0 -50 N
+X GND 1 0 0 0 D 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
@@ -207,6 +212,20 @@ X 6 6 -300 -500 165 R 60 60 0 1 P
 X 7 7 -300 -600 165 R 60 60 0 1 P
 X 8 8 -300 -700 165 R 60 60 0 1 P
 X 9 9 -300 -800 165 R 60 60 0 1 P
+ENDDRAW
+ENDDEF
+#
+# DMPro17-rescue:VCC
+#
+DEF DMPro17-rescue:VCC #PWR 0 0 Y Y 1 F P
+F0 "#PWR" 0 -150 50 H I C CNN
+F1 "DMPro17-rescue:VCC" 0 150 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+C 0 75 25 0 1 0 N
+P 2 0 1 0 0 0 0 50 N
+X VCC 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
@@ -537,30 +556,6 @@ X ~ 2 0 -200 170 U 40 40 1 1 P
 ENDDRAW
 ENDDEF
 #
-# freetronics_schematic:M06
-#
-DEF freetronics_schematic:M06 JP 0 30 Y N 1 F N
-F0 "JP" -100 100 50 H V C CNN
-F1 "freetronics_schematic:M06" -100 -600 40 H V C CNN
-F2 "" 0 0 60 H V C CNN
-F3 "" 0 0 60 H V C CNN
-DRAW
-C -100 -400 35 0 1 0 N
-C -100 -200 35 0 1 0 N
-C -100 0 35 0 1 0 F
-C -100 -500 35 1 1 0 N
-C -100 -300 35 1 1 0 N
-C -100 -100 35 1 1 0 N
-P 5 0 1 0 -150 50 -50 50 -50 -550 -150 -550 -150 50 N
-X 1 1 -300 0 165 R 60 60 0 1 P
-X 2 2 -300 -100 165 R 60 60 0 1 P
-X 3 3 -300 -200 165 R 60 60 0 1 P
-X 4 4 -300 -300 165 R 60 60 0 1 P
-X 5 5 -300 -400 165 R 60 60 0 1 P
-X 6 6 -300 -500 165 R 60 60 0 1 P
-ENDDRAW
-ENDDEF
-#
 # freetronics_schematic:SW_PUSHBUTTON
 #
 DEF freetronics_schematic:SW_PUSHBUTTON SW 0 40 N N 1 F N
@@ -649,22 +644,6 @@ X XVREF XV_R -1050 -1050 300 R 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# localization-symbols:HC-SR04
-#
-DEF localization-symbols:HC-SR04 U 0 40 Y Y 1 F N
-F0 "U" 250 50 50 H V C CNN
-F1 "localization-symbols:HC-SR04" 0 200 50 H V C CNN
-F2 "" 0 -150 50 H I C CNN
-F3 "" 0 -150 50 H I C CNN
-DRAW
-S 200 -100 -200 150 0 1 0 N
-X VCC 1 -150 -200 100 U 50 50 1 1 I
-X TRIG 2 -50 -200 100 U 50 50 1 1 I
-X ECHO 3 50 -200 100 U 50 50 1 1 I
-X GND 4 150 -200 100 U 50 50 1 1 I
-ENDDRAW
-ENDDEF
-#
 # localization-symbols:IMU
 #
 DEF localization-symbols:IMU U 0 40 Y Y 1 F N
@@ -687,22 +666,42 @@ X INT 9 -350 50 100 R 50 50 1 1 I
 ENDDRAW
 ENDDEF
 #
-# localization-symbols:lidar
+# localization-symbols:ULTRASONIC-GPIO
 #
-DEF localization-symbols:lidar U 0 40 Y Y 1 F N
-F0 "U" 200 550 50 H V C CNN
-F1 "localization-symbols:lidar" 700 250 50 H V C CNN
+DEF localization-symbols:ULTRASONIC-GPIO U 0 40 Y Y 1 F N
+F0 "U" 50 350 50 H V C CNN
+F1 "localization-symbols:ULTRASONIC-GPIO" 50 -300 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
-S 550 0 -250 500 0 1 0 N
+S 450 0 -350 300 0 1 0 N
+X VCC 1 -300 -100 100 U 50 50 1 1 I
+X D1 2 -200 -100 100 U 50 50 1 1 I
+X D2 3 -100 -100 100 U 50 50 1 1 I
+X GND 4 0 -100 100 U 50 50 1 1 I
+X D3_RX 5 100 -100 100 U 50 50 1 1 I
+X VCC 6 200 -100 100 U 50 50 1 1 I
+X GND 7 300 -100 100 U 50 50 1 1 I
+X D4_TX 8 400 -100 100 U 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+# localization-symbols:lidar
+#
+DEF localization-symbols:lidar U 0 40 Y Y 1 F N
+F0 "U" 150 500 50 H V C CNN
+F1 "localization-symbols:lidar" 550 200 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S 450 0 -250 450 0 1 0 N
 X GND 1 -200 -100 100 U 50 50 1 1 I
-X VCC 2 -100 -100 100 U 50 50 1 1 I
+X TX 2 -100 -100 100 U 50 50 1 1 I
 X RX 3 0 -100 100 U 50 50 1 1 I
-X TX 4 100 -100 100 U 50 50 1 1 I
-X V_MOTO 5 300 -100 100 U 50 50 1 1 I
-X MOTO_CTRL 6 400 -100 100 U 50 50 1 1 I
-X GND_MOTO 7 500 -100 100 U 50 50 1 1 I
+X VCC 4 100 -100 100 U 50 50 1 1 I
+X GND 5 200 -100 100 U 50 50 1 1 I
+X MOTOCTRL 6 300 -100 100 U 50 50 1 1 I
+X VMOTO 7 400 -100 100 U 50 50 1 1 I
 ENDDRAW
 ENDDEF
 #
@@ -711,21 +710,6 @@ ENDDEF
 DEF power:+3.3V #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
 F1 "power:+3.3V" 0 140 50 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-DRAW
-P 2 0 1 0 -30 50 0 100 N
-P 2 0 1 0 0 0 0 100 N
-P 2 0 1 0 0 100 30 50 N
-X +3V3 1 0 0 0 U 50 50 1 1 W N
-ENDDRAW
-ENDDEF
-#
-# power:+3V3
-#
-DEF power:+3V3 #PWR 0 0 Y Y 1 F P
-F0 "#PWR" 0 -150 50 H I C CNN
-F1 "power:+3V3" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 ALIAS +3.3V
