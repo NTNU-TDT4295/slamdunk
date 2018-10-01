@@ -416,33 +416,6 @@ X D 3 100 200 100 D 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# dk_Slide-Switches:EG1218
-#
-DEF dk_Slide-Switches:EG1218 S 0 0 Y Y 1 F N
-F0 "S" -150 90 50 H V C CNN
-F1 "dk_Slide-Switches:EG1218" 0 -210 50 H V C CNN
-F2 "digikey-footprints:Switch_Slide_11.6x4mm_EG1218" 200 200 50 H I L CNN
-F3 "http://spec_sheets.e-switch.com/specs/P040040.pdf" 200 300 60 H I L CNN
-F4 "EG1903-ND" 200 400 60 H I L CNN "Digi-Key_PN"
-F5 "EG1218" 200 500 60 H I L CNN "MPN"
-F6 "Switches" 200 600 60 H I L CNN "Category"
-F7 "Slide Switches" 200 700 60 H I L CNN "Family"
-F8 "http://spec_sheets.e-switch.com/specs/P040040.pdf" 200 800 60 H I L CNN "DK_Datasheet_Link"
-F9 "/product-detail/en/e-switch/EG1218/EG1903-ND/101726" 200 900 60 H I L CNN "DK_Detail_Page"
-F10 "SWITCH SLIDE SPDT 200MA 30V" 200 1000 60 H I L CNN "Description"
-F11 "E-Switch" 200 1100 60 H I L CNN "Manufacturer"
-F12 "Active" 200 1200 60 H I L CNN "Status"
-DRAW
-C -90 0 14 0 1 0 F
-C 90 -100 14 0 1 0 F
-C 100 100 14 0 1 0 F
-P 2 0 1 0 -80 0 120 90 N
-X ~ 1 200 100 100 L 50 50 1 1 P
-X ~ 2 -200 0 100 R 50 50 1 1 P
-X ~ 3 200 -100 100 L 50 50 1 1 P
-ENDDRAW
-ENDDEF
-#
 # efm32-symbols:EFM32GG980
 #
 DEF efm32-symbols:EFM32GG980 U 0 10 Y Y 1 F N
@@ -690,6 +663,31 @@ X VIN 6 300 -250 100 L 50 50 1 1 I
 X PS0 7 -350 -150 100 R 50 50 1 1 I
 X PS1 8 -350 -50 100 R 50 50 1 1 I
 X INT 9 -350 50 100 R 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+# localization-symbols:SW_2xSPDT
+#
+DEF localization-symbols:SW_2xSPDT SW 0 0 Y N 1 F N
+F0 "SW" 20 390 50 H V C CNN
+F1 "localization-symbols:SW_2xSPDT" 30 -160 50 H V C CNN
+F2 "" -60 -200 50 H I C CNN
+F3 "" -60 -200 50 H I C CNN
+DRAW
+C -60 10 20 1 0 0 N
+C -60 240 20 1 0 0 N
+C 30 -50 20 1 0 0 N
+C 30 180 20 1 0 0 N
+C 30 70 20 1 1 0 N
+C 30 300 20 1 1 0 N
+P 2 0 1 0 -40 240 10 300 N
+P 2 1 1 0 -40 10 10 70 N
+X C 1 150 -50 100 L 50 50 1 1 P
+X B 2 -180 10 100 R 50 50 1 1 P
+X A 3 150 70 100 L 50 50 1 1 P
+X ~ 4 150 180 100 L 50 50 1 1 P
+X B 5 -180 240 100 R 50 50 1 1 P
+X A 6 150 300 100 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #

@@ -1,6 +1,6 @@
-(module ARDUINO_PYNQ_SHIELD (layer F.Cu) (tedit 5BAD2F10)
+(module ARDUINO_PYNQ_SHIELD (layer F.Cu) (tedit 5BB1C878)
   (descr http://www.thingiverse.com/thing:9630)
-  (fp_text reference U2 (at 5.715 -57.15) (layer F.SilkS)
+  (fp_text reference U2 (at 2.54 -58.674) (layer F.SilkS)
     (effects (font (size 1.524 1.524) (thickness 0.3048)))
   )
   (fp_text value ARDUINO_PYNQ_SHIELD (at 10.16 -54.61) (layer F.SilkS) hide
