@@ -1,3 +1,0 @@
-(sym_lib_table
-  (lib (name Adafruit_BNO055-eagle-import)(type Legacy)(uri ${KIPRJMOD}/Adafruit_BNO055-eagle-import.lib)(options "")(descr ""))
-)
