@@ -58,8 +58,16 @@ connect_bd_net [get_bd_pins [get_bd_cells *rst_ps7*]/peripheral_reset] [get_bd_p
 
 # create external pins for board-level I/O
 # LEDs
-create_bd_port -dir O -from 3 -to 0 io_led
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led] [get_bd_ports io_led]
+# create_bd_port -dir O -from 3 -to 0 io_led
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led] [get_bd_ports io_led]
+create_bd_port -dir O io_led0
+create_bd_port -dir O io_led1
+create_bd_port -dir O io_led2
+create_bd_port -dir O io_led3
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led0] [get_bd_ports io_led0]
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led1] [get_bd_ports io_led1]
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led2] [get_bd_ports io_led2]
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led3] [get_bd_ports io_led3]
 # switches
 create_bd_port -dir I -from 1 -to 0 io_sw
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_sw] [get_bd_ports io_sw]
@@ -82,9 +90,20 @@ connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_r] [get_bd_ports led5_r]
 
 # UART
 create_bd_port -dir O io_uart_tx
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_tx] [get_bd_ports io_uart_tx]
 create_bd_port -dir I io_uart_rx
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_tx] [get_bd_ports io_uart_tx]
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_rx] [get_bd_ports io_uart_rx]
+
+# SPI
+create_bd_port -dir O io_spi_miso
+create_bd_port -dir I io_spi_mosi
+create_bd_port -dir I io_spi_sck
+create_bd_port -dir I io_spi_ss
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_miso] [get_bd_ports io_spi_miso]
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_mosi] [get_bd_ports io_spi_mosi]
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_sck] [get_bd_ports io_spi_sck]
+connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_ss] [get_bd_ports io_spi_ss]
+
 
 # connect accelerator AXI masters to Zynq PS
 #apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/PYNQWrapper_0/mem0" Clk "Auto" }  [get_bd_intf_pins processing_system7_0/S_AXI_HP0]

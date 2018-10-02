@@ -24,10 +24,15 @@ set_property -dict { PACKAGE_PIN M15   IOSTANDARD LVCMOS33 } [get_ports { led5_r
 
 ##LEDs
 
-set_property -dict { PACKAGE_PIN R14   IOSTANDARD LVCMOS33 } [get_ports { io_led[0] }]; #IO_L6N_T0_VREF_34 Sch=led[0]
-set_property -dict { PACKAGE_PIN P14   IOSTANDARD LVCMOS33 } [get_ports { io_led[1] }]; #IO_L6P_T0_34 Sch=led[1]
-set_property -dict { PACKAGE_PIN N16   IOSTANDARD LVCMOS33 } [get_ports { io_led[2] }]; #IO_L21N_T3_DQS_AD14N_35 Sch=led[2]
-set_property -dict { PACKAGE_PIN M14   IOSTANDARD LVCMOS33 } [get_ports { io_led[3] }]; #IO_L23P_T3_35 Sch=led[3]
+#set_property -dict { PACKAGE_PIN R14   IOSTANDARD LVCMOS33 } [get_ports { io_led[0] }]; #IO_L6N_T0_VREF_34 Sch=led[0]
+#set_property -dict { PACKAGE_PIN P14   IOSTANDARD LVCMOS33 } [get_ports { io_led[1] }]; #IO_L6P_T0_34 Sch=led[1]
+#set_property -dict { PACKAGE_PIN N16   IOSTANDARD LVCMOS33 } [get_ports { io_led[2] }]; #IO_L21N_T3_DQS_AD14N_35 Sch=led[2]
+#set_property -dict { PACKAGE_PIN M14   IOSTANDARD LVCMOS33 } [get_ports { io_led[3] }]; #IO_L23P_T3_35 Sch=led[3]
+
+set_property -dict { PACKAGE_PIN R14   IOSTANDARD LVCMOS33 } [get_ports { io_led0 }]; #IO_L6N_T0_VREF_34 Sch=led[0]
+set_property -dict { PACKAGE_PIN P14   IOSTANDARD LVCMOS33 } [get_ports { io_led1 }]; #IO_L6P_T0_34 Sch=led[1]
+set_property -dict { PACKAGE_PIN N16   IOSTANDARD LVCMOS33 } [get_ports { io_led2 }]; #IO_L21N_T3_DQS_AD14N_35 Sch=led[2]
+set_property -dict { PACKAGE_PIN M14   IOSTANDARD LVCMOS33 } [get_ports { io_led3 }]; #IO_L23P_T3_35 Sch=led[3]
 
 ##Buttons
 
@@ -144,10 +149,10 @@ set_property -dict { PACKAGE_PIN Y9    IOSTANDARD LVCMOS33 } [get_ports { io_uar
 
 ## ChipKit SPI
 
-#set_property -dict { PACKAGE_PIN W15   IOSTANDARD LVCMOS33 } [get_ports { ck_miso }]; #IO_L10N_T1_34 Sch=ck_miso
-#set_property -dict { PACKAGE_PIN T12   IOSTANDARD LVCMOS33 } [get_ports { ck_mosi }]; #IO_L2P_T0_34 Sch=ck_mosi
-#set_property -dict { PACKAGE_PIN H15   IOSTANDARD LVCMOS33 } [get_ports { ck_sck }]; #IO_L19P_T3_35 Sch=ck_sck
-#set_property -dict { PACKAGE_PIN F16   IOSTANDARD LVCMOS33 } [get_ports { ck_ss }]; #IO_L6P_T0_35 Sch=ck_ss
+set_property -dict { PACKAGE_PIN W15   IOSTANDARD LVCMOS33 } [get_ports { io_spi_miso }]; #IO_L10N_T1_34 Sch=ck_miso
+set_property -dict { PACKAGE_PIN T12   IOSTANDARD LVCMOS33 } [get_ports { io_spi_mosi }]; #IO_L2P_T0_34 Sch=ck_mosi
+set_property -dict { PACKAGE_PIN H15   IOSTANDARD LVCMOS33 } [get_ports { io_spi_sck }]; #IO_L19P_T3_35 Sch=ck_sck
+set_property -dict { PACKAGE_PIN F16   IOSTANDARD LVCMOS33 } [get_ports { io_spi_ss }]; #IO_L6P_T0_35 Sch=ck_ss
 
 ## ChipKit I2C
 

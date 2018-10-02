@@ -17,7 +17,7 @@ class UART() extends RosettaAccelerator {
   io.led5(2) := io.sw(1)
 
   io.signature := makeDefaultSignature()
-  io.led := io.btn
+  // io.led := io.btn
 
   // Sends message on uart receive (kind of wonky, depends on number
   // of 1s in signal)
