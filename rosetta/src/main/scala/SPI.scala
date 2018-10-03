@@ -53,9 +53,9 @@ class SPI_Slave() extends RosettaAccelerator {
 
   byte_received := ss_active && sck_rise.B && bitcnt === 7.U
 
-  // when (byte_received) {
-  //   io.led(1) := byte_data_received(0) // LSB to control LED
-  // }
+  when (byte_received) {
+    io.led1 := byte_data_received(0) // LSB to control LED
+  }
 
   // io.led4(0) := io.sw(0)
   // io.led5(1) := io.sw(0)
@@ -68,6 +68,5 @@ class SPI_Slave() extends RosettaAccelerator {
   io.led2 := io.spi_miso
   io.led3 := io.spi_sck
 
-  // SPI bit active
-  // io.led(3) := io.btn(3)
+  io.led3 := io.btn(3)
 }
