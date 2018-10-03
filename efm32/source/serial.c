@@ -9,34 +9,58 @@
 // LCD for now
 void recv_char_cb(char c)
 {
-	static char str[LCD_BUFFER_SIZE];
-	static int idx = 0;
 
-	switch (c) {
-	case BACKSPACE:
-		if (idx != 0) {
-			str[--idx] = 0;
-		}
-		break;
-	case ENTER:
-		for (size_t i = 0; i < LCD_BUFFER_SIZE; ++i) {
-			str[i] = 0;
-			idx = 0;
-		}
-		break;
-	default:
-		uartPutChar(0, c);
-		break;
-	}
+    //char cc;
+    //cc = uartGetChar();
+    ////uartPutChar(0,cc);
+    //USART_Tx(UART0, cc);
 
-	if ('a' <= c && c <= 'z') {
-		str[idx] = c - 32;
-		idx = idx == SEGMENT_LCD_NUM_BLOCK_COLUMNS
-			? SEGMENT_LCD_NUM_BLOCK_COLUMNS
-			: idx + 1;
-	}
+    //lidar_data[lidar_i] = cc;
+    //if (lidar_i == 4){
+    ////    uartPutChar(0,lidar_data[0]);
+    ////    uartPutChar(0,lidar_data[1]);
+    ////    uartPutChar(0,lidar_data[2]);
+    ////    uartPutChar(0,lidar_data[3]);
+    ////    uartPutChar(0,lidar_data[4]);
+    //    //USART_Tx(UART0, lidar_data[0]);
+    //    //USART_Tx(UART0, lidar_data[1]);
+    //    //USART_Tx(UART0, lidar_data[2]);
+    //    //USART_Tx(UART0, lidar_data[3]);
+    //    //USART_Tx(UART0, lidar_data[4]);
+    //    USART_Tx(UART0, '\xff');
+    //    //DelayMs(1000);
+    //}
+    //lidar_i++;
+    //lidar_i = lidar_i % 5;
 
-	SegmentLCD_Write(str);
+	//static char str[LCD_BUFFER_SIZE];
+	//static int idx = 0;
+
+	//switch (c) {
+	//case BACKSPACE:
+	//	if (idx != 0) {
+	//		str[--idx] = 0;
+	//	}
+	//	break;
+	//case ENTER:
+	//	for (size_t i = 0; i < LCD_BUFFER_SIZE; ++i) {
+	//		str[i] = 0;
+	//		idx = 0;
+	//	}
+	//	break;
+	//default:
+	//	uartPutChar(0, c);
+	//	break;
+	//}
+
+	//if ('a' <= c && c <= 'z') {
+	//	str[idx] = c - 32;
+	//	idx = idx == SEGMENT_LCD_NUM_BLOCK_COLUMNS
+	//		? SEGMENT_LCD_NUM_BLOCK_COLUMNS
+	//		: idx + 1;
+	//}
+
+	//SegmentLCD_Write(str);
 }
 
 void init_uart()
