@@ -9,30 +9,6 @@
 // LCD for now
 void recv_char_cb(char c)
 {
-
-    //char cc;
-    //cc = uartGetChar();
-    ////uartPutChar(0,cc);
-    //USART_Tx(UART0, cc);
-
-    //lidar_data[lidar_i] = cc;
-    //if (lidar_i == 4){
-    ////    uartPutChar(0,lidar_data[0]);
-    ////    uartPutChar(0,lidar_data[1]);
-    ////    uartPutChar(0,lidar_data[2]);
-    ////    uartPutChar(0,lidar_data[3]);
-    ////    uartPutChar(0,lidar_data[4]);
-    //    //USART_Tx(UART0, lidar_data[0]);
-    //    //USART_Tx(UART0, lidar_data[1]);
-    //    //USART_Tx(UART0, lidar_data[2]);
-    //    //USART_Tx(UART0, lidar_data[3]);
-    //    //USART_Tx(UART0, lidar_data[4]);
-    //    USART_Tx(UART0, '\xff');
-    //    //DelayMs(1000);
-    //}
-    //lidar_i++;
-    //lidar_i = lidar_i % 5;
-
 	//static char str[LCD_BUFFER_SIZE];
 	//static int idx = 0;
 

@@ -164,17 +164,19 @@ void uartSetup(void) {
   USART_InitAsync(uart0, &uartInit);
   USART_InitAsync(uart1, &uartInit);
 
+  // Disable TX on 0 and RX on 1 for now to use USART_{T,R}x directly
+  // in main loop to avoid interrupt overhead
   /* Prepare UART Rx and Tx interrupts */
   USART_IntClear(uart0, _UART_IF_MASK);
   USART_IntEnable(uart0, UART_IF_RXDATAV);
   NVIC_ClearPendingIRQ(UART0_RX_IRQn);
-  //NVIC_ClearPendingIRQ(UART0_TX_IRQn);
+  NVIC_ClearPendingIRQ(UART0_TX_IRQn);
   NVIC_EnableIRQ(UART0_RX_IRQn);
   //NVIC_EnableIRQ(UART0_TX_IRQn);
 
   USART_IntClear(uart1, _UART_IF_MASK);
   USART_IntEnable(uart1, UART_IF_RXDATAV);
-  //NVIC_ClearPendingIRQ(UART1_RX_IRQn);
+  NVIC_ClearPendingIRQ(UART1_RX_IRQn);
   NVIC_ClearPendingIRQ(UART1_TX_IRQn);
   //NVIC_EnableIRQ(UART1_RX_IRQn);
   NVIC_EnableIRQ(UART1_TX_IRQn);
