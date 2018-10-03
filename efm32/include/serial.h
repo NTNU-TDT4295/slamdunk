@@ -40,4 +40,3 @@ void performI2CRead(uint8_t addr, int8_t reg, uint8_t *buf, uint8_t bytes);
 void I2C0_IRQHandler(void);
 
 #endif
-

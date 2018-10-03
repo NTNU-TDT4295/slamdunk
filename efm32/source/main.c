@@ -38,18 +38,74 @@ int main(void)
 	struct accel accelerations;
     */
 
-    // Init lidar
-    uint8_t request_packet[2];
-    request_packet[0] = 0xA5;
-    request_packet[1] = 0x20;
-    uartPutData(request_packet, 2);
-    DelayMs(6000);
+    // Send reset
+    uint8_t reset_packet[2];
+    reset_packet[0] = 0xA5;
+    reset_packet[1] = 0x40;
+    uartPutData(1, reset_packet, 2);
 
-    char output;
+    DelayMs(10);
+
+    // Send stop
+    uint8_t stop_packet[2];
+    stop_packet[0] = 0xA5;
+    stop_packet[1] = 0x25;
+    uartPutData(1, stop_packet, 2);
+
+    DelayMs(10);
+
+    // Get status
+    uint8_t status_packet[2];
+    status_packet[0] = 0xA5;
+    status_packet[1] = 0x52;
+    uartPutData(1, status_packet, 2);
+
+    // Get status descriptor
+    char h_c;
+    for(int i = 0; i < 10; i++){
+        h_c = USART_Rx(UART1);
+        USART_Tx(UART0, h_c);
+    }
+
+    DelayMs(10);
+
+    // Init scan
+    //uint8_t request_packet[2];
+    //request_packet[0] = 0xA5;
+    //request_packet[1] = 0x20;
+    //uartPutData(1, request_packet, 2);
+
+    // Get scan descriptor
+    //uint8_t desc_response[7];
+    //uartGetData(desc_response, 7);
+    //char s_c;
+    //for( int i = 0 ; i < 7 ; i++){
+    //    s_c = USART_Rx(UART1);
+    //    USART_Tx(UART0, s_c);
+    //}
+
+    int lidar_i = 0;
+    uint8_t lidar_data[5];
+
+    float radius;
 
 	while (1) {
-        output = uartGetChar();
-        uartPutChar(0, output);
+        //USART_Tx(UART0, cc);
+        //lidar_data[lidar_i] = USART_Rx(UART1);
+
+        //if (lidar_i == 4){
+        //    //USART_Tx(UART0, lidar_data[0]);
+        //    radius = (float) ((lidar_data[2] << 8) | (lidar_data[1] >> 1));
+        //    radius = radius/64.0;
+        //    USART_Tx(UART0, (uint8_t) radius);
+
+        //    //USART_Tx(UART0, lidar_data[3]);
+        //    //USART_Tx(UART0, lidar_data[4]);
+        //    //USART_Tx(UART0, '\xff');
+        //    //DelayMs(1000);
+        //}
+        //lidar_i++;
+        //lidar_i = lidar_i % 5;
 
 
         /*

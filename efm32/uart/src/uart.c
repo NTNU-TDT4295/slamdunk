@@ -50,7 +50,7 @@
 /* Function prototypes */
 void uartSetup(void);
 void cmuSetup(void);
-void uartPutData(uint8_t * dataPtr, uint32_t dataLen);
+void uartPutData(uint8_t uart_channel, uint8_t * dataPtr, uint32_t dataLen);
 uint32_t uartGetData(uint8_t * dataPtr, uint32_t dataLen);
 void uartPutChar(uint8_t uart_channel, uint8_t ch);
 uint8_t uartGetChar(void);
@@ -112,25 +112,25 @@ void setup_uart(void) {
    *
    *  When the predefined termiation character is received, the all pending
    *  data in rxBuf is copied to txBuf and echoed back on the UART */
-  while (1)
-  {
-    //Wait in EM1 while UART transmit
-    EMU_EnterEM1();
+  //while (1)
+  //{
+  //  //Wait in EM1 while UART transmit
+  //  EMU_EnterEM1();
 
-    // Check if RX buffer has overflowed
-    if (rxBuf.overflow) {
-      rxBuf.overflow = false;
-      uartPutData((uint8_t*) overflowString, ofsLen);
-    }
+  //  // Check if RX buffer has overflowed
+  //  if (rxBuf.overflow) {
+  //    rxBuf.overflow = false;
+  //    uartPutData((uint8_t*) overflowString, ofsLen);
+  //  }
 
-    // Check if termination character is received
-    if (rxBuf.data[(rxBuf.wrI - 1) % BUFFERSIZE] == TERMINATION_CHAR) {
-      // Copy received data to UART transmit queue
-      uint8_t tmpBuf[BUFFERSIZE];
-      int     len = uartGetData(tmpBuf, 0);
-      uartPutData(tmpBuf, len);
-    }
-  }
+  //  // Check if termination character is received
+  //  if (rxBuf.data[(rxBuf.wrI - 1) % BUFFERSIZE] == TERMINATION_CHAR) {
+  //    // Copy received data to UART transmit queue
+  //    uint8_t tmpBuf[BUFFERSIZE];
+  //    int     len = uartGetData(tmpBuf, 0);
+  //    uartPutData(tmpBuf, len);
+  //  }
+  //}
 }
 
 /******************************************************************************
@@ -168,15 +168,15 @@ void uartSetup(void) {
   USART_IntClear(uart0, _UART_IF_MASK);
   USART_IntEnable(uart0, UART_IF_RXDATAV);
   NVIC_ClearPendingIRQ(UART0_RX_IRQn);
-  NVIC_ClearPendingIRQ(UART0_TX_IRQn);
+  //NVIC_ClearPendingIRQ(UART0_TX_IRQn);
   NVIC_EnableIRQ(UART0_RX_IRQn);
-  NVIC_EnableIRQ(UART0_TX_IRQn);
+  //NVIC_EnableIRQ(UART0_TX_IRQn);
 
   USART_IntClear(uart1, _UART_IF_MASK);
   USART_IntEnable(uart1, UART_IF_RXDATAV);
-  NVIC_ClearPendingIRQ(UART1_RX_IRQn);
+  //NVIC_ClearPendingIRQ(UART1_RX_IRQn);
   NVIC_ClearPendingIRQ(UART1_TX_IRQn);
-  NVIC_EnableIRQ(UART1_RX_IRQn);
+  //NVIC_EnableIRQ(UART1_RX_IRQn);
   NVIC_EnableIRQ(UART1_TX_IRQn);
 
   /* Enable I/O pins at UART1 location #2 */
@@ -247,7 +247,7 @@ void uartPutChar(uint8_t uart_channel, uint8_t ch)
  * @brief  uartPutData function
  *
  *****************************************************************************/
-void uartPutData(uint8_t * dataPtr, uint32_t dataLen) {
+void uartPutData(uint8_t uart_channel, uint8_t * dataPtr, uint32_t dataLen) {
   uint32_t i = 0;
 
   /* Check if buffer is large enough for data */
@@ -275,7 +275,10 @@ void uartPutData(uint8_t * dataPtr, uint32_t dataLen) {
 
   /* Enable interrupt on USART TX Buffer*/
   /* USART_IntEnable(uart0, UART_IF_TXBL); */
-  USART_IntEnable(uart1, UART_IF_TXBL);
+  if (uart_channel == 0)
+      USART_IntEnable(uart0, UART_IF_TXBL);
+  else
+      USART_IntEnable(uart1, UART_IF_TXBL);
 }
 
 /******************************************************************************
@@ -364,6 +367,12 @@ void UART0_TX_IRQHandler(void) {
       USART_Tx(uart0, txBuf.data[txBuf.rdI]);
       txBuf.rdI = (txBuf.rdI + 1) % BUFFERSIZE;
       txBuf.pendingBytes--;
+
+        //while(txBuf.pendingBytes){
+        //    USART_Tx(uart0, txBuf.data[txBuf.rdI]);
+        //    txBuf.rdI = (txBuf.rdI + 1) % BUFFERSIZE;
+        //    txBuf.pendingBytes--;
+        //}
     }
 
     /* Disable Tx interrupt if no more bytes in queue */
@@ -379,7 +388,7 @@ void UART1_RX_IRQHandler(void) {
   if (uart1->STATUS & UART_STATUS_RXDATAV) {
     /* Copy data into RX Buffer */
     uint8_t rxData = USART_Rx(uart1);
-    GPIO_PinModeSet(gpioPortE, 1, gpioModePushPull, 1);
+    GPIO_PinModeSet(gpioPortE, 3, gpioModePushPull, 1);
     rxBuf.data[rxBuf.wrI] = rxData;
     rxBuf.wrI             = (rxBuf.wrI + 1) % BUFFERSIZE;
     rxBuf.pendingBytes++;
@@ -387,9 +396,10 @@ void UART1_RX_IRQHandler(void) {
     //Flag Rx overflow
     if (rxBuf.pendingBytes > BUFFERSIZE) {
       rxBuf.overflow = true;
+      //SegmentLCD_Write("overflow");
     }
 
-    recv_callback(rxData);
+    //recv_callback(rxData);
 
     /* Clear RXDATAV interrupt */
     USART_IntClear(UART1, UART_IF_RXDATAV);
@@ -403,7 +413,7 @@ void UART1_TX_IRQHandler(void) {
   /* Check TX buffer level status */
   if (uart1->STATUS & UART_STATUS_TXBL)
   {
-	GPIO_PinModeSet(gpioPortE, 0, gpioModePushPull, 1);
+	GPIO_PinModeSet(gpioPortE, 2, gpioModePushPull, 1);
     if (txBuf.pendingBytes > 0)
     {
       /* Transmit pending character */
