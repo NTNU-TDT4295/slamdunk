@@ -58,7 +58,7 @@ int main(void)
 	uartPutData(1, health_packet, 2);
 	for (int i = 0; i < 10; i++){
 		recv = USART_Rx(UART1);
-		USART_Tx(UART0, recv);
+		/* USART_Tx(UART0, recv); */
 	}
 
 	// Init scan
@@ -71,7 +71,7 @@ int main(void)
 	// Get scan descriptor
 	for (int i = 0 ; i < 7 ; i++){
 		recv = USART_Rx(UART1);
-		USART_Tx(UART0, recv);
+		/* USART_Tx(UART0, recv); */
 	}
 
 	int lidar_i = 0;
@@ -84,12 +84,18 @@ int main(void)
 		lidar_data[lidar_i] = USART_Rx(UART1);
 
 		if (lidar_i == 4) {
-			angle_q = ((lidar_data[2] << 8) | (lidar_data[1]));
-			radius = (float) (angle_q >> 1);
-			radius = radius / 64.0;
-			radius_nonfloat = (uint16_t) radius;
-			USART_Tx(UART0, (uint8_t) radius_nonfloat);
-			USART_Tx(UART0, (uint8_t) (radius_nonfloat >> 8));
+			/* angle_q = ((lidar_data[2] << 8) | (lidar_data[1])); */
+			/* radius = (float) (angle_q >> 1); */
+			/* radius = radius / 64.0; */
+			/* radius_nonfloat = (uint16_t) radius; */
+			/* USART_Tx(UART0, (uint8_t) radius_nonfloat); */
+			/* USART_Tx(UART0, (uint8_t) (radius_nonfloat >> 8)); */
+			USART_Tx(UART0, '\xA5');
+			/* USART_Tx(UART0, lidar_data[0]); */
+			USART_Tx(UART0, lidar_data[1]);
+			USART_Tx(UART0, lidar_data[2]);
+			USART_Tx(UART0, lidar_data[3]);
+			USART_Tx(UART0, lidar_data[4]);
 		}
 
 		lidar_i++;
