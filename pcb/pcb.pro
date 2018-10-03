@@ -1,6 +1,6 @@
-update=ti. 25. sep. 2018 kl. 23.57 +0200
+update=on. 03. okt. 2018 kl. 14.38 +0200
 version=1
-last_client=eeschema
+last_client=kicad
 [general]
 version=1
 RootSch=
@@ -34,7 +34,7 @@ LibDir=
 [schematic_editor]
 version=1
 PageLayoutDescrFile=
-PlotDirectoryName=
+PlotDirectoryName=output/
 SubpartIdSeparator=0
 SubpartFirstId=65
 NetFmtName=
