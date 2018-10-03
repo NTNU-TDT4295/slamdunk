@@ -21,12 +21,13 @@ int main(void)
 	// UART
 	init_uart();
 
+    /*
 	// I2C and the BNO055
 	init_i2c();
 	init_bno055();
 
 	// RTC
-	/* rtcSetup(); */
+	//rtcSetup();
 
 	// Initalize GPIO interrupts for sonar
 	init_sonar();
@@ -35,8 +36,23 @@ int main(void)
 	struct euler angles;
 	struct quaternion quat;
 	struct accel accelerations;
+    */
+
+    // Init lidar
+    uint8_t request_packet[2];
+    request_packet[0] = 0xA5;
+    request_packet[1] = 0x20;
+    uartPutData(request_packet, 2);
+    DelayMs(6000);
+
+    char output;
 
 	while (1) {
+        output = uartGetChar();
+        uartPutChar(0, output);
+
+
+        /*
 		// Fetch system status
 		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, status_buf, 1);
 		uartPutChar(0, status_buf[0]);
@@ -50,11 +66,12 @@ int main(void)
 		uartPutData((uint8_t *) &quat.w, 8);
 
 		// Trigger the sonar, it will interrupt you
-		/* trigger_sonar(); */
+		// trigger_sonar();
 
 		// Testing of accelerometer data
-		/* accelerations = get_linear_acceleration_sample(); */
-		/* uartPutData((uint8_t *) &accelerations.x, 6); */
+		// accelerations = get_linear_acceleration_sample();
+		// uartPutData((uint8_t *) &accelerations.x, 6);
+        */
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)
