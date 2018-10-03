@@ -33,6 +33,11 @@ struct SimulatorContext {
 	model sphere;
 
 	TriangleMesh *mdl_mesh;
+
+	float *frame_point_cloud_data;
+	size_t frame_point_cloud_data_len;
+	unsigned int frame_point_cloud_vao;
+	unsigned int frame_point_cloud_vbo;
 };
 
 void init_simulator(SimulatorContext &);

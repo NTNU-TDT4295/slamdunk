@@ -220,10 +220,10 @@ int run_window(int argc, char **argv, WindowProcs procs)
 
 	void *context;
 	procs.init(&context);
+	int64_t skip_mouse = 0;
 
 	while (!should_exit) {
 		XEvent event;
-		bool skip_mouse = false;
 
 		while (XPending(display) > 0) {
 			bool key_down = true;
@@ -236,7 +236,7 @@ int run_window(int argc, char **argv, WindowProcs procs)
 					frame.window.width  = event.xconfigure.width;
 					frame.window.height = event.xconfigure.height;
 					frame.window.dimentions_changed = true;
-					skip_mouse = true;
+					skip_mouse = 4;
 
 					glViewport(0, 0, frame.window.width, frame.window.height);
 				}
@@ -251,7 +251,7 @@ int run_window(int argc, char **argv, WindowProcs procs)
 			// case EnterNotify:
 			case FocusIn:
 				frame.window.focused = true;
-				skip_mouse = true;
+				skip_mouse = 4;
 
 				XGrabPointer(display, window, False, 0,
 							 GrabModeAsync, GrabModeAsync,
@@ -307,11 +307,10 @@ int run_window(int argc, char **argv, WindowProcs procs)
 		Window _dc_win;
 
 		if (frame.window.focused) {
-			if (!skip_mouse) {
+			if (skip_mouse <= 0) {
 				XQueryPointer(display, window, &_dc_win, &_dc_win,
 							&_dc_int, &_dc_int,
 							&pointer_x, &pointer_y, &_dc_uint);
-
 				pointer_x -= frame.window.width / 2;
 				pointer_y -= frame.window.height / 2;
 			}
@@ -320,7 +319,10 @@ int run_window(int argc, char **argv, WindowProcs procs)
 						 frame.window.width / 2,
 						 frame.window.height / 2);
 			XSync(display, False);
+
+			skip_mouse -= 1;
 		}
+
 
 		frame.mouse.dx = pointer_x;
 		frame.mouse.dy = pointer_y;

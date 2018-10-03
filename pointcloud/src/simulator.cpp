@@ -138,7 +138,7 @@ void init_simulator(SimulatorContext &ctx) {
 	ctx.net_in.client_callback = simulator_in_client;
 	net_init(&ctx.net_in, "0.0.0.0", "6001");
 
-	// ctx.sensor.rotation = glm::angleAxis(PI / 4, vec3(1.0f, 0.0f, 0.0f));
+	ctx.sensor.rotation = glm::angleAxis(PI / 4, vec3(1.0f, 0.0f, 0.0f));
 }
 
 void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
@@ -208,6 +208,20 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
 
 	constexpr size_t num_lines = 64;
+
+	if (num_lines > ctx.frame_point_cloud_data_len) {
+		float *new_data;
+		new_data = (float *)realloc(ctx.frame_point_cloud_data,
+									sizeof(float) * 3 * num_lines);
+
+		if (new_data) {
+			ctx.frame_point_cloud_data = new_data;
+			ctx.frame_point_cloud_data_len = num_lines;
+		} else {
+			printf("Failed to allocate memory.\n");
+		}
+	}
+
 	for (size_t i = 0; i < num_lines; i++) {
 
 		float angle = ((float)i / (float)num_lines) * 2 * PI;
@@ -225,6 +239,12 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 		}
 
 		point = point * ray_length;
+
+		if (i < ctx.frame_point_cloud_data_len) {
+			ctx.frame_point_cloud_data[(i*3) + 0] = point.x;
+			ctx.frame_point_cloud_data[(i*3) + 1] = point.y;
+			ctx.frame_point_cloud_data[(i*3) + 2] = point.z;
+		}
 
 		// Draw line
 		matrix = mat4(1.0f);
@@ -245,6 +265,17 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	}
 
 	glBindVertexArray(0);
+
+	constexpr int subwindow_width = 300;
+	constexpr int subwindow_height = 300;
+
+	glViewport(frame.window.width - subwindow_width,
+			   frame.window.height - subwindow_height,
+			   subwindow_width, subwindow_height);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glViewport(0, 0, frame.window.width, frame.window.height);
 
 	glUseProgram(0);
 }

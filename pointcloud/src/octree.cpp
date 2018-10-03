@@ -86,14 +86,24 @@ static void octree_node_insert(OctreeNode **node, OctreePoint point, OctreeBound
 		(*node)->dirty = true;
 	}
 
-	assert(point.x >= (*node)->box.center.x - (*node)->box.radius);
-	assert(point.x <  (*node)->box.center.x + (*node)->box.radius);
+	if (point.x < (*node)->box.center.x - (*node)->box.radius ||
+		point.x >=  (*node)->box.center.x + (*node)->box.radius ||
+		point.y < (*node)->box.center.y - (*node)->box.radius ||
+		point.y >=  (*node)->box.center.y + (*node)->box.radius ||
+		point.z < (*node)->box.center.z - (*node)->box.radius ||
+		point.z >=  (*node)->box.center.z + (*node)->box.radius) {
+		// printf("Point discarded (%f %f %f)\n", point.x, point.y, point.z);
+		return;
+	}
 
-	assert(point.y >= (*node)->box.center.y - (*node)->box.radius);
-	assert(point.y <  (*node)->box.center.y + (*node)->box.radius);
+	// assert(point.x >= (*node)->box.center.x - (*node)->box.radius);
+	// assert(point.x <  (*node)->box.center.x + (*node)->box.radius);
 
-	assert(point.z >= (*node)->box.center.z - (*node)->box.radius);
-	assert(point.z <  (*node)->box.center.z + (*node)->box.radius);
+	// assert(point.y >= (*node)->box.center.y - (*node)->box.radius);
+	// assert(point.y <  (*node)->box.center.y + (*node)->box.radius);
+
+	// assert(point.z >= (*node)->box.center.z - (*node)->box.radius);
+	// assert(point.z <  (*node)->box.center.z + (*node)->box.radius);
 
 	(*node)->leafs[(*node)->num_points - 1] = point;
 }

@@ -16,7 +16,7 @@ GLAD_OBJ=$(GLAD_OUT_DIR)/glad.o $(GLAD_OUT_DIR)/glad_glx.o
 
 GLAD:=PYTHONPATH=$(PYTHONPATH):$(GLAD_DIR) python -m glad
 
-all: pc sim
+all: pc sim lidar
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(GLM_DIR)/glm $(GLAD_INCLUDES)
 	@mkdir -p $(dir $@)
@@ -45,6 +45,13 @@ SIM_OBJ=$(SIM_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 sim: $(SIM_OBJ)
 	$(CXX) $(LDFLAGS) $(SIM_OBJ) -o $@
 
+# Build lidar
+LIDAR_SRC=$(shell find $(SRC_DIR)/bin/lidar/ -name '*.cpp') $(COMMON_SRC)
+LIDAR_OBJ=$(LIDAR_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
+
+lidar: $(LIDAR_OBJ)
+	$(CXX) $(LDFLAGS) $(LIDAR_OBJ) -o $@
+
 
 $(GLM_DIR)/glm:
 	git submodule update --init --depth 1 $(GLM_DIR)
@@ -69,6 +76,7 @@ $(GLAD_OUT_DIR)/%.o: $(GLAD_OUT_DIR)/src/%.c
 clean:
 	-rm -f pc
 	-rm -f sim
+	-rm -f lidar
 	-rm -f build/*.o
 	-rm -rf build/bin/
 .PHONY: clean

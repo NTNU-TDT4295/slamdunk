@@ -36,6 +36,8 @@ void point_cloud_net_client_callback(net_client_context *net_ctx) {
 		point.y = (float)buffer[1] / 1000.0f;
 		point.z = (float)buffer[2] / 1000.0f;
 
+		// printf("%f %f %f\n", point.x, point.y, point.z);
+
 		ctx->queue.push(point);
 	}
 }
@@ -95,11 +97,11 @@ void init_point_cloud(PointCloudContext &ctx) {
 
 	Octree *octree = &ctx.octree_render.octree;
 	octree->box.center = { 0.0f, 0.0f, 0.0f };
-	octree->box.radius = 1000.0f;
+	octree->box.radius = 10000.0f;
 
 	// octree_load_obj(octree, "assets/models/mountain.obj");
 
-	point_queue_init(ctx.queue, 1024);
+	point_queue_init(ctx.queue, 1024*1024);
 
 	init_axis(ctx);
 
