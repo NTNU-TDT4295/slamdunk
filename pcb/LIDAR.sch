@@ -58,14 +58,14 @@ MOTO_CTRL
 $Comp
 L Device:Battery BT?
 U 1 1 5BB02470
-P 3100 4900
+P 3100 4950
 AR Path="/5BB02470" Ref="BT?"  Part="1" 
 AR Path="/5BB1F7DF/5BB02470" Ref="BT1"  Part="1" 
-F 0 "BT1" H 3208 4946 50  0000 L CNN
-F 1 "Battery" H 3208 4855 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" V 3100 4960 50  0001 C CNN
-F 3 "~" V 3100 4960 50  0001 C CNN
-	1    3100 4900
+F 0 "BT1" H 3208 4996 50  0000 L CNN
+F 1 "Battery" H 3208 4905 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" V 3100 5010 50  0001 C CNN
+F 3 "~" V 3100 5010 50  0001 C CNN
+	1    3100 4950
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -126,20 +126,10 @@ F 3 "" H 3900 4800 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3900 4600 3900 4450
-Connection ~ 3900 4450
-Wire Wire Line
-	3900 4450 3200 4450
-Wire Wire Line
 	3900 5000 3900 5100
 Connection ~ 3900 5100
 Wire Wire Line
 	3900 5100 4200 5100
-Wire Wire Line
-	3900 4450 4200 4450
-Wire Wire Line
-	4550 4600 4550 4450
-Connection ~ 4550 4450
 Wire Wire Line
 	4550 5000 4550 5100
 Connection ~ 4550 5100
@@ -150,11 +140,6 @@ Wire Wire Line
 Connection ~ 4200 5100
 Wire Wire Line
 	4200 5100 4550 5100
-Wire Wire Line
-	4200 4600 4200 4450
-Connection ~ 4200 4450
-Wire Wire Line
-	4200 4450 4550 4450
 $Comp
 L DMPro17-rescue:GND #PWR028
 U 1 1 5BBA3CEF
@@ -169,32 +154,69 @@ $EndComp
 $Comp
 L Device:Jumper_NC_Dual JP10
 U 1 1 5BB1B928
-P 4800 4150
-F 0 "JP10" V 4846 4252 50  0000 L CNN
-F 1 "Jumper_NC_Dual" V 4755 4252 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 4800 4150 50  0001 C CNN
-F 3 "~" H 4800 4150 50  0001 C CNN
-	1    4800 4150
+P 4400 3900
+F 0 "JP10" V 4446 4002 50  0000 L CNN
+F 1 "Jumper_NC_Dual" V 4355 4002 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 4400 3900 50  0001 C CNN
+F 3 "~" H 4400 3900 50  0001 C CNN
+	1    4400 3900
 	0    -1   -1   0   
 $EndComp
-Wire Wire Line
-	4550 4450 4800 4450
-Wire Wire Line
-	4800 4450 4800 4400
-Connection ~ 4800 4450
-Wire Wire Line
-	4800 4450 5650 4450
-Wire Wire Line
-	4900 4150 5650 4150
 $Comp
 L DMPro17-rescue:VCC #PWR0101
-U 1 1 5BB1BBE0
-P 4800 3900
-F 0 "#PWR0101" H 4800 3750 50  0001 C CNN
-F 1 "VCC" H 4817 4073 50  0000 C CNN
-F 2 "" H 4800 3900 50  0001 C CNN
-F 3 "" H 4800 3900 50  0001 C CNN
-	1    4800 3900
+U 1 1 5BB2A518
+P 4400 3650
+F 0 "#PWR0101" H 4400 3500 50  0001 C CNN
+F 1 "VCC" H 4417 3823 50  0000 C CNN
+F 2 "" H 4400 3650 50  0001 C CNN
+F 3 "" H 4400 3650 50  0001 C CNN
+	1    4400 3650
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	3100 4750 2250 4750
+Wire Wire Line
+	2250 4750 2250 3950
+Wire Wire Line
+	2250 3950 3600 3950
+Wire Wire Line
+	3600 3950 3600 4150
+Wire Wire Line
+	3600 4150 4400 4150
+Wire Wire Line
+	3100 5100 3100 5150
+Wire Wire Line
+	3100 4750 3100 4700
+Connection ~ 3100 4750
+Wire Wire Line
+	4500 4150 4500 3900
+Wire Wire Line
+	4500 4150 4700 4150
+Wire Wire Line
+	3200 4450 5650 4450
+Wire Wire Line
+	4550 4600 4950 4600
+Wire Wire Line
+	4950 4600 4950 4150
+Connection ~ 4950 4150
+Wire Wire Line
+	4950 4150 5650 4150
+Wire Wire Line
+	4200 4600 4200 4350
+Wire Wire Line
+	4200 4350 4850 4350
+Wire Wire Line
+	4850 4350 4850 4150
+Connection ~ 4850 4150
+Wire Wire Line
+	4850 4150 4950 4150
+Wire Wire Line
+	3900 4600 3900 4300
+Wire Wire Line
+	3900 4300 4700 4300
+Wire Wire Line
+	4700 4300 4700 4150
+Connection ~ 4700 4150
+Wire Wire Line
+	4700 4150 4850 4150
 $EndSCHEMATC
