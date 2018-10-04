@@ -8,17 +8,18 @@
 
 /* #define DEBUG 1 */
 
-char transmitBuffer[] = "SPI";
+char transmitBuffer[] = "KIS";
 #define BUFFERSIZE (sizeof(transmitBuffer) / sizeof(char))
 char receiveBuffer[BUFFERSIZE];
 
 #define NO_RX 0
 #define NO_TX NO_RX
 
-#define MASTER
+/* #define MASTER */
 
-void USART2_sendBuffer(char*, int);
-void SPI2_setupRXInt(char* receiveBuffer, int bytesToReceive);
+void USART1_sendBuffer(char*, int);
+void SPI1_setupRXIntMaster(char* receiveBuffer, int bytesToReceive);
+void SPI1_setupRXIntSlave(char* receiveBuffer, int bytesToReceive);
 void SPI_setup();
 
 int main(void)
@@ -29,40 +30,34 @@ int main(void)
 	// Interrupts (works with LCD)
 	/* interrupt_test(); */
 
-	CMU_ClockEnable(cmuClock_USART2, true);
+	CMU_ClockEnable(cmuClock_USART1, true);
 
 
 	// Setup screen for debug
 	SegmentLCD_Init(false);
 	SegmentLCD_Write("SPI <3");
-	Delay(1000);
-
+	Delay(500);
 
 
 #ifdef MASTER
 	SPI_setup();
 	SegmentLCD_Write("MASTER");
-	Delay(1000);
+	SPI1_setupRXIntMaster(NO_RX, NO_RX); // TODO: omit?
+	Delay(500);
 #else
 	SPI_setup_slave_rec();
 	SPI1_setupSlaveInt(receiveBuffer, BUFFERSIZE, NO_TX, NO_TX);
 	SegmentLCD_Write("SLAVE");
-	Delay(1000);
+	Delay(500);
 #endif
 
-
-	SPI2_setupRXInt(NO_RX, NO_RX); // TODO: omit?
 
 	while (1) {
 #ifdef MASTER
-		USART2_sendBuffer(transmitBuffer, BUFFERSIZE);
+		USART1_sendBuffer(transmitBuffer, BUFFERSIZE);
 #else
 		SegmentLCD_Write(receiveBuffer);
+		Delay(200);
 #endif
 	}
-
-
-	// SPI
-
-	/* mySPI_Thread(NULL); */
 }

@@ -160,7 +160,7 @@ void I2C0_IRQHandler(void)
 /**************************************************************************/ /**
  * @brief  Setup SPI as Master
  *****************************************************************************/
-/// FIXME: DONT USE
+/// FIXME: DONT USE (emlib, https://siliconlabs.github.io/Gecko_SDK_Doc/efm32gg/html/group__USART.html)
 void setupSpi(void)
 {
 	USART_InitSync_TypeDef usartInit = USART_INITSYNC_DEFAULT;
@@ -209,7 +209,7 @@ void SPI_setup()
 {
 	USART_TypeDef* spi;
 
-	/* Determining USART */
+	/* USART no. */
 	spi = USART1;
 	uint8_t location = 1;
 
@@ -224,14 +224,17 @@ void SPI_setup()
 	spi->IEN = 0;
 	/* Enabling pins and setting location */
 	spi->ROUTE = USART_ROUTE_TXPEN
-				 | USART_ROUTE_RXPEN
+				 | USART_ROUTE_RXPEN // FIXME: Omit?
 				 | USART_ROUTE_CLKPEN
 				 | USART_ROUTE_CSPEN
-				 | (location << 8);
-
+				 | USART_ROUTE_LOCATION_LOC1;
+	/* | (location << 8); */
+	USART1->ROUTE = USART_ROUTE_TXPEN | USART_ROUTE_RXPEN | USART_ROUTE_CSPEN | USART_ROUTE_CLKPEN | USART_ROUTE_LOCATION_LOC1;
 	/* Set to master and to control the CS line */
 	/* Enabling Master, TX and RX */
-	spi->CMD = USART_CMD_MASTEREN | USART_CMD_TXEN | USART_CMD_RXEN;
+	spi->CMD = USART_CMD_MASTEREN
+			   | USART_CMD_TXEN
+			   | USART_CMD_RXEN; // FIXME: Omit?
 	spi->CTRL |= USART_CTRL_AUTOCS;
 
 	/* Set GPIO config to master */
@@ -254,13 +257,13 @@ void SPI_setup()
 }
 
 /**************************************************************************/ /**
- * @brief Setting up RX interrupts from USART2 RX
+ * @brief Setting up RX interrupts from USART1 RX
  * @param receiveBuffer points to where received data is to be stored
  * @param bytesToReceive indicates the number of bytes to receive
  *****************************************************************************/
-void SPI2_setupRXInt(char* receiveBuffer, int bytesToReceive)
+void SPI1_setupRXIntMaster(char* receiveBuffer, int bytesToReceive)
 {
-	USART_TypeDef* spi = USART2;
+	USART_TypeDef* spi = USART1;
 
 	/* Setting up pointer and indexes */
 	masterRxBuffer = receiveBuffer;
@@ -271,20 +274,20 @@ void SPI2_setupRXInt(char* receiveBuffer, int bytesToReceive)
 	spi->CMD = USART_CMD_CLEARRX;
 
 	/* Enable interrupts */
-	NVIC_ClearPendingIRQ(USART2_RX_IRQn);
-	NVIC_EnableIRQ(USART2_RX_IRQn);
+	NVIC_ClearPendingIRQ(USART1_RX_IRQn);
+	NVIC_EnableIRQ(USART1_RX_IRQn);
 	spi->IEN = USART_IEN_RXDATAV;
 }
 
 
 /******************************************************************************
- * @brief sends data using USART2
+ * @brief sends data using USART1
  * @param txBuffer points to data to transmit
  * @param bytesToSend bytes will be sent
  *****************************************************************************/
-void USART2_sendBuffer(char* txBuffer, int bytesToSend)
+void USART1_sendBuffer(char* txBuffer, int bytesToSend)
 {
-	USART_TypeDef* spi = USART2;
+	USART_TypeDef* spi = USART1;
 
 	/* Sending the data */
 	for (int i = 0; i < bytesToSend; ++i) {
@@ -329,7 +332,11 @@ void SPI_setup_slave_rec()
 	spi->CMD = USART_CMD_CLEARRX | USART_CMD_CLEARTX;
 	spi->IEN = 0;
 	/* Enabling pins and setting location */
-	spi->ROUTE = USART_ROUTE_TXPEN | USART_ROUTE_RXPEN | USART_ROUTE_CLKPEN | USART_ROUTE_CSPEN | (location << 8);
+	spi->ROUTE = USART_ROUTE_TXPEN
+				 | USART_ROUTE_RXPEN
+				 | USART_ROUTE_CLKPEN
+				 | USART_ROUTE_CSPEN
+				 | (location << 8);
 
 	/* Set GPIO config to slave */
 	GPIO_Mode_TypeDef gpioModeMosi = gpioModeInput;
@@ -358,7 +365,7 @@ void SPI_setup_slave_rec()
  * @param receiveBuffer points to where to place recieved data
  * @param receiveBufferSize indicates the number of bytes to receive
  *****************************************************************************/
-void SPI1_setupRXInt(char* receiveBuffer, int receiveBufferSize)
+void SPI1_setupRXIntSlave(char* receiveBuffer, int receiveBufferSize)
 {
 	USART_TypeDef* spi = USART1;
 
@@ -386,7 +393,7 @@ void SPI1_setupRXInt(char* receiveBuffer, int receiveBufferSize)
  *****************************************************************************/
 void SPI1_setupSlaveInt(char* receiveBuffer, int receiveBufferSize, char* transmitBuffer, int transmitBufferSize)
 {
-	SPI1_setupRXInt(receiveBuffer, receiveBufferSize);
+	SPI1_setupRXIntSlave(receiveBuffer, receiveBufferSize);
 }
 
 
@@ -397,6 +404,7 @@ void USART1_RX_IRQHandler(void)
 {
 	USART_TypeDef* spi = USART1;
 	uint8_t rxdata;
+	char yes[2];
 
 	if (spi->STATUS & USART_STATUS_RXDATAV) {
 		/* Reading out data */
@@ -405,7 +413,7 @@ void USART1_RX_IRQHandler(void)
 		if (slaveRxBufferIndex < slaveRxBufferSize) {
 			/* Store Data */
 			slaveRxBuffer[slaveRxBufferIndex] = rxdata;
-			slaveRxBufferIndex++;
+			++slaveRxBufferIndex;
 		}
 	}
 }
