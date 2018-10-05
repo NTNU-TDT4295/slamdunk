@@ -39,6 +39,15 @@ int main(void)
     */
 	char recv;
 
+	// Stop Lidar scan, this is done before reset to make sure we
+	// don't eat too many bytes of data
+	uint8_t stop_packet[2];
+	stop_packet[0] = 0xA5;
+	stop_packet[1] = 0x25;
+	uartPutData(1, stop_packet, 2);
+	DelayMs(10);
+	UART1->CMD = USART_CMD_CLEARRX;
+
 	// Reset Lidar
 	uint8_t reset_packet[2];
 	reset_packet[0] = 0xA5;
@@ -47,8 +56,9 @@ int main(void)
 
 	// Throw away all the garbage mumbo that comes from the lidar
 	// on reset
-	for (int i = 0; i < 64; i++){
+	for (int i = 0; i < 64; ++i) {
 		recv = USART_Rx(UART1);
+		/* USART_Tx(UART0, recv); */
 	}
 
 	// Query health of Lidar
@@ -69,7 +79,7 @@ int main(void)
 	uartPutData(1, scan_packet, 2);
 
 	// Get scan descriptor
-	for (int i = 0 ; i < 7 ; i++){
+	for (int i = 0; i < 7; i++) {
 		recv = USART_Rx(UART1);
 		/* USART_Tx(UART0, recv); */
 	}
@@ -84,25 +94,26 @@ int main(void)
 		lidar_data[lidar_i] = USART_Rx(UART1);
 
 		if (lidar_i == 4) {
-			/* angle_q = ((lidar_data[2] << 8) | (lidar_data[1])); */
-			/* radius = (float) (angle_q >> 1); */
-			/* radius = radius / 64.0; */
-			/* radius_nonfloat = (uint16_t) radius; */
-			/* USART_Tx(UART0, (uint8_t) radius_nonfloat); */
-			/* USART_Tx(UART0, (uint8_t) (radius_nonfloat >> 8)); */
-			USART_Tx(UART0, '\xA5');
+			angle_q = ((lidar_data[2] << 8) | (lidar_data[1]));
+			radius = (float) (angle_q >> 1);
+			radius = radius / 64.0;
+			radius_nonfloat = (uint16_t) radius;
+			USART_Tx(UART0, (uint8_t) radius_nonfloat);
+			USART_Tx(UART0, (uint8_t) (radius_nonfloat >> 8));
+			/* USART_Tx(UART0, '\xA5'); */
 			/* USART_Tx(UART0, lidar_data[0]); */
-			USART_Tx(UART0, lidar_data[1]);
-			USART_Tx(UART0, lidar_data[2]);
-			USART_Tx(UART0, lidar_data[3]);
-			USART_Tx(UART0, lidar_data[4]);
+			/* USART_Tx(UART0, lidar_data[1]); */
+			/* USART_Tx(UART0, lidar_data[2]); */
+			/* USART_Tx(UART0, lidar_data[3]); */
+			/* USART_Tx(UART0, lidar_data[4]); */
+
+			// Try resetting the LIDAR scan here
 		}
 
 		lidar_i++;
 		lidar_i = lidar_i % 5;
 
-
-        /*
+		/*
 		// Fetch system status
 		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, status_buf, 1);
 		uartPutChar(0, status_buf[0]);
@@ -121,7 +132,7 @@ int main(void)
 		// Testing of accelerometer data
 		// accelerations = get_linear_acceleration_sample();
 		// uartPutData((uint8_t *) &accelerations.x, 6);
-        */
+		*/
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)
