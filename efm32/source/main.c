@@ -48,13 +48,14 @@ int main(void)
 	/* uint16_t angle_q; */
 
 	// Hold LIDAR data
-	uint8_t lidar_data[2000];
+	size_t lidar_samples = 360;
+	uint8_t lidar_data[lidar_samples*5];
 
 	init_scan_lidar(false);
 	while (1) {
 		// 500 us per sample, 2000 samples per second
-		get_samples_lidar(lidar_data, 2000);
-		put_uart_simple(0, lidar_data, 2000);
+		get_samples_lidar(lidar_data, lidar_samples);
+		put_uart_simple(0, lidar_data, lidar_samples*5);
 
 		/*
 		// Fetch system status
