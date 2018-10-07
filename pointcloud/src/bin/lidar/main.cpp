@@ -16,10 +16,12 @@ static void lidar_free(void *ctx) {
 }
 
 int main(int argc, char *argv[]) {
-	struct WindowProcs win_procs;
+	struct WindowProcs win_procs = {0};
 	win_procs.init = lidar_init;
 	win_procs.tick = lidar_tick;
 	win_procs.free = lidar_free;
+
+	win_procs.name = "Lidar";
 
 	return run_window(argc, argv, win_procs);
 }

@@ -143,7 +143,8 @@ int run_window(int argc, char **argv, WindowProcs procs)
 
 
 	XMapWindow(display, window);
-	XStoreName(display, window, "Game");
+	XStoreName(display, window, procs.name);
+
 
 	if (GLX_ARB_create_context) {
 		int context_attributes[] = {
@@ -190,28 +191,30 @@ int run_window(int argc, char **argv, WindowProcs procs)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
-	Pixmap blank_cursor_pixmap;
-	XColor blank_cursor_dummy_color;
-	char blank_cursor_data[1] = {0};
 	Cursor blank_cursor;
+	if (procs.capture_mouse) {
+		Pixmap blank_cursor_pixmap;
+		XColor blank_cursor_dummy_color;
+		char blank_cursor_data[1] = {0};
 
-	blank_cursor_pixmap = XCreateBitmapFromData(display, window, blank_cursor_data, 1, 1);
-	if (blank_cursor_pixmap == None) {
-		print_error("XCreateBitmapFromData", "Failed to create pixmap for blank cursor.");
+		blank_cursor_pixmap = XCreateBitmapFromData(display, window, blank_cursor_data, 1, 1);
+		if (blank_cursor_pixmap == None) {
+			print_error("XCreateBitmapFromData", "Failed to create pixmap for blank cursor.");
+		}
+		blank_cursor = XCreatePixmapCursor(display,
+										blank_cursor_pixmap,
+										blank_cursor_pixmap,
+										&blank_cursor_dummy_color,
+										&blank_cursor_dummy_color,
+										0, 0);
+		// XFreePixmap(display, blank_cursor_pixmap);
+
+		//blank_cursor = XCreateFontCursor(display, XC_arrow);
+
+		XGrabPointer(display, window, False, 0,
+					GrabModeAsync, GrabModeAsync,
+					window, blank_cursor, CurrentTime);
 	}
-	blank_cursor = XCreatePixmapCursor(display,
-									   blank_cursor_pixmap,
-									   blank_cursor_pixmap,
-									   &blank_cursor_dummy_color,
-									   &blank_cursor_dummy_color,
-									   0, 0);
-	XFreePixmap(display, blank_cursor_pixmap);
-
-	blank_cursor = XCreateFontCursor(display, XC_arrow);
-
-	XGrabPointer(display, window, False, 0,
-				 GrabModeAsync, GrabModeAsync,
-				 window, blank_cursor, CurrentTime);
 
 	WindowFrameInfo frame = {0};
 	frame.window.width = INITIAL_WINDOW_WIDTH;
@@ -253,15 +256,19 @@ int run_window(int argc, char **argv, WindowProcs procs)
 				frame.window.focused = true;
 				skip_mouse = 4;
 
-				XGrabPointer(display, window, False, 0,
-							 GrabModeAsync, GrabModeAsync,
-							 window, blank_cursor, CurrentTime);
+				if (procs.capture_mouse) {
+					XGrabPointer(display, window, False, 0,
+								GrabModeAsync, GrabModeAsync,
+								window, blank_cursor, CurrentTime);
+				}
 				break;
 
 			// case LeaveNotify:
 			case FocusOut:
 				frame.window.focused = false;
-				XUngrabPointer(display, CurrentTime);
+				if (procs.capture_mouse) {
+					XUngrabPointer(display, CurrentTime);
+				}
 
 #define KEYBINDING(name, key) frame.keyboard.name = false;
 #include "keybindings.h"
@@ -297,7 +304,7 @@ int run_window(int argc, char **argv, WindowProcs procs)
 			} break;
 
 			default:
-				printf("Skipping event %d\n", event.type);
+				// printf("Skipping event %d\n", event.type);
 				break;
 			}
 		}
@@ -306,7 +313,7 @@ int run_window(int argc, char **argv, WindowProcs procs)
 		unsigned int _dc_uint;
 		Window _dc_win;
 
-		if (frame.window.focused) {
+		if (frame.window.focused && procs.capture_mouse) {
 			if (skip_mouse <= 0) {
 				XQueryPointer(display, window, &_dc_win, &_dc_win,
 							&_dc_int, &_dc_int,

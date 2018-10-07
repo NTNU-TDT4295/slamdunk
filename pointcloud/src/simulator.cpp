@@ -207,7 +207,7 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
 	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
 
-	constexpr size_t num_lines = 64;
+	constexpr size_t num_lines = 360;
 
 	if (num_lines > ctx.frame_point_cloud_data_len) {
 		float *new_data;
@@ -265,17 +265,4 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	}
 
 	glBindVertexArray(0);
-
-	constexpr int subwindow_width = 300;
-	constexpr int subwindow_height = 300;
-
-	glViewport(frame.window.width - subwindow_width,
-			   frame.window.height - subwindow_height,
-			   subwindow_width, subwindow_height);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glViewport(0, 0, frame.window.width, frame.window.height);
-
-	glUseProgram(0);
 }

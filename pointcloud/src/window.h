@@ -28,6 +28,9 @@ struct WindowProcs {
 	void (*init)(void **);
 	void (*tick)(void *, const WindowFrameInfo &);
 	void (*free)(void *);
+
+	bool capture_mouse;
+	const char *name;
 };
 
 int run_window(int argc, char *argv[], WindowProcs procs);
