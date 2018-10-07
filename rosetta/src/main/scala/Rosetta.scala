@@ -40,7 +40,7 @@ class RosettaAcceleratorIF(numMemPorts: Int) extends Bundle {
   // time the accelerator verilog is regenerated.
   val signature = UInt(OUTPUT, PYNQZ1Params.csrDataBits)
   // user LEDs LD3..0
-  val led = UInt(OUTPUT, 4)
+  // val led = UInt(OUTPUT, 4)
   // user switches SW1 and SW0
   val sw = UInt(INPUT, 2)
   // user buttons BN3..0
@@ -48,6 +48,17 @@ class RosettaAcceleratorIF(numMemPorts: Int) extends Bundle {
   // user RGB LEDs
   val led4 = Vec(3, UInt(OUTPUT, 1))
   val led5 = Vec(3, UInt(OUTPUT, 1))
+
+  // Pre-indexed leds
+  val led0 = UInt(OUTPUT, 1)
+  val led1 = UInt(OUTPUT, 1)
+  val led2 = UInt(OUTPUT, 1)
+  val led3 = UInt(OUTPUT, 1)
+
+  // SPI - FPGA slave, rx only
+  val spi_mosi = Bits(INPUT, 1)
+  val spi_sck  = Bits(INPUT, 1)
+  val spi_ss   = Bits(INPUT, 1)
 }
 
 // base class for Rosetta accelerators
@@ -109,7 +120,7 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
       new AXIMasterIF(p.memAddrBits, p.memDataBits, p.memIDBits)
     }
     // user LEDs LD3..0
-    val led = UInt(OUTPUT, 4)
+    // val led = UInt(OUTPUT, 4)
     // user switches SW1 and SW0
     val sw = UInt(INPUT, 2)
     // user buttons BN3..0
@@ -121,6 +132,17 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
     val led5_r = UInt(OUTPUT, 1)
     val led5_g = UInt(OUTPUT, 1)
     val led5_b = UInt(OUTPUT, 1)
+
+    // Pre-indexed leds
+    val led0 = UInt(OUTPUT, 1)
+    val led1 = UInt(OUTPUT, 1)
+    val led2 = UInt(OUTPUT, 1)
+    val led3 = UInt(OUTPUT, 1)
+
+    // SPI - FPGA slave, rx only
+    val spi_mosi = Bits(INPUT, 1)
+    val spi_sck  = Bits(INPUT, 1)
+    val spi_ss   = Bits(INPUT, 1)
   }
   setName("PYNQWrapper")
   setModuleName("PYNQWrapper")
@@ -239,13 +261,24 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
   // connections to board I/O
   accel.io.sw := io.sw
   accel.io.btn := io.btn
-  io.led := accel.io.led
+  // io.led := accel.io.led
   io.led4_b := accel.io.led4(0)
   io.led4_g := accel.io.led4(1)
   io.led4_r := accel.io.led4(2)
   io.led5_b := accel.io.led5(0)
   io.led5_g := accel.io.led5(1)
   io.led5_r := accel.io.led5(2)
+
+  // Pre-indexed leds
+  io.led0 := accel.io.led0
+  io.led1 := accel.io.led1
+  io.led2 := accel.io.led2
+  io.led3 := accel.io.led3
+
+  // SPI - FPGA slave, rx only
+  accel.io.spi_mosi := io.spi_mosi
+  accel.io.spi_sck  := io.spi_sck
+  accel.io.spi_ss   := io.spi_ss
 
   // memory port adapters and connections
   for(i <- 0 until accel.numMemPorts) {
