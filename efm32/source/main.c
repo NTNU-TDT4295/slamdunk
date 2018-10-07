@@ -5,6 +5,7 @@
 #include "serial.h"
 #include "bno055.h"
 #include "sonar.h"
+#include "lidar.h"
 #include <string.h>
 
 int main(void)
@@ -31,67 +32,14 @@ int main(void)
 	// Initalize GPIO interrupts for sonar
 	//init_sonar();
 
+	// Reset lidar completely to make it ready for scanning
+	init_lidar(false);
+
+	// Hold IMU data
 	uint8_t status_buf[1] = { 7 };
 	struct euler angles;
 	struct quaternion quat;
 	struct accel accelerations;
-
-	char recv;
-
-	// Stop Lidar scan, this is done before reset to make sure we
-	// don't eat too many bytes of data
-	uint8_t stop_packet[2];
-	stop_packet[0] = 0xA5;
-	stop_packet[1] = 0x25;
-	uartPutData(1, stop_packet, 2);
-	DelayMs(10);
-	UART1->CMD = USART_CMD_CLEARRX;
-
-	// Reset Lidar
-	uint8_t reset_packet[2];
-	reset_packet[0] = 0xA5;
-	reset_packet[1] = 0x40;
-	uartPutData(1, reset_packet, 2);
-
-	// Throw away all the garbage mumbo that comes from the lidar
-	// on reset
-	for (int i = 0; i < 64; ++i) {
-		recv = USART_Rx(UART1);
-		/* USART_Tx(UART0, recv); */
-	}
-
-	// Query health of Lidar
-	uint8_t health_packet[2];
-	health_packet[0] = 0xA5;
-	health_packet[1] = 0x52;
-	uartPutData(1, health_packet, 2);
-	for (int i = 0; i < 10; i++){
-		recv = USART_Rx(UART1);
-		/* USART_Tx(UART0, recv); */
-	}
-
-	// Get sample rate of LIDAR
-	/* uint8_t sample_rate_packet[2]; */
-	/* sample_rate_packet[0] = 0xA5; */
-	/* sample_rate_packet[1] = 0x59; */
-	/* uartPutData(1, sample_rate_packet, 2); */
-	/* for (int i = 0; i < 11; i++){ */
-	/* 	recv = USART_Rx(UART1); */
-	/* 	/\* USART_Tx(UART0, recv); *\/ */
-	/* } */
-
-	// Init scan
-	DelayMs(10);
-	uint8_t scan_packet[2];
-	scan_packet[0] = 0xA5;
-	scan_packet[1] = 0x20;
-	uartPutData(1, scan_packet, 2);
-
-	// Get scan descriptor
-	for (int i = 0; i < 7; i++) {
-		recv = USART_Rx(UART1);
-		/* USART_Tx(UART0, recv); */
-	}
 
 	/* int lidar_i = 0; */
 	/* uint8_t lidar_data[5]; */
@@ -99,60 +47,26 @@ int main(void)
 	/* uint16_t radius_nonfloat; */
 	/* uint16_t angle_q; */
 
+	// Hold LIDAR data
+	char recv;
 	int lidar_i = 0;
 	uint8_t lidar_data[2000];
 
+	init_scan_lidar(false);
 	while (1) {
 		// 500 us per sample, 2000 samples per second
 		lidar_data[lidar_i] = USART_Rx(UART1);
 
 		if (lidar_i == 1999) {
-			uint8_t stop_packet[2];
-			stop_packet[0] = 0xA5;
-			stop_packet[1] = 0x25;
-			uartPutData(1, stop_packet, 2);
-			DelayMs(10);
-			UART1->CMD = USART_CMD_CLEARRX;
-
+			stop_lidar();
 			for (int i = 0; i < 2000; ++i) {
 				USART_Tx(UART0, lidar_data[i]);
 			}
-
-			// Init scan
-			uint8_t scan_packet[2];
-			scan_packet[0] = 0xA5;
-			scan_packet[1] = 0x20;
-			uartPutData(1, scan_packet, 2);
-
-			// Get scan descriptor
-			for (int i = 0; i < 7; i++) {
-				recv = USART_Rx(UART1);
-				/* USART_Tx(UART0, recv); */
-			}
+			init_scan_lidar(false);
 		}
 
 		lidar_i++;
 		lidar_i = lidar_i % 2000;
-
-		/* if (lidar_i == 4) { */
-		/* 	/\* angle_q = ((lidar_data[2] << 8) | (lidar_data[1])); *\/ */
-		/* 	/\* radius = (float) (angle_q >> 1); *\/ */
-		/* 	/\* radius = radius / 64.0; *\/ */
-		/* 	/\* radius_nonfloat = (uint16_t) radius; *\/ */
-		/* 	/\* USART_Tx(UART0, (uint8_t) radius_nonfloat); *\/ */
-		/* 	/\* USART_Tx(UART0, (uint8_t) (radius_nonfloat >> 8)); *\/ */
-		/* 	USART_Tx(UART0, '\xA5'); */
-		/* 	/\* USART_Tx(UART0, lidar_data[0]); *\/ */
-		/* 	USART_Tx(UART0, lidar_data[1]); */
-		/* 	USART_Tx(UART0, lidar_data[2]); */
-		/* 	USART_Tx(UART0, lidar_data[3]); */
-		/* 	USART_Tx(UART0, lidar_data[4]); */
-		/* 	/\* USART_Tx(UART0, lidar_data[4]); *\/ */
-		/* 	/\* USART_Tx(UART0, lidar_data[4]); *\/ */
-		/* } */
-
-		/* lidar_i++; */
-		/* lidar_i = lidar_i % 5; */
 
 		/*
 		// Fetch system status

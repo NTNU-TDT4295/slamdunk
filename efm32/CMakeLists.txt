@@ -67,6 +67,7 @@ set(SOURCES
     source/interrupt.c
     source/bno055.c
     source/sonar.c
+    source/lidar.c
 
     bsp/src/bsp_bcc.c
     bsp/src/bsp_stk.c
