@@ -21,7 +21,6 @@ int main(void)
 	// UART
 	init_uart();
 
-    /*
 	// I2C and the BNO055
 	init_i2c();
 	init_bno055();
@@ -30,13 +29,13 @@ int main(void)
 	//rtcSetup();
 
 	// Initalize GPIO interrupts for sonar
-	init_sonar();
+	//init_sonar();
 
 	uint8_t status_buf[1] = { 7 };
 	struct euler angles;
 	struct quaternion quat;
 	struct accel accelerations;
-    */
+
 	char recv;
 
 	// Stop Lidar scan, this is done before reset to make sure we
@@ -71,6 +70,16 @@ int main(void)
 		/* USART_Tx(UART0, recv); */
 	}
 
+	// Get sample rate of LIDAR
+	/* uint8_t sample_rate_packet[2]; */
+	/* sample_rate_packet[0] = 0xA5; */
+	/* sample_rate_packet[1] = 0x59; */
+	/* uartPutData(1, sample_rate_packet, 2); */
+	/* for (int i = 0; i < 11; i++){ */
+	/* 	recv = USART_Rx(UART1); */
+	/* 	/\* USART_Tx(UART0, recv); *\/ */
+	/* } */
+
 	// Init scan
 	DelayMs(10);
 	uint8_t scan_packet[2];
@@ -84,34 +93,66 @@ int main(void)
 		/* USART_Tx(UART0, recv); */
 	}
 
+	/* int lidar_i = 0; */
+	/* uint8_t lidar_data[5]; */
+	/* float radius; */
+	/* uint16_t radius_nonfloat; */
+	/* uint16_t angle_q; */
+
 	int lidar_i = 0;
-	uint8_t lidar_data[5];
-	float radius;
-	uint16_t radius_nonfloat;
-	uint16_t angle_q;
+	uint8_t lidar_data[2000];
 
 	while (1) {
+		// 500 us per sample, 2000 samples per second
 		lidar_data[lidar_i] = USART_Rx(UART1);
 
-		if (lidar_i == 4) {
-			angle_q = ((lidar_data[2] << 8) | (lidar_data[1]));
-			radius = (float) (angle_q >> 1);
-			radius = radius / 64.0;
-			radius_nonfloat = (uint16_t) radius;
-			USART_Tx(UART0, (uint8_t) radius_nonfloat);
-			USART_Tx(UART0, (uint8_t) (radius_nonfloat >> 8));
-			/* USART_Tx(UART0, '\xA5'); */
-			/* USART_Tx(UART0, lidar_data[0]); */
-			/* USART_Tx(UART0, lidar_data[1]); */
-			/* USART_Tx(UART0, lidar_data[2]); */
-			/* USART_Tx(UART0, lidar_data[3]); */
-			/* USART_Tx(UART0, lidar_data[4]); */
+		if (lidar_i == 1999) {
+			uint8_t stop_packet[2];
+			stop_packet[0] = 0xA5;
+			stop_packet[1] = 0x25;
+			uartPutData(1, stop_packet, 2);
+			DelayMs(10);
+			UART1->CMD = USART_CMD_CLEARRX;
 
-			// Try resetting the LIDAR scan here
+			for (int i = 0; i < 2000; ++i) {
+				USART_Tx(UART0, lidar_data[i]);
+			}
+
+			// Init scan
+			uint8_t scan_packet[2];
+			scan_packet[0] = 0xA5;
+			scan_packet[1] = 0x20;
+			uartPutData(1, scan_packet, 2);
+
+			// Get scan descriptor
+			for (int i = 0; i < 7; i++) {
+				recv = USART_Rx(UART1);
+				/* USART_Tx(UART0, recv); */
+			}
 		}
 
 		lidar_i++;
-		lidar_i = lidar_i % 5;
+		lidar_i = lidar_i % 2000;
+
+		/* if (lidar_i == 4) { */
+		/* 	/\* angle_q = ((lidar_data[2] << 8) | (lidar_data[1])); *\/ */
+		/* 	/\* radius = (float) (angle_q >> 1); *\/ */
+		/* 	/\* radius = radius / 64.0; *\/ */
+		/* 	/\* radius_nonfloat = (uint16_t) radius; *\/ */
+		/* 	/\* USART_Tx(UART0, (uint8_t) radius_nonfloat); *\/ */
+		/* 	/\* USART_Tx(UART0, (uint8_t) (radius_nonfloat >> 8)); *\/ */
+		/* 	USART_Tx(UART0, '\xA5'); */
+		/* 	/\* USART_Tx(UART0, lidar_data[0]); *\/ */
+		/* 	USART_Tx(UART0, lidar_data[1]); */
+		/* 	USART_Tx(UART0, lidar_data[2]); */
+		/* 	USART_Tx(UART0, lidar_data[3]); */
+		/* 	USART_Tx(UART0, lidar_data[4]); */
+		/* 	/\* USART_Tx(UART0, lidar_data[4]); *\/ */
+		/* 	/\* USART_Tx(UART0, lidar_data[4]); *\/ */
+		/* } */
+
+		/* lidar_i++; */
+		/* lidar_i = lidar_i % 5; */
 
 		/*
 		// Fetch system status
