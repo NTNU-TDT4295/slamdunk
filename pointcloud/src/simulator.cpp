@@ -11,7 +11,6 @@
 
 constexpr float max_ray_length = 5.0f;
 
-
 int send_point_data(int fd, vec3 point) {
 	int32_t buffer[3];
 
@@ -132,13 +131,13 @@ void init_simulator(SimulatorContext &ctx) {
 
 	ctx.line_vao = vao;
 
-	ctx.socket_fd = net_client_connect("127.0.0.1", "6000");
+	ctx.socket_fd = net_client_connect("127.0.0.1", "6002");
 
 	ctx.net_in.user_data = &ctx;
 	ctx.net_in.client_callback = simulator_in_client;
 	net_init(&ctx.net_in, "0.0.0.0", "6001");
 
-	ctx.sensor.rotation = glm::angleAxis(PI / 4, vec3(1.0f, 0.0f, 0.0f));
+	// ctx.sensor.rotation = glm::angleAxis(PI / 4, vec3(1.0f, 0.0f, 0.0f));
 }
 
 void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
@@ -222,6 +221,9 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 		}
 	}
 
+	constexpr size_t scan_data_point_size = 5;
+	uint8_t scan_data[num_lines * scan_data_point_size];
+
 	for (size_t i = 0; i < num_lines; i++) {
 
 		float angle = ((float)i / (float)num_lines) * 2 * PI;
@@ -233,6 +235,22 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 		Ray ray = Ray(ctx.sensor.position, direction);
 
 		ray_length = ctx.mdl_mesh->GetIntersection(ray);
+
+		uint16_t angle_q = (uint16_t)((angle * 180.0f / M_PI) * 64.0f) << 1;
+
+		scan_data[i*scan_data_point_size + 0] = 0xa5;
+		scan_data[i*scan_data_point_size + 1] = angle_q & 0xff;
+		scan_data[i*scan_data_point_size + 2] = (angle_q >> 8);
+
+		if (ray_length > 0 && ray_length <= max_ray_length) {
+			uint16_t dist_q = (uint16_t)(ray_length * 4.0f * 1000.0f);
+			scan_data[i*scan_data_point_size + 3] = dist_q & 0xff;
+			scan_data[i*scan_data_point_size + 4] = (dist_q >> 8);
+		} else {
+			scan_data[i*scan_data_point_size + 3] = 0;
+			scan_data[i*scan_data_point_size + 4] = 0;
+		}
+
 
 		if (ray_length < 0 || ray_length > max_ray_length) {
 			continue;
@@ -254,15 +272,30 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 		glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 		glDrawArrays(GL_LINES, 0, 2);
 
-		if (frame.tick % 10 == 0 || true) {
-			point = (rotation_matrix * vec4(point, 1.0f));
-			point += ctx.sensor.position;
-			int err = send_point_data(ctx.socket_fd, point);
-			if (err) {
+		// if (frame.tick % 10 == 0 || true) {
+		// 	point = (rotation_matrix * vec4(point, 1.0f));
+		// 	point += ctx.sensor.position;
+		// 	int err = send_point_data(ctx.socket_fd, point);
+		// 	if (err) {
+		// 		ctx.socket_fd = -1;
+		// 	}
+		// }
+	}
+
+	if (ctx.socket_fd > 0 && (frame.tick % 10) == 0) {
+		size_t bytes_sent = 0;
+		while (bytes_sent < sizeof(scan_data)) {
+			ssize_t err;
+			err = send(ctx.socket_fd, scan_data, sizeof(scan_data), 0);
+			if (err < 0) {
 				ctx.socket_fd = -1;
+				perror("send");
+				break;
 			}
+			bytes_sent += err;
 		}
 	}
+
 
 	glBindVertexArray(0);
 }

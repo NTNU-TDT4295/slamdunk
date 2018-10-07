@@ -10,9 +10,7 @@ static void lidar_in_client(net_client_context *net_ctx) {
 
 	uint8_t buffer[5];
 	size_t bytes_read = 0;
-
 	size_t num_aligns = 0;
-
 	float last_angle = 0;
 
 	while (!net_ctx->should_quit) {
@@ -62,7 +60,7 @@ static void lidar_in_client(net_client_context *net_ctx) {
 		// printf("%zu %10f %10f\n", num_aligns, angle, dist);
 		bytes_read = 0;
 
-		printf("%f %f\n", angle, dist);
+		// printf("%f %f\n", angle, dist);
 
 		if (angle < last_angle - 50.0f) {
 			sem_wait(&ctx->lock);
@@ -124,7 +122,7 @@ void init_lidar(LidarContext &ctx) {
 
 	ctx.net_in.user_data = &ctx;
 	ctx.net_in.client_callback = lidar_in_client;
-	net_init(&ctx.net_in, "0.0.0.0", "6001");
+	net_init(&ctx.net_in, "0.0.0.0", "6002");
 }
 
 void tick_lidar(LidarContext &ctx, const WindowFrameInfo &frame) {
