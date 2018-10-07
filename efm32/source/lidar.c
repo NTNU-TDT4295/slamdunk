@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "lidar.h"
 
 void stop_lidar()
@@ -85,4 +87,13 @@ void init_lidar(bool verbose)
 	stop_lidar();
 	reset_lidar(verbose);
 	health_lidar(verbose);
+}
+
+void get_samples_lidar(uint8_t data[], size_t samples)
+{
+	init_scan_lidar(false);
+	for (size_t i = 0; i < samples; ++i) {
+		data[i] = USART_Rx(UART1);
+	}
+	stop_lidar();
 }

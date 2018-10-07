@@ -62,6 +62,16 @@ void echo_uart()
 	}
 }
 
+void put_uart_simple(int channel, uint8_t *data, size_t length)
+{
+	for (size_t i = 0; i < length; ++i) {
+		if (channel == 0)
+			USART_Tx(UART0, data[i]);
+		else
+			USART_Tx(UART1, data[i]);
+	}
+}
+
 ////////////////
 // I2C
 ////////////////

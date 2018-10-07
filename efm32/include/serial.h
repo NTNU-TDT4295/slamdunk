@@ -1,6 +1,8 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
+#include <stddef.h>
+
 ////////////////
 // UART
 ////////////////
@@ -22,6 +24,7 @@ enum key_kode {
 void recv_char_cb(char c);
 void init_uart();
 void echo_uart();
+void put_uart_simple(int channel, uint8_t *data, size_t length);
 
 ////////////////
 // I2C

@@ -48,25 +48,13 @@ int main(void)
 	/* uint16_t angle_q; */
 
 	// Hold LIDAR data
-	char recv;
-	int lidar_i = 0;
 	uint8_t lidar_data[2000];
 
 	init_scan_lidar(false);
 	while (1) {
 		// 500 us per sample, 2000 samples per second
-		lidar_data[lidar_i] = USART_Rx(UART1);
-
-		if (lidar_i == 1999) {
-			stop_lidar();
-			for (int i = 0; i < 2000; ++i) {
-				USART_Tx(UART0, lidar_data[i]);
-			}
-			init_scan_lidar(false);
-		}
-
-		lidar_i++;
-		lidar_i = lidar_i % 2000;
+		get_samples_lidar(lidar_data, 2000);
+		put_uart_simple(0, lidar_data, 2000);
 
 		/*
 		// Fetch system status
