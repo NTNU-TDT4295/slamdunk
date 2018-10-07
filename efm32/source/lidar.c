@@ -89,10 +89,11 @@ void init_lidar(bool verbose)
 	health_lidar(verbose);
 }
 
+/* Each sample is 5 bytes */
 void get_samples_lidar(uint8_t data[], size_t samples)
 {
 	init_scan_lidar(false);
-	for (size_t i = 0; i < samples; ++i) {
+	for (size_t i = 0; i < samples*5; ++i) {
 		data[i] = USART_Rx(UART1);
 	}
 	stop_lidar();
