@@ -39,5 +39,14 @@ void performI2CTransfer(uint8_t addr, uint8_t buf[], uint8_t bytes);
 void performI2CRead(uint8_t addr, int8_t reg, uint8_t *buf, uint8_t bytes);
 void I2C0_IRQHandler(void);
 
+////////////////
+// SPI
+////////////////
+
+#define SPI_BAUDRATE 1000000
+void SPI_setup(void);
+void SPI_sendBuffer(char* txBuffer, int bytesToSend);
+
+
 #endif
 

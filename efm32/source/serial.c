@@ -152,3 +152,65 @@ void I2C0_IRQHandler(void)
 {
 	;
 }
+
+
+////////////////
+// SPI
+////////////////
+
+
+// Master, txonly. USART1, location 1
+void SPI_setup(void)
+{
+	USART_InitSync_TypeDef usartInit = USART_INITSYNC_DEFAULT;
+
+	// Init
+	usartInit.databits = usartDatabits8;
+	usartInit.baudrate = SPI_BAUDRATE;
+	USART_InitSync(USART1, &usartInit);
+
+	// Automatic SS/CS
+	USART1->CTRL |= USART_CTRL_AUTOCS;
+
+	// Enable SPI tx
+	USART_Enable(USART1, usartEnableTx);
+
+	// https://www.silabs.com/documents/public/data-sheets/efm32gg-datasheet.pdf (Rev. 2.0)
+	// p. 380
+	/* IO configuration (USART1, Location #1, master send setup) */
+	GPIO_PinModeSet(gpioPortD, 0, gpioModePushPull, 0); // MOSI
+	GPIO_PinModeSet(gpioPortD, 2, gpioModePushPull, 0);  // Clock
+	GPIO_PinModeSet(gpioPortD, 3, gpioModePushPull, 0);   // CS
+
+	USART1->ROUTE = USART_ROUTE_TXPEN
+				 | USART_ROUTE_CLKPEN
+				 | USART_ROUTE_CSPEN
+				 | USART_ROUTE_LOCATION_LOC1;
+}
+
+// USART1, Location 1 (required on efm32gg-stk3700)
+// TODO: update n for USARTn and LOCn to match PCB layout
+void SPI_sendBuffer(char* txBuffer, int bytesToSend)
+{
+	USART_TypeDef* spi = USART1;
+
+	// Send data
+	for (int i = 0; i < bytesToSend; ++i) {
+		// TXBL: set when data moved from TX buffer, new byte may be written
+		while (!(spi->STATUS & USART_STATUS_TXBL)) // Busy wait, cheaper than irq
+			;
+
+		// Write data
+		if (txBuffer != 0) {
+			spi->TXDATA = *txBuffer;
+			++txBuffer;
+		} else {
+			spi->TXDATA = 0;
+		}
+	}
+
+	// Wait for last txd byte
+	// TXC: set when all available TX data (shift reg && buffer)
+	while (!(spi->STATUS & USART_STATUS_TXC)) // Busy wait, cheaper than irq
+		;
+}

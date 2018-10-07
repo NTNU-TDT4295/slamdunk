@@ -7,6 +7,10 @@
 #include "sonar.h"
 #include <string.h>
 
+// SPI
+char transmitBuffer[] = "abcdefgh";
+#define BUFFERSIZE (sizeof(transmitBuffer) / sizeof(char))
+
 int main(void)
 {
 	// General chip initialization
@@ -24,6 +28,9 @@ int main(void)
 	// I2C and the BNO055
 	init_i2c();
 	init_bno055();
+
+	// SPI
+	SPI_setup();
 
 	// RTC
 	/* rtcSetup(); */
@@ -55,6 +62,9 @@ int main(void)
 		// Testing of accelerometer data
 		/* accelerations = get_linear_acceleration_sample(); */
 		/* uartPutData((uint8_t *) &accelerations.x, 6); */
+
+		// SPI
+		SPI_sendBuffer(transmitBuffer, BUFFERSIZE);
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)
