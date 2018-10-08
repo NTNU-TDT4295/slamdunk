@@ -8,7 +8,7 @@ static void lidar_in_client(net_client_context *net_ctx) {
 	LidarContext *ctx;
 	ctx = (LidarContext *)net_ctx->user_data;
 
-	uint8_t buffer[5];
+	uint8_t buffer[1808];
 	size_t bytes_read = 0;
 	size_t num_aligns = 0;
 	float last_angle = 0;
@@ -28,57 +28,74 @@ static void lidar_in_client(net_client_context *net_ctx) {
 			bytes_read += err;
 		}
 
-		// printf("%2x %2x %2x %2x %2x %2x ",
-		// 	   buffer[0], buffer[1], buffer[2],
-		// 	   buffer[3], buffer[4], buffer[5]);
-
-		if (buffer[0] != 0xa5) {
-			printf("Missalignment...");
-			bytes_read = 0;
-			for (unsigned int i = 1; i < sizeof(buffer); i++) {
-				if (buffer[i] == 0xa5) {
-					printf(" offsetting %i", i);
-					bytes_read = sizeof(buffer) - i;
-					memmove(&buffer[0], &buffer[i], sizeof(buffer) - i);
-				}
-			}
-			printf("\n");
-			num_aligns += 1;
-			continue;
-		}
-
+		uint8_t quality;
 		uint16_t angle_q;
 		float angle;
 		float dist;
 
-		angle_q = ((buffer[2] << 8) | (buffer[1]));
-		angle = (float) (angle_q >> 1);
-		angle = angle / 64.0;
+		for (int i = 0; i < 1800 / 5; ++i) {
+			quality = (buffer[i*5] >> 2);
+			angle_q = ((buffer[i*5 + 2] << 8) | (buffer[i*5 + 1]));
+			angle = (float) (angle_q >> 1);
+			angle = angle / 64.0;
+			dist = (float)((buffer[i*5 + 4] << 8) | buffer[i*5 + 3]) / 4.0f;
 
-		dist = (float)((buffer[4] << 8) | buffer[3]) / 4.0f;
+			printf("%d %f %f\n", quality, angle, dist);
+		}
 
-		// printf("%zu %10f %10f\n", num_aligns, angle, dist);
 		bytes_read = 0;
+
+		// printf("%2x %2x %2x %2x %2x %2x ",
+		// 	   buffer[0], buffer[1], buffer[2],
+		// 	   buffer[3], buffer[4], buffer[5]);
+
+		// if (buffer[0] != 0xa5) {
+		// 	printf("Missalignment...");
+		// 	bytes_read = 0;
+		// 	for (unsigned int i = 1; i < sizeof(buffer); i++) {
+		// 		if (buffer[i] == 0xa5) {
+		// 			printf(" offsetting %i", i);
+		// 			bytes_read = sizeof(buffer) - i;
+		// 			memmove(&buffer[0], &buffer[i], sizeof(buffer) - i);
+		// 		}
+		// 	}
+		// 	printf("\n");
+		// 	num_aligns += 1;
+		// 	continue;
+		// }
+
+		// uint16_t angle_q;
+		// float angle;
+		// float dist;
+
+		// angle_q = ((buffer[3] << 8) | (buffer[2]));
+		// angle = (float) (angle_q >> 1);
+		// angle = angle / 64.0;
+
+		// dist = (float)((buffer[5] << 8) | buffer[4]) / 4.0f;
+
+		// // printf("%zu %10f %10f\n", num_aligns, angle, dist);
+		// bytes_read = 0;
 
 		// printf("%f %f\n", angle, dist);
 
-		if (angle < last_angle - 50.0f) {
-			sem_wait(&ctx->lock);
-			ctx->scan_data_read_select ^= 1;
-			ctx->scan_data_length[ctx->scan_data_read_select ^ 1] = 0;
-			sem_post(&ctx->lock);
-		}
-		last_angle = angle;
+		// if (angle < last_angle - 50.0f) {
+		// 	sem_wait(&ctx->lock);
+		// 	ctx->scan_data_read_select ^= 1;
+		// 	ctx->scan_data_length[ctx->scan_data_read_select ^ 1] = 0;
+		// 	sem_post(&ctx->lock);
+		// }
+		// last_angle = angle;
 
-		int write_select = ctx->scan_data_read_select ^ 1;
+		// int write_select = ctx->scan_data_read_select ^ 1;
 
-		if (ctx->scan_data_length[write_select] >= scan_data_cap) {
-			printf("Passed scan data cap.\n");
-			continue;
-		}
+		// if (ctx->scan_data_length[write_select] >= scan_data_cap) {
+		// 	printf("Passed scan data cap.\n");
+		// 	continue;
+		// }
 
-		ctx->scan_data[write_select][ctx->scan_data_length[write_select]] = vec2(angle, dist);
-		ctx->scan_data_length[write_select] += 1;
+		// ctx->scan_data[write_select][ctx->scan_data_length[write_select]] = vec2(angle, dist);
+		// ctx->scan_data_length[write_select] += 1;
 	}
 }
 
@@ -122,7 +139,7 @@ void init_lidar(LidarContext &ctx) {
 
 	ctx.net_in.user_data = &ctx;
 	ctx.net_in.client_callback = lidar_in_client;
-	net_init(&ctx.net_in, "0.0.0.0", "6002");
+	net_init(&ctx.net_in, "0.0.0.0", "6001");
 }
 
 void tick_lidar(LidarContext &ctx, const WindowFrameInfo &frame) {
