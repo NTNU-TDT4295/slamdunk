@@ -59,12 +59,11 @@ int main(void)
 		put_uart_simple(0, lidar_data, lidar_samples*5);
 
 		// IMU
-		/* quat = get_quaternion_sample(); */
-		/* for (size_t i = 0; i < 8; ++i) { */
-		/* 	uint8_t quat_data = *(((uint8_t *) &quat.w) + i); */
-		/* 	/\* USART_Tx(UART0, quat_data); *\/ */
-		/* 	/\* USART_Tx(UART0, 'a'); *\/ */
-		/* } */
+		quat = get_quaternion_sample();
+		for (size_t i = 0; i < 8; ++i) {
+			uint8_t quat_data = *(((uint8_t *) &quat.w) + i);
+			USART_Tx(UART0, quat_data);
+		}
 
 		/*
 		// Fetch system status

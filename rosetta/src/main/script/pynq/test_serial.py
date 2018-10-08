@@ -3,7 +3,8 @@ import socket
 import time
 import struct
 
-remote_ip_addr = '193.35.55.93'
+#remote_ip_addr = '193.35.55.93'
+remote_ip_addr = '10.24.1.242'
 remote_port = 6001
 retry_interval = 3
 
@@ -20,15 +21,18 @@ def connect():
 
 def reflect(serial_port, socket):
     while True:
-        recv = serial_port.read(8)
+        #recv = serial_port.read(8)
+        #recv = serial_port.read(6)
+        recv = serial_port.read(1808)
+        print(recv[0])
         try:
             socket.sendall(recv)
-            print(recv)
+            #print(recv)
         except (BrokenPipeError, ConnectionResetError):
             return
 
 def main():
-    serial_port = serial.Serial('/dev/ttyUSB0', baudrate=115200)
+    serial_port = serial.Serial('/dev/ttyUSB5', baudrate=115200)
     while True:
         socket = connect()
         reflect(serial_port, socket)
