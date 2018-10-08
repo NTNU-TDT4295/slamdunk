@@ -48,21 +48,23 @@ int main(void)
 	struct quaternion quat;
 	struct accel accelerations;
 
-	/* int lidar_i = 0; */
-	/* uint8_t lidar_data[5]; */
-	/* float radius; */
-	/* uint16_t radius_nonfloat; */
-	/* uint16_t angle_q; */
-
 	// Hold LIDAR data
 	size_t lidar_samples = 360;
 	uint8_t lidar_data[lidar_samples*5];
 
 	init_scan_lidar(false);
 	while (1) {
-		// 500 us per sample, 2000 samples per second
+		// 500 us per sample, 2000 samples per second, LIDAR
 		get_samples_lidar(lidar_data, lidar_samples);
 		put_uart_simple(0, lidar_data, lidar_samples*5);
+
+		// IMU
+		/* quat = get_quaternion_sample(); */
+		/* for (size_t i = 0; i < 8; ++i) { */
+		/* 	uint8_t quat_data = *(((uint8_t *) &quat.w) + i); */
+		/* 	/\* USART_Tx(UART0, quat_data); *\/ */
+		/* 	/\* USART_Tx(UART0, 'a'); *\/ */
+		/* } */
 
 		/*
 		// Fetch system status
@@ -91,6 +93,4 @@ int main(void)
 
 	// LEDS, (disabled for now, as they collide with UART)
 	/* leds_test(); */
-
-	/* for (;;); */
 }
