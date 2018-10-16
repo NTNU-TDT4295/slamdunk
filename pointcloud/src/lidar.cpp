@@ -1,103 +1,10 @@
 #include "lidar.h"
 #include "opengl.h"
 #include "utils.h"
+#include "lidar_socket.h"
 #include <sys/socket.h>
 #include <stdio.h>
-
-static void lidar_in_client(net_client_context *net_ctx) {
-	LidarContext *ctx;
-	ctx = (LidarContext *)net_ctx->user_data;
-
-	uint8_t buffer[1808];
-	size_t bytes_read = 0;
-	size_t num_aligns = 0;
-	float last_angle = 0;
-
-	while (!net_ctx->should_quit) {
-		while (bytes_read < sizeof(buffer)) {
-			int err = recv(net_ctx->socket_fd,
-						   ((uint8_t *)buffer) + bytes_read,
-						   sizeof(buffer) - bytes_read, 0);
-			if (err < 0) {
-				perror("recv");
-				return;
-			} else if (err == 0) {
-				return;
-			}
-
-			bytes_read += err;
-		}
-
-		uint8_t quality;
-		uint16_t angle_q;
-		float angle;
-		float dist;
-
-		for (int i = 0; i < 1800 / 5; ++i) {
-			quality = (buffer[i*5] >> 2);
-			angle_q = ((buffer[i*5 + 2] << 8) | (buffer[i*5 + 1]));
-			angle = (float) (angle_q >> 1);
-			angle = angle / 64.0;
-			dist = (float)((buffer[i*5 + 4] << 8) | buffer[i*5 + 3]) / 4.0f;
-
-			printf("%d %f %f\n", quality, angle, dist);
-		}
-
-		bytes_read = 0;
-
-		// printf("%2x %2x %2x %2x %2x %2x ",
-		// 	   buffer[0], buffer[1], buffer[2],
-		// 	   buffer[3], buffer[4], buffer[5]);
-
-		// if (buffer[0] != 0xa5) {
-		// 	printf("Missalignment...");
-		// 	bytes_read = 0;
-		// 	for (unsigned int i = 1; i < sizeof(buffer); i++) {
-		// 		if (buffer[i] == 0xa5) {
-		// 			printf(" offsetting %i", i);
-		// 			bytes_read = sizeof(buffer) - i;
-		// 			memmove(&buffer[0], &buffer[i], sizeof(buffer) - i);
-		// 		}
-		// 	}
-		// 	printf("\n");
-		// 	num_aligns += 1;
-		// 	continue;
-		// }
-
-		// uint16_t angle_q;
-		// float angle;
-		// float dist;
-
-		// angle_q = ((buffer[3] << 8) | (buffer[2]));
-		// angle = (float) (angle_q >> 1);
-		// angle = angle / 64.0;
-
-		// dist = (float)((buffer[5] << 8) | buffer[4]) / 4.0f;
-
-		// // printf("%zu %10f %10f\n", num_aligns, angle, dist);
-		// bytes_read = 0;
-
-		// printf("%f %f\n", angle, dist);
-
-		// if (angle < last_angle - 50.0f) {
-		// 	sem_wait(&ctx->lock);
-		// 	ctx->scan_data_read_select ^= 1;
-		// 	ctx->scan_data_length[ctx->scan_data_read_select ^ 1] = 0;
-		// 	sem_post(&ctx->lock);
-		// }
-		// last_angle = angle;
-
-		// int write_select = ctx->scan_data_read_select ^ 1;
-
-		// if (ctx->scan_data_length[write_select] >= scan_data_cap) {
-		// 	printf("Passed scan data cap.\n");
-		// 	continue;
-		// }
-
-		// ctx->scan_data[write_select][ctx->scan_data_length[write_select]] = vec2(angle, dist);
-		// ctx->scan_data_length[write_select] += 1;
-	}
-}
+#include <semaphore.h>
 
 void init_lidar(LidarContext &ctx) {
 	GLuint vshader, fshader;
@@ -135,27 +42,23 @@ void init_lidar(LidarContext &ctx) {
 	glBindVertexArray(0);
 	glUseProgram(0);
 
-	sem_init(&ctx.lock, 0, 1);
-
-	ctx.net_in.user_data = &ctx;
-	ctx.net_in.client_callback = lidar_in_client;
-	net_init(&ctx.net_in, "0.0.0.0", "6001");
+	init_lidar_socket(ctx.lidar_socket, "0.0.0.0", "6002");
 }
 
 void tick_lidar(LidarContext &ctx, const WindowFrameInfo &frame) {
-	sem_wait(&ctx.lock);
+	sem_wait(&ctx.lidar_socket.lock);
 
-	size_t length = ctx.scan_data_length[ctx.scan_data_read_select];
+	size_t length = ctx.lidar_socket.scan_data_length[ctx.lidar_socket.scan_data_read_select];
 
 	// printf("size %zu\n", length);
 	glBindBuffer(GL_ARRAY_BUFFER, ctx.buffer_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * length, &ctx.scan_data[ctx.scan_data_read_select], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * length, &ctx.lidar_socket.scan_data[ctx.lidar_socket.scan_data_read_select], GL_DYNAMIC_DRAW);
 	// glBufferSubData(GL_ARRAY_BUFFER, 0,
 	// 				sizeof(vec2) * length,
 	// 				&ctx.scan_data[ctx.scan_data_read_select]);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	sem_post(&ctx.lock);
+	sem_post(&ctx.lidar_socket.lock);
 
 	glUseProgram(ctx.shader.id);
 	glBindVertexArray(ctx.buffer_vao);
