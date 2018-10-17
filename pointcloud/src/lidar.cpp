@@ -50,12 +50,8 @@ void tick_lidar(LidarContext &ctx, const WindowFrameInfo &frame) {
 
 	size_t length = ctx.lidar_socket.scan_data_length[ctx.lidar_socket.scan_data_read_select];
 
-	// printf("size %zu\n", length);
 	glBindBuffer(GL_ARRAY_BUFFER, ctx.buffer_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * length, &ctx.lidar_socket.scan_data[ctx.lidar_socket.scan_data_read_select], GL_DYNAMIC_DRAW);
-	// glBufferSubData(GL_ARRAY_BUFFER, 0,
-	// 				sizeof(vec2) * length,
-	// 				&ctx.scan_data[ctx.scan_data_read_select]);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	sem_post(&ctx.lidar_socket.lock);

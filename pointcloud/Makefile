@@ -5,7 +5,7 @@ GLAD_OUT_DIR:=$(BUILD_DIR)/glad
 GLM_DIR:=$(LIB_DIR)/glm
 SRC_DIR:=./src
 
-CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(GLM_DIR)
+CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(GLM_DIR) -I/usr/include/eigen3/
 LDFLAGS:=-lX11 -lGL -lGLU -ldl -pthread
 
 SRC=$(shell find $(SRC_DIR)/ -name *.cpp)
@@ -16,7 +16,7 @@ GLAD_OBJ=$(GLAD_OUT_DIR)/glad.o $(GLAD_OUT_DIR)/glad_glx.o
 
 GLAD:=PYTHONPATH=$(PYTHONPATH):$(GLAD_DIR) python -m glad
 
-all: pc sim lidar
+all: pc sim lidar slam
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(GLM_DIR)/glm $(GLAD_INCLUDES)
 	@mkdir -p $(dir $@)
@@ -52,6 +52,13 @@ LIDAR_OBJ=$(LIDAR_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 lidar: $(LIDAR_OBJ)
 	$(CXX) $(LDFLAGS) $(LIDAR_OBJ) -o $@
 
+# Build slam
+SLAM_SRC=$(shell find $(SRC_DIR)/bin/slam/ -name '*.cpp') $(COMMON_SRC)
+SLAM_OBJ=$(SLAM_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
+
+slam: $(SLAM_OBJ)
+	$(CXX) $(LDFLAGS) $(SLAM_OBJ) -o $@
+
 
 $(GLM_DIR)/glm:
 	git submodule update --init --depth 1 $(GLM_DIR)
@@ -76,6 +83,7 @@ $(GLAD_OUT_DIR)/%.o: $(GLAD_OUT_DIR)/src/%.c
 clean:
 	-rm -f pc
 	-rm -f sim
+	-rm -f slam
 	-rm -f lidar
 	-rm -f build/*.o
 	-rm -rf build/bin/

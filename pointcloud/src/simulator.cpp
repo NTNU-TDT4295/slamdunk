@@ -9,28 +9,28 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-constexpr float max_ray_length = 5.0f;
+constexpr float max_ray_length = 8.0f;
 
-int send_point_data(int fd, vec3 point) {
-	int32_t buffer[3];
+// static int send_point_data(int fd, vec3 point) {
+// 	int32_t buffer[3];
 
-	if (fd == -1) {
-		return -1;
-	}
+// 	if (fd == -1) {
+// 		return -1;
+// 	}
 
-	buffer[0] = (int32_t)(point.x * 1000.0f);
-	buffer[1] = (int32_t)(point.y * 1000.0f);
-	buffer[2] = (int32_t)(point.z * 1000.0f);
+// 	buffer[0] = (int32_t)(point.x * 1000.0f);
+// 	buffer[1] = (int32_t)(point.y * 1000.0f);
+// 	buffer[2] = (int32_t)(point.z * 1000.0f);
 
-	ssize_t err;
-	err = send(fd, buffer, sizeof(buffer), 0);
-	if (err < 0) {
-		perror("send");
-		return -1;
-	}
+// 	ssize_t err;
+// 	err = send(fd, buffer, sizeof(buffer), 0);
+// 	if (err < 0) {
+// 		perror("send");
+// 		return -1;
+// 	}
 
-	return 0;
-}
+// 	return 0;
+// }
 
 static void simulator_in_client(net_client_context *net_ctx) {
 	SimulatorContext *ctx;
@@ -73,7 +73,8 @@ static void simulator_in_client(net_client_context *net_ctx) {
 }
 
 void init_simulator(SimulatorContext &ctx) {
-	ctx.camera.position = { 0.0f, 1.8f, 0.0f };
+	ctx.camera.position = { 0.0f, 1.8f,  0.0f };
+	ctx.sensor.position = { 0.0f, 1.8f, -1.0f };
 
 	GLuint vshader, fshader;
 	vshader = create_shader_from_file("assets/shaders/test.vsh", GL_VERTEX_SHADER);
