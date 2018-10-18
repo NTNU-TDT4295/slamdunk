@@ -2,15 +2,19 @@
 
 #include "window.h"
 #include "lidar_socket.h"
-
-struct InternalSlamContext;
+#include "hector_slam.h"
 
 struct SlamContext {
-	InternalSlamContext *internal;
 	LidarSocketContext lidar_socket;
 
 	unsigned int quad_vao;
 	unsigned int texture;
+
+	HectorSlam slam;
+
+	vec2 *points;
+	size_t numPoints;
+	size_t capPoints;
 
 	struct {
 		unsigned int id;

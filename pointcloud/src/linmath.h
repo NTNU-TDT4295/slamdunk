@@ -15,6 +15,8 @@ typedef glm::vec<2, float, QUALIFIER> vec2;
 typedef glm::vec<3, float, QUALIFIER> vec3;
 typedef glm::vec<4, float, QUALIFIER> vec4;
 
+typedef glm::vec<2, int, QUALIFIER> vec2i;
+
 typedef glm::mat<3, 3, float, QUALIFIER> mat3;
 typedef glm::mat<4, 4, float, QUALIFIER> mat4;
 typedef glm::qua<float, QUALIFIER> quat;
