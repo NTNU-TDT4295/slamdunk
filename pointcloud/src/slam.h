@@ -8,6 +8,18 @@ struct InternalSlamContext;
 struct SlamContext {
 	InternalSlamContext *internal;
 	LidarSocketContext lidar_socket;
+
+	unsigned int quad_vao;
+	unsigned int texture;
+
+	struct {
+		unsigned int id;
+		unsigned int in_matrix;
+		unsigned int in_projection_matrix;
+		unsigned int in_tex;
+	} shader;
+
+	uint8_t *tex_buffer;
 };
 
 void init_slam(SlamContext &ctx);

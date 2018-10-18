@@ -87,16 +87,16 @@ public:
     //std::cout << "\n1";
     //std::cout << "\n" << lastScanMatchPose << "\n";
     if(util::poseDifferenceLargerThan(newPoseEstimateWorld, lastMapUpdatePose, paramMinDistanceDiffForMapUpdate, paramMinAngleDiffForMapUpdate) || map_without_matching){
-		printf("Update by scan\n");
+		/* printf("Update by scan\n"); */
       mapRep->updateByScan(dataContainer, newPoseEstimateWorld);
 
       mapRep->onMapUpdated();
       lastMapUpdatePose = newPoseEstimateWorld;
-    } else {
-		printf("don't update %f %f %f\n",
-			   newPoseEstimateWorld.x(),
-			   newPoseEstimateWorld.y(),
-			   newPoseEstimateWorld.z());
+    /* } else { */
+		/* printf("don't update %f %f %f\n", */
+		/* 	   newPoseEstimateWorld.x(), */
+		/* 	   newPoseEstimateWorld.y(), */
+		/* 	   newPoseEstimateWorld.z()); */
 	}
 
     if(drawInterface){

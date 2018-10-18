@@ -92,8 +92,7 @@ public:
 
 
       for (int i = 0; i < numIter; ++i) {
-        /* std::cout << "\nest:\n" << estimate; */
-		  // printf("est: %i - %f %f %f\n", i, estimate.x(), estimate.y(), estimate.z());
+        //std::cout << "\nest:\n" << estimate;
 
         estimateTransformationLogLh(estimate, gridMapUtil, dataContainer);
         //notConverged = estimateTransformationLogLh(estimate, gridMapUtil, dataContainer);

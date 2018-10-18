@@ -1,10 +1,13 @@
 #include "slam.h"
 #include <Eigen/Dense>
 #include <iostream>
-#include <iostream>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include "hector_slam_lib/slam_main/HectorSlamProcessor.h"
 #include "opengl.h"
+#include "utils.h"
+
+#include <glm/gtc/type_ptr.hpp>
 
 static int send_point_data(int fd, vec3 point) {
 	int32_t buffer[3];
@@ -104,11 +107,87 @@ void init_slam(SlamContext &ctx) {
 
 	ctx.internal->container.setOrigo(Eigen::Vector2f::Zero());
 
+
+
+	const float quad[] = {
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,	1.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,	1.0f, 1.0f,
+	};
+
+	GLuint vao, buffer;
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quad),
+				 &quad, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *)(sizeof(float) * 3));
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	ctx.quad_vao = vao;
+
+	glGenTextures(1, &ctx.texture);
+	glBindTexture(GL_TEXTURE_2D, ctx.texture);
+
+	ctx.tex_buffer = (uint8_t *)calloc(mapSizeX * mapSizeY, sizeof(uint8_t));
+
+	memset(ctx.tex_buffer, 0, mapSizeX * mapSizeY * sizeof(uint8_t));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mapSizeX, mapSizeY, 0,
+				 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	GLuint vshader, fshader;
+	vshader = create_shader_from_file("assets/shaders/test.vsh", GL_VERTEX_SHADER);
+	fshader = create_shader_from_file("assets/shaders/texture.fsh", GL_FRAGMENT_SHADER);
+
+	ctx.shader.id = glCreateProgram();
+
+	glAttachShader(ctx.shader.id, vshader);
+	glAttachShader(ctx.shader.id, fshader);
+
+	if (!link_shader_program(ctx.shader.id)) {
+		panic("Could not compile the shader!");
+	}
+
+	ctx.shader.in_matrix            = glGetUniformLocation(ctx.shader.id, "in_matrix");
+	ctx.shader.in_projection_matrix = glGetUniformLocation(ctx.shader.id, "in_projection_matrix");
+	ctx.shader.in_tex = glGetUniformLocation(ctx.shader.id, "tex");
+
+	glUseProgram(ctx.shader.id);
+
+	mat4 mat (1.0f);
+
+	glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(mat));
+	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(mat));
+	glUniform1i(ctx.shader.in_tex, 0);
+
+	glUseProgram(0);
+
 	init_lidar_socket(ctx.lidar_socket, "0.0.0.0", "6002");
 
 	ctx.internal->drawings.socket = net_client_connect("127.0.0.1", "6000");
 
-	// glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
@@ -135,7 +214,7 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 
 	sem_post(&ctx.lidar_socket.lock);
 
-	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (ctx.internal->container.getSize() > 0) {
 		ctx.internal->processor->update(ctx.internal->container,
@@ -148,20 +227,40 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 	size_t mapHeight = map.getSizeY();
 
 	for (size_t i = 0; i < mapWidth * mapHeight; i++) {
+		// ctx.tex_buffer[i] = (uint8_t)(map.getCell(i).getValue() * 255.0f);
 		if (map.isOccupied(i)) {
-			size_t x = i % mapWidth;
-			size_t y = i / mapWidth;
-
-			vec3 p = {
-				(float)x - ((float)mapWidth / 2.0f),
-				0.0f,
-				(float)y - ((float)mapHeight / 2.0f)
-			};
-
-			// printf("send point %f %f\n", p.x, p.y);
-			send_point_data(ctx.internal->drawings.socket, p);
+			ctx.tex_buffer[i] = 255;
+		} else if (map.isFree(i)) {
+			ctx.tex_buffer[i] = 50;
 		}
+		// if (map.isOccupied(i)) {
+		// 	size_t x = i % mapWidth;
+		// 	size_t y = i / mapWidth;
+
+		// 	vec3 p = {
+		// 		(float)x - ((float)mapWidth / 2.0f),
+		// 		0.0f,
+		// 		(float)y - ((float)mapHeight / 2.0f)
+		// 	};
+
+		// 	// printf("send point %f %f\n", p.x, p.y);
+		// 	send_point_data(ctx.internal->drawings.socket, p);
+		// }
 	}
+
+	glUseProgram(ctx.shader.id);
+	glBindVertexArray(ctx.quad_vao);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, ctx.texture);
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mapWidth, mapHeight,
+					GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
 
 	// Eigen::Vector3f pose = ctx.internal->processor->getLastScanMatchPose();
 	//printf("%i %f %f %f\n", ctx.internal->container.getSize(), pose.x(), pose.y(), pose.z());
