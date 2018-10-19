@@ -23,6 +23,9 @@ struct SlamContext {
 		unsigned int in_tex;
 	} shader;
 
+	bool btn_down;
+	int res;
+
 	uint8_t *tex_buffer;
 };
 

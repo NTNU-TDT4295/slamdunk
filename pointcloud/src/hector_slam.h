@@ -33,6 +33,7 @@ struct HectorSlam {
 	HectorSlamOccGrid maps[HECTOR_SLAM_MAP_RESOLUTIONS];
 
 	vec3 lastPosition;
+	vec3 lastUpdatePosition;
 };
 
 void hs_init(HectorSlam &slam);

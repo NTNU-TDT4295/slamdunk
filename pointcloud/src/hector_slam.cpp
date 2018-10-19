@@ -4,6 +4,7 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <stdio.h>
 #include <stdlib.h>
+#include <float.h>
 
 static inline int sign(int x)
 {
@@ -23,6 +24,21 @@ static float hs_log_odds(float val) {
 	float odds = exp(val);
 	return odds / (odds + 1.0f);
 }
+
+constexpr float hs_rad_to_deg(float rad) {
+	return rad * 180.0f / M_PI;
+}
+
+constexpr float hs_deg_to_rad(float deg) {
+	return deg * M_PI / 180.0f;
+}
+
+constexpr float hs_prob_to_log_odds(float prob) {
+	return log(prob / (1.0f - prob));
+}
+
+constexpr float log_odds_free = hs_prob_to_log_odds(HECTOR_SLAM_UPDATE_FREE_FACTOR);
+constexpr float log_odds_occupied = hs_prob_to_log_odds(HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR);
 
 static inline vec3 pose_position_affine(vec3 in) {
 	return vec3(in.x, in.y, 1.0f);
@@ -69,8 +85,8 @@ static vec3 hs_sample_map_value_with_derivatives(const HectorSlamOccGrid &map,
 
 static mat3 hs_transform_from_pose(const vec3 &pose) {
 	mat3 matrix;
-	matrix = glm::translate(mat3(1.0f), vec2(pose.x, pose.y));
-	matrix = glm::rotate(matrix, pose[2]);
+	matrix = glm::rotate(mat3(1.0f), hs_rad_to_deg(pose[2]));
+	matrix = glm::translate(matrix, vec2(pose.x, pose.y));
 	return matrix;
 }
 
@@ -145,12 +161,12 @@ static bool hs_estimate_transformation_log_lh(vec3 &estimate,
 	return false;
 }
 
-static vec3 hs_map_coords_pose(const HectorSlamOccGrid &map, const vec3 &worldPose) {
+static vec3 hs_get_map_coords_pose(const HectorSlamOccGrid &map, const vec3 &worldPose) {
     vec2 mapCoords = map.mapTworld * pose_position_affine(worldPose);
     return vec3(mapCoords[0], mapCoords[1], worldPose[2]);
 }
 
-static vec3 hs_world_coords_pose(const HectorSlamOccGrid &map, const vec3 &mapPose) {
+static vec3 hs_get_world_coords_pose(const HectorSlamOccGrid &map, const vec3 &mapPose) {
     vec2 worldCoords = glm::inverse(map.mapTworld) * pose_position_affine(mapPose);
     return vec3(worldCoords[0], worldCoords[1], mapPose[2]);
 }
@@ -159,7 +175,7 @@ static vec3 hs_match_data(const HectorSlamOccGrid &map,
 				   const vec3 &beginEstimateWorld,
 				   int numIter,
 				   vec2 *points, size_t numPoints) {
-	vec3 estimate = hs_map_coords_pose(map, beginEstimateWorld);
+	vec3 estimate = hs_get_map_coords_pose(map, beginEstimateWorld);
 
 	for (int i = 0; i < numIter; i++) {
 		hs_estimate_transformation_log_lh(estimate, map, points, numPoints);
@@ -167,12 +183,17 @@ static vec3 hs_match_data(const HectorSlamOccGrid &map,
 
 	estimate[2] = normalize_angle(estimate[2]);
 
-	return hs_world_coords_pose(map, estimate);
+	return hs_get_world_coords_pose(map, estimate);
 }
 
 void hs_init(HectorSlam &slam) {
 	slam.width = 1024;
 	slam.height = 1024;
+
+	slam.updateIndex = 1;
+
+	slam.lastUpdatePosition = vec3(FLT_MAX);
+	slam.lastPosition = vec3(0.0f);
 
 	slam.maps[0].width = slam.width;
 	slam.maps[0].height = slam.height;
@@ -195,11 +216,12 @@ void hs_init(HectorSlam &slam) {
 
 		float scaleToMap = 1.0f / slam.maps[i].cellSize;
 
-		slam.maps[i].mapTworld = glm::scale(mat3(1.0f), vec2(scaleToMap));
 		slam.maps[i].mapTworld =
-			glm::translate(slam.maps[i].mapTworld,
+			glm::translate(mat3(1.0f),
 						   vec2((float)slam.maps[i].width  / 2.0f,
 								(float)slam.maps[i].height / 2.0f));
+		slam.maps[i].mapTworld =
+			glm::scale(slam.maps[i].mapTworld, vec2(scaleToMap));
 	}
 }
 
@@ -228,15 +250,21 @@ static bool hs_pose_difference_larger_than(const vec3& pose1,
 
 inline static void hs_mark_cell_free(HectorSlam &slam, HectorSlamOccGrid &map, unsigned int i) {
 	if (map.updateIndex[i] < slam.updateIndex+0) {
-		map.values[i] += log(HECTOR_SLAM_UPDATE_FREE_FACTOR);
+		map.values[i] += log_odds_free;
+		map.updateIndex[i] = slam.updateIndex;
 	}
 }
 
 inline static void hs_mark_cell_occ(HectorSlam &slam, HectorSlamOccGrid &map, unsigned int i) {
 	if (map.updateIndex[i] < slam.updateIndex+1) {
-		if (map.values[i] < 50.0f) {
-			map.values[i] += log(HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR);
+		if (map.updateIndex[i] == slam.updateIndex+0) {
+			map.values[i] -= log_odds_free;
 		}
+
+		if (map.values[i] < 50.0f) {
+			map.values[i] += log_odds_occupied;
+		}
+		map.updateIndex[i] = slam.updateIndex + 1;
 	}
 }
 
@@ -314,15 +342,16 @@ void hs_update_map(HectorSlam &slam,
 				   vec2 *points, size_t numPoints) {
 	for (size_t map_i = 0; map_i < HECTOR_SLAM_MAP_RESOLUTIONS; map_i++) {
 		HectorSlamOccGrid *map = &slam.maps[map_i];
-		vec3 mapPose = hs_map_coords_pose(*map, pose);
+		vec3 mapPose = hs_get_map_coords_pose(*map, pose);
 		vec2 position = vec2(mapPose);
 		vec2i positioni = vec2i(position.x + 0.5f,
 								position.y + 0.5f);
 
 		mat3 poseTransform;
-		poseTransform = glm::translate(mat3(1.0f),
+		poseTransform = glm::rotate(mat3(1.0f), hs_rad_to_deg(mapPose[2]));
+		poseTransform = glm::translate(poseTransform,
 									   vec2(mapPose.x, mapPose.y));
-		poseTransform = glm::rotate(poseTransform, mapPose[2]);
+		poseTransform = glm::scale(poseTransform, vec2(map->scaleFactor));
 
 		for (size_t i = 0; i < numPoints; i++) {
 			vec2 point = poseTransform * vec3(points[i], 1.0f);
@@ -352,13 +381,14 @@ void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 						  points, numPoints);
 	}
 
-	if (hs_pose_difference_larger_than(estimate, slam.lastPosition,
+	slam.lastPosition = estimate;
+
+	if (hs_pose_difference_larger_than(estimate, slam.lastUpdatePosition,
 									   HECTOR_SLAM_DISTANCE_THRESHOLD,
 									   HECTOR_SLAM_ANGLE_THRESHOLD)) {
 		hs_update_map(slam, estimate, points, numPoints);
+		slam.lastUpdatePosition = estimate;
 	}
-
-	slam.lastPosition = estimate;
 }
 
 void hs_free(HectorSlam &slam) {

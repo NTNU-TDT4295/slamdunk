@@ -137,8 +137,11 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 				printf("Too many points in tick!\n");
 				break;
 			}
-			ctx.points[ctx.numPoints] =
-				vec2(cos(angle) * dist, sin(angle) * dist);
+
+			vec2 point = vec2(cos(angle) * dist, sin(angle) * dist);
+
+			printf("setting point %f %f\n", point.x, point.y);
+			ctx.points[ctx.numPoints] = point;
 
 			ctx.numPoints += 1;
 		}
@@ -153,10 +156,21 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 		hs_update(ctx.slam,
 				  ctx.points,
 				  ctx.numPoints);
+
+		printf("position: %f %f - %f\n",
+			   ctx.slam.lastPosition.x,
+			   ctx.slam.lastPosition.x,
+			   ctx.slam.lastPosition.x);
 	}
 
+	if (info.keyboard.forward && !ctx.btn_down) {
+		ctx.res = (ctx.res + 1) % HECTOR_SLAM_MAP_RESOLUTIONS;
+	}
+	ctx.btn_down = info.keyboard.forward;
 
-	HectorSlamOccGrid &map = ctx.slam.maps[0];
+	HectorSlamOccGrid &map = ctx.slam.maps[ctx.res];
+
+	memset(ctx.tex_buffer, 0, map.width * map.height);
 
 	for (size_t i = 0; i < map.width * map.height; i++) {
 		if (hs_is_occupied(map.values[i])) {
@@ -172,8 +186,10 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, ctx.texture);
 
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, map.width, map.height,
-					GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
+	// glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, map.width, map.height,
+	// 				GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, map.width, map.height, 0,
+				 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
