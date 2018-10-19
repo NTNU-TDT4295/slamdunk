@@ -85,8 +85,8 @@ static vec3 hs_sample_map_value_with_derivatives(const HectorSlamOccGrid &map,
 
 static mat3 hs_transform_from_pose(const vec3 &pose) {
 	mat3 matrix;
-	matrix = glm::rotate(mat3(1.0f), hs_rad_to_deg(pose[2]));
-	matrix = glm::translate(matrix, vec2(pose.x, pose.y));
+	matrix = glm::translate(mat3(1.0f), vec2(pose.x, pose.y));
+	matrix = glm::rotate(matrix, hs_rad_to_deg(pose[2]));
 	return matrix;
 }
 
@@ -348,9 +348,9 @@ void hs_update_map(HectorSlam &slam,
 								position.y + 0.5f);
 
 		mat3 poseTransform;
-		poseTransform = glm::rotate(mat3(1.0f), hs_rad_to_deg(mapPose[2]));
-		poseTransform = glm::translate(poseTransform,
+		poseTransform = glm::translate(mat3(1.0f),
 									   vec2(mapPose.x, mapPose.y));
+		poseTransform = glm::rotate(poseTransform, hs_rad_to_deg(mapPose[2]));
 		poseTransform = glm::scale(poseTransform, vec2(map->scaleFactor));
 
 		for (size_t i = 0; i < numPoints; i++) {
