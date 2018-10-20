@@ -57,7 +57,7 @@ static vec3 hs_sample_map_value_with_derivatives(const HectorSlamOccGrid &map,
 	vec2 factors = coords - vec2((float)indMin.x, (float)indMin.y);
 
 	int sizeX = map.width;
-	int index = indMin.x * sizeX + indMin.y;
+	int index = indMin.y * sizeX + indMin.x;
 
 	float intensities[4];
 
@@ -84,9 +84,9 @@ static vec3 hs_sample_map_value_with_derivatives(const HectorSlamOccGrid &map,
 }
 
 static mat3 hs_transform_from_pose(const vec3 &pose) {
-	mat3 matrix;
-	matrix = glm::translate(mat3(1.0f), vec2(pose.x, pose.y));
-	matrix = glm::rotate(matrix, hs_rad_to_deg(pose[2]));
+	mat3 matrix = mat3(1.0f);
+	matrix *= glm::translate(mat3(1.0f), vec2(pose.x, pose.y));
+	matrix *= glm::rotate(mat3(1.0f), hs_rad_to_deg(pose.z));
 	return matrix;
 }
 
@@ -101,12 +101,13 @@ static HessianDerivs hs_get_complete_hessian_derivs(const HectorSlamOccGrid &map
 	result.dTr = vec3(0.0f);
 
     mat3 transform = hs_transform_from_pose(pose);
+	transform *= glm::scale(mat3(1.0f), vec2(map.scaleFactor));
 
-    float sinRot = sin(pose[2]);
-    float cosRot = cos(pose[2]);
+    float sinRot = sin(pose.z);
+    float cosRot = cos(pose.z);
 
 	for (size_t i = 0; i < numPoints; i++) {
-		vec2 point = points[i] * map.scaleFactor;
+		vec2 point = points[i];
 
 		vec3 pointData =
 			hs_sample_map_value_with_derivatives(map, transform * vec3(point, 1.0f));
@@ -167,7 +168,11 @@ static vec3 hs_get_map_coords_pose(const HectorSlamOccGrid &map, const vec3 &wor
 }
 
 static vec3 hs_get_world_coords_pose(const HectorSlamOccGrid &map, const vec3 &mapPose) {
-    vec2 worldCoords = glm::inverse(map.mapTworld) * pose_position_affine(mapPose);
+	mat3 m = mat3(1.0f);
+	m *= glm::scale(mat3(1.0f), vec2(map.cellSize));
+	m *= glm::translate(mat3(1.0f), vec2(-(float)map.width  / 2.0f, -(float)map.height / 2.0f));
+	//vec2 worldCoords = glm::inverse(map.mapTworld) * pose_position_affine(mapPose);
+	vec2 worldCoords = m * pose_position_affine(mapPose);
     return vec3(worldCoords[0], worldCoords[1], mapPose[2]);
 }
 
@@ -216,12 +221,13 @@ void hs_init(HectorSlam &slam) {
 
 		float scaleToMap = 1.0f / slam.maps[i].cellSize;
 
-		slam.maps[i].mapTworld =
+		slam.maps[i].mapTworld = mat3(1.0f);
+		slam.maps[i].mapTworld *=
 			glm::translate(mat3(1.0f),
 						   vec2((float)slam.maps[i].width  / 2.0f,
 								(float)slam.maps[i].height / 2.0f));
-		slam.maps[i].mapTworld =
-			glm::scale(slam.maps[i].mapTworld, vec2(scaleToMap));
+		slam.maps[i].mapTworld *=
+			glm::scale(mat3(1.0f), vec2(scaleToMap));
 	}
 }
 
@@ -347,11 +353,10 @@ void hs_update_map(HectorSlam &slam,
 		vec2i positioni = vec2i(position.x + 0.5f,
 								position.y + 0.5f);
 
-		mat3 poseTransform;
-		poseTransform = glm::translate(mat3(1.0f),
-									   vec2(mapPose.x, mapPose.y));
-		poseTransform = glm::rotate(poseTransform, hs_rad_to_deg(mapPose[2]));
-		poseTransform = glm::scale(poseTransform, vec2(map->scaleFactor));
+		mat3 poseTransform = mat3(1.0f);
+		poseTransform *= glm::translate(mat3(1.0f), vec2(mapPose.x, mapPose.y));
+		poseTransform *= glm::rotate(mat3(1.0f), hs_rad_to_deg(mapPose.z));
+		poseTransform *= glm::scale(mat3(1.0f), vec2(map->scaleFactor));
 
 		for (size_t i = 0; i < numPoints; i++) {
 			vec2 point = poseTransform * vec3(points[i], 1.0f);

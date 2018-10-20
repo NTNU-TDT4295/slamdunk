@@ -4,7 +4,7 @@
 #include "linmath.h"
 #include <semaphore.h>
 
-constexpr size_t scan_data_cap = 512;
+constexpr size_t scan_data_cap = 1024;
 
 struct LidarSocketContext {
 	vec2 scan_data[2][scan_data_cap];

@@ -140,7 +140,7 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 
 			vec2 point = vec2(cos(angle) * dist, sin(angle) * dist);
 
-			printf("setting point %f %f\n", point.x, point.y);
+			//printf("setting point %f %f\n", point.x, point.y);
 			ctx.points[ctx.numPoints] = point;
 
 			ctx.numPoints += 1;
@@ -159,8 +159,8 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 
 		printf("position: %f %f - %f\n",
 			   ctx.slam.lastPosition.x,
-			   ctx.slam.lastPosition.x,
-			   ctx.slam.lastPosition.x);
+			   ctx.slam.lastPosition.y,
+			   ctx.slam.lastPosition.z);
 	}
 
 	if (info.keyboard.forward && !ctx.btn_down) {
