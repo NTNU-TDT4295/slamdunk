@@ -5,7 +5,7 @@ GLAD_OUT_DIR:=$(BUILD_DIR)/glad
 GLM_DIR:=$(LIB_DIR)/glm
 SRC_DIR:=./src
 
-CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(GLM_DIR)
+CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(GLM_DIR) -I/usr/include/eigen3/
 LDFLAGS:=-lX11 -lGL -lGLU -ldl -pthread
 
 SRC=$(shell find $(SRC_DIR)/ -name *.cpp)
