@@ -74,6 +74,17 @@ void hs_init(HectorSlam &slam) {
 								   sizeof(unsigned int));
 
 		slam.maps[i].currentUpdateIndex = 1;
+
+		float scaleToMap = 1.0f / slam.maps[i].cellSize;
+		vec2 topLeftOffset =
+			vec2((float)slam.maps[i].width,
+				 (float)slam.maps[i].height) *
+			slam.maps[i].cellSize / 2.0f;
+
+		slam.maps[i].worldToMap =
+			glm::scale(mat3(1.0f), vec2(scaleToMap)) *
+			glm::translate(mat3(1.0f), topLeftOffset);
+		slam.maps[i].mapToWorld = glm::inverse(slam.maps[i].worldToMap);
 	}
 }
 
@@ -81,31 +92,14 @@ void hs_free(HectorSlam &slam) {
 }
 
 static inline vec3 hs_get_world_coords_pose(HectorSlamOccGrid &map,
-													   const vec3& mapPose) {
-	float scaleToMap = 1.0f / map.cellSize;
-	vec2 topLeftOffset =
-		vec2((float)map.width, (float)map.height) * map.cellSize / 2.0f;
-
-	mat3 mapTworld =
-		glm::scale(mat3(1.0f), vec2(scaleToMap)) *
-		glm::translate(mat3(1.0f), topLeftOffset);
-	mat3 worldTmap = glm::inverse(mapTworld);
-
-	vec2 worldCoords = worldTmap * vec3(hs_position_of_pose(mapPose), 1.0f);
+											const vec3& mapPose) {
+	vec2 worldCoords = map.mapToWorld * vec3(hs_position_of_pose(mapPose), 1.0f);
 	return vec3(worldCoords[0], worldCoords[1], mapPose[2]);
 }
 
 static inline vec3 hs_get_map_coords_pose(HectorSlamOccGrid &map,
-													 const vec3& worldPose) {
-	float scaleToMap = 1.0f / map.cellSize;
-	vec2 topLeftOffset =
-		vec2((float)map.width, (float)map.height) * map.cellSize / 2.0f;
-
-	mat3 mapTworld =
-		glm::scale(mat3(1.0f), vec2(scaleToMap)) *
-		glm::translate(mat3(1.0f), topLeftOffset);
-
-	vec2 mapCoords = mapTworld * vec3(hs_position_of_pose(worldPose), 1.0f);
+										  const vec3& worldPose) {
+	vec2 mapCoords = map.worldToMap * vec3(hs_position_of_pose(worldPose), 1.0f);
 	return vec3(mapCoords[0], mapCoords[1], worldPose[2]);
 }
 

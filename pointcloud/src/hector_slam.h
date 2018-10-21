@@ -26,6 +26,9 @@ struct HectorSlamOccGrid {
 	float mapScale;
 
 	int currentUpdateIndex;
+
+	mat3 mapToWorld;
+	mat3 worldToMap;
 };
 
 struct HectorSlam {
