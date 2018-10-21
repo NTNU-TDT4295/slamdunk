@@ -13,31 +13,15 @@ static inline Eigen::Vector3f to_eigen(vec3 in) {
 
 
 void hs_init(HectorSlam &slam) {
-	//hectorslam::HectorSlamProcessor *proc;
 	hectorslam::DataContainer *container;
-	hectorslam::MapRepMultiMap *mapRep;
 
 	float mapResolution = 0.025;
 	int mapSizeX = 1024;
 	int mapSizeY = 1024;
 	Eigen::Vector2f startCoord = { 0.5f, 0.5f };
-	int mapDepth = 3;
-
-	// proc = new hectorslam::HectorSlamProcessor(mapResolution,
-	// 										   mapSizeX, mapSizeY,
-	// 										   startCoord,
-	// 										   mapDepth);
-
-	// proc->setUpdateFactorFree(HECTOR_SLAM_UPDATE_FREE_FACTOR);
-	// proc->setUpdateFactorOccupied(HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR);
-	// proc->setMapUpdateMinDistDiff(HECTOR_SLAM_DISTANCE_THRESHOLD);
-	// proc->setMapUpdateMinAngleDiff(HECTOR_SLAM_ANGLE_THRESHOLD);
-
-    mapRep = new hectorslam::MapRepMultiMap(mapResolution, mapSizeX, mapSizeY, mapDepth, startCoord, NULL, NULL);
 
     slam.lastUpdatePosition = vec3(FLT_MAX);
     slam.lastPosition = vec3(0.0f);
-    mapRep->reset();
 
 	slam.width = mapSizeX;
 	slam.height = mapSizeY;
@@ -47,26 +31,75 @@ void hs_init(HectorSlam &slam) {
 	slam.maps[0].values = (float *)calloc(mapSizeX*mapSizeY, sizeof(float));
 	slam.maps[0].cellSize = mapResolution;
 
+	for (size_t i = 1; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
+		slam.maps[i].width = slam.maps[i - 1].width / 2;
+		slam.maps[i].height = slam.maps[i - 1].height / 2;
+		slam.maps[i].cellSize = slam.maps[i - 1].cellSize * 2.0f;
+	}
+
+    float totalMapSizeX = mapResolution * static_cast<float>(mapSizeX);
+    float midOffsetX = totalMapSizeX * startCoord.x();
+
+    float totalMapSizeY = mapResolution * static_cast<float>(mapSizeY);
+    float midOffsetY = totalMapSizeY * startCoord.y();
+
+    Eigen::Vector2i resolution = Eigen::Vector2i(slam.width, slam.height);
+	Eigen::Vector2f midOffset = Eigen::Vector2f(midOffsetX, midOffsetY);
+
+	for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
+		slam.maps[i].values = (float *)calloc(slam.maps[i].width*slam.maps[i].height, sizeof(float));
+
+		hectorslam::GridMap* gridMap =
+			new hectorslam::GridMap(slam.maps[i].cellSize, resolution, midOffset);
+
+		hectorslam::OccGridMapUtilConfig<hectorslam::GridMap>* gridMapUtil =
+			new hectorslam::OccGridMapUtilConfig<hectorslam::GridMap>(gridMap);
+
+		hectorslam::ScanMatcher<hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> >* scanMatcher =
+			new hectorslam::ScanMatcher<hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> >(NULL, NULL);
+
+		hectorslam::MapProcContainer *mapCont =
+			new hectorslam::MapProcContainer(gridMap, gridMapUtil, scanMatcher);
+
+		gridMap->setUpdateOccupiedFactor(HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR);
+		gridMap->setUpdateFreeFactor(HECTOR_SLAM_UPDATE_FREE_FACTOR);
+
+		slam.maps[i].container = (void *)mapCont;
+	}
+
 
 	container = new hectorslam::DataContainer();
 	container->setOrigo(Eigen::Vector2f::Zero());
 
-	// slam.proc = proc;
-	slam.mapRep = mapRep;
 	slam.cont = container;
 }
 
 void hs_free(HectorSlam &slam) {
 }
 
-void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
-	// hectorslam::HectorSlamProcessor *proc;
-	hectorslam::DataContainer *container;
-	hectorslam::MapRepMultiMap *mapRep;
+static void hs_update_by_scan(HectorSlam &slam, hectorslam::DataContainer &points, Eigen::Vector3f newPose) {
+	hectorslam::DataContainer tmpDataContainer;
 
-	// proc = (hectorslam::HectorSlamProcessor *)slam.proc;
+	for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
+		hectorslam::MapProcContainer *mapContainer =
+			(hectorslam::MapProcContainer *)slam.maps[i].container;
+
+		if (i==0) {
+			mapContainer->updateByScan(points, newPose);
+		} else {
+			float scale = static_cast<float>(1.0 / pow(2.0, static_cast<double>(i)));
+			tmpDataContainer.setFrom(points, scale);
+			mapContainer->updateByScan(tmpDataContainer, newPose);
+		}
+
+		mapContainer->resetCachedData();
+	}
+}
+
+void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
+	hectorslam::DataContainer *container;
+
 	container = (hectorslam::DataContainer *)slam.cont;
-	mapRep = (hectorslam::MapRepMultiMap *)slam.mapRep;
 
 	container->clear();
 
@@ -76,22 +109,37 @@ void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 
 
 
-	// proc->update(*container, proc->getLastScanMatchPose());
 
 
+	Eigen::Matrix3f covMatrix;
+    Eigen::Vector3f newPoseEstimateWorld = to_eigen(slam.lastPosition);
+	hectorslam::DataContainer tmpDataContainer;
 
-	Eigen::Matrix3f cov;
-    Eigen::Vector3f newPoseEstimateWorld;
-	newPoseEstimateWorld = (mapRep->matchData(to_eigen(slam.lastPosition), *container, cov));
+	for (int i = HECTOR_SLAM_MAP_RESOLUTIONS - 1; i >= 0; --i){
+		hectorslam::MapProcContainer *mapContainer =
+			(hectorslam::MapProcContainer *)slam.maps[i].container;
+		if (i == 0){
+			newPoseEstimateWorld =
+				mapContainer->matchData(newPoseEstimateWorld,
+										*container,
+										covMatrix, 5);
+		} else {
+			float scale = static_cast<float>(1.0 / pow(2.0, static_cast<double>(i)));
+			tmpDataContainer.setFrom(*container, scale);
+			newPoseEstimateWorld =
+				mapContainer->matchData(newPoseEstimateWorld,
+										tmpDataContainer,
+										covMatrix, 3);
+		}
+	}
 
-    slam.lastPosition = to_glm(newPoseEstimateWorld);
+	slam.lastPosition = to_glm(newPoseEstimateWorld);
 
 	if (util::poseDifferenceLargerThan(newPoseEstimateWorld,
 									   to_eigen(slam.lastUpdatePosition),
 									   HECTOR_SLAM_DISTANCE_THRESHOLD,
 									   HECTOR_SLAM_ANGLE_THRESHOLD)) {
-		mapRep->updateByScan(*container, newPoseEstimateWorld);
-		mapRep->onMapUpdated();
+		hs_update_by_scan(slam, *container, newPoseEstimateWorld);
 		slam.lastUpdatePosition = to_glm(newPoseEstimateWorld);
 	}
 
@@ -107,9 +155,8 @@ void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 
 
 
-	// slam.lastPosition = to_glm(proc->getLastScanMatchPose());
-
-	const hectorslam::GridMap &map = mapRep->getGridMap(0);
+	const hectorslam::GridMap &map =
+		((hectorslam::MapProcContainer *)slam.maps[0].container)->getGridMap();
 
 	for (size_t i = 0; i < slam.maps[0].height * slam.maps[0].width; i++) {
 		if (map.isOccupied(i)) {
