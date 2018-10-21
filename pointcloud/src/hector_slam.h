@@ -21,12 +21,14 @@ struct HectorSlamOccGrid {
 	float cellSize;
 
 	void *container;
+
+	void *gridMap;
+	void *util;
 };
 
 struct HectorSlam {
-	// void *proc;
 	void *cont;
-	void *mapRep;
+	void *scanMatcher;
 
 	size_t width;
 	size_t height;
