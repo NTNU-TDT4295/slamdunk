@@ -1,8 +1,11 @@
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include "hector_slam.h"
-#include <Eigen/Dense>
+#include <glm/gtx/matrix_transform_2d.hpp>
 #include <iostream>
 
 #include <float.h>
+#include <limits.h>
 
 constexpr float hs_prob_to_log_odds(float prob) {
 	return log(prob / (1.0f - prob));
@@ -13,16 +16,8 @@ constexpr float log_odds_free =
 constexpr float log_odds_occupied =
 	hs_prob_to_log_odds(HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR);
 
-static inline vec3 to_glm(const Eigen::Vector3f &in) {
-	return vec3(in.x(), in.y(), in.z());
-}
-
-static inline Eigen::Vector3f to_eigen(vec3 in) {
-	return Eigen::Vector3f(in.x, in.y, in.z);
-}
-
-static inline Eigen::Vector2f to_eigen(vec2 in) {
-	return Eigen::Vector2f(in.x, in.y);
+static inline vec2 hs_position_of_pose(vec3 in) {
+	return vec2(in.x, in.y);
 }
 
 static inline float hs_normalize_angle_pos(float angle) {
@@ -85,33 +80,33 @@ void hs_init(HectorSlam &slam) {
 void hs_free(HectorSlam &slam) {
 }
 
-static inline Eigen::Vector3f hs_get_world_coords_pose(HectorSlamOccGrid &map,
-													   const Eigen::Vector3f& mapPose) {
+static inline vec3 hs_get_world_coords_pose(HectorSlamOccGrid &map,
+													   const vec3& mapPose) {
 	float scaleToMap = 1.0f / map.cellSize;
-	Eigen::Vector2f topLeftOffset =
-		Eigen::Vector2f((float)map.width, (float)map.height) * map.cellSize / 2.0f;
+	vec2 topLeftOffset =
+		vec2((float)map.width, (float)map.height) * map.cellSize / 2.0f;
 
-	Eigen::Affine2f mapTworld =
-		Eigen::AlignedScaling2f(scaleToMap, scaleToMap) *
-		Eigen::Translation2f(topLeftOffset[0], topLeftOffset[1]);
-	Eigen::Affine2f worldTmap = mapTworld.inverse();
+	mat3 mapTworld =
+		glm::scale(mat3(1.0f), vec2(scaleToMap)) *
+		glm::translate(mat3(1.0f), topLeftOffset);
+	mat3 worldTmap = glm::inverse(mapTworld);
 
-	Eigen::Vector2f worldCoords (worldTmap * mapPose.head<2>());
-	return Eigen::Vector3f(worldCoords[0], worldCoords[1], mapPose[2]);
+	vec2 worldCoords = worldTmap * vec3(hs_position_of_pose(mapPose), 1.0f);
+	return vec3(worldCoords[0], worldCoords[1], mapPose[2]);
 }
 
-static inline Eigen::Vector3f hs_get_map_coords_pose(HectorSlamOccGrid &map,
-													 const Eigen::Vector3f& worldPose) {
+static inline vec3 hs_get_map_coords_pose(HectorSlamOccGrid &map,
+													 const vec3& worldPose) {
 	float scaleToMap = 1.0f / map.cellSize;
-	Eigen::Vector2f topLeftOffset =
-		Eigen::Vector2f((float)map.width, (float)map.height) * map.cellSize / 2.0f;
+	vec2 topLeftOffset =
+		vec2((float)map.width, (float)map.height) * map.cellSize / 2.0f;
 
-	Eigen::Affine2f mapTworld =
-		Eigen::AlignedScaling2f(scaleToMap, scaleToMap) *
-		Eigen::Translation2f(topLeftOffset[0], topLeftOffset[1]);
+	mat3 mapTworld =
+		glm::scale(mat3(1.0f), vec2(scaleToMap)) *
+		glm::translate(mat3(1.0f), topLeftOffset);
 
-	Eigen::Vector2f mapCoords (mapTworld * worldPose.head<2>());
-	return Eigen::Vector3f(mapCoords[0], mapCoords[1], worldPose[2]);
+	vec2 mapCoords = mapTworld * vec3(hs_position_of_pose(worldPose), 1.0f);
+	return vec3(mapCoords[0], mapCoords[1], worldPose[2]);
 }
 
 
@@ -177,8 +172,8 @@ static void hs_bresenham2D(HectorSlamOccGrid &map,
 }
 
 static void hs_update_line_bresenhami(HectorSlamOccGrid &map,
-									  const Eigen::Vector2i &beginMap,
-									  const Eigen::Vector2i &endMap,
+									  const vec2i &beginMap,
+									  const vec2i &endMap,
 									  unsigned int max_length = UINT_MAX) {
 	int x0 = beginMap[0];
 	int y0 = beginMap[1];
@@ -205,7 +200,7 @@ static void hs_update_line_bresenhami(HectorSlamOccGrid &map,
 	int offset_dx = hs_sign(dx);
 	int offset_dy = hs_sign(dy) * (int)map.width;
 
-	unsigned int startOffset = beginMap.y() * map.width + beginMap.x();
+	unsigned int startOffset = beginMap.y * map.width + beginMap.x;
 
 	//if x is dominant
 	if(abs_dx >= abs_dy){
@@ -217,28 +212,28 @@ static void hs_update_line_bresenhami(HectorSlamOccGrid &map,
 		hs_bresenham2D(map, abs_dy, abs_dx, error_x, offset_dy, offset_dx, startOffset);
 	}
 
-	unsigned int endOffset = endMap.y() * map.width + endMap.x();
+	unsigned int endOffset = endMap.y * map.width + endMap.x;
 	hs_bresenham_cell_occ(map, endOffset);
 }
 
 static void hs_update_map_by_scan(HectorSlamOccGrid &map,
 								  vec2 *points, size_t numPoints,
-								  const Eigen::Vector3f &newPose) {
-	// currMarkFreeIndex = currUpdateIndex + 1;
-	// currMarkOccIndex = currUpdateIndex + 2;
-
+								  const vec3 &newPose) {
 	//Get pose in map coordinates from pose in world coordinates
-	Eigen::Vector3f mapPose(hs_get_map_coords_pose(map, newPose));
+	vec3 mapPose = hs_get_map_coords_pose(map, newPose);
 
-	//Get a 2D homogenous transform that can be left-multiplied to a robot coordinates vector to get world coordinates of that vector
-	Eigen::Affine2f poseTransform((Eigen::Translation2f(mapPose[0], mapPose[1]) *
-								   Eigen::Rotation2Df(mapPose[2])));
+	//Get a 2D homogenous transform that can be left-multiplied to a
+	//robot coordinates vector to get world coordinates of that vector
+	mat3 poseTransform =
+		glm::translate(mat3(1.0f), hs_position_of_pose(mapPose)) *
+		glm::rotate(mat3(1.0f), mapPose.z);
 
-	//Get start point of all laser beams in map coordinates (same for alle beams, stored in robot coords in dataContainer)
-	Eigen::Vector2f scanBeginMapf(mapPose.head<2>());
+	//Get start point of all laser beams in map coordinates (same for
+	//alle beams, stored in robot coords in dataContainer)
+	vec2 scanBeginMapf = hs_position_of_pose(mapPose);
 
 	//Get integer vector of laser beams start point
-	Eigen::Vector2i scanBeginMapi(scanBeginMapf[0] + 0.5f, scanBeginMapf[1] + 0.5f);
+	vec2i scanBeginMapi = scanBeginMapf + 0.5f;
 
 	//Get number of valid beams in current scan
 	int numValidElems = (int)numPoints;
@@ -247,13 +242,13 @@ static void hs_update_map_by_scan(HectorSlamOccGrid &map,
 	for (int i = 0; i < numValidElems; ++i) {
 
 		//Get map coordinates of current beam endpoint
-		Eigen::Vector2f scanEndMapf(poseTransform * (to_eigen(points[i]) * map.mapScale));
+		vec2 scanEndMapf = vec2(poseTransform * vec3(points[i] * map.mapScale, 1.0f));
 
 		//add 0.5 to beam endpoint vector for following integer cast (to round, not truncate)
-		scanEndMapf.array() += (0.5f);
+		scanEndMapf += 0.5f;
 
 		//Get integer map coordinates of current beam endpoint
-		Eigen::Vector2i scanEndMapi(scanEndMapf.cast<int>());
+		vec2i scanEndMapi = (vec2i)scanEndMapf;
 
 		//Update map using a bresenham variant for drawing a line from beam start to beam endpoint in map coordinates
 		if (scanBeginMapi != scanEndMapi){
@@ -267,7 +262,7 @@ static void hs_update_map_by_scan(HectorSlamOccGrid &map,
 
 static void hs_update_by_scan(HectorSlam &slam,
 							  vec2 *points, size_t numPoints,
-							  Eigen::Vector3f newPose) {
+							  vec3 newPose) {
 	for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
 		hs_update_map_by_scan(slam.maps[i], points, numPoints, newPose);
 	}
@@ -278,24 +273,24 @@ static float hs_get_grid_probability(float logOddsValue) {
 	return odds / (odds + 1.0f);
 }
 
-static Eigen::Vector3f hs_interp_map_value_with_derivatives(HectorSlamOccGrid &map,
-													 const Eigen::Vector2f &coords) {
+static vec3 hs_interp_map_value_with_derivatives(HectorSlamOccGrid &map,
+													 const vec2 &coords) {
 	if ((coords[0] < 0.0f) ||
 		(coords[0] > (float)(map.width - 2)) ||
 		(coords[1] < 0.0f) ||
 		(coords[1] > (float)(map.height - 2))) {
-		return Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+		return vec3(0.0f, 0.0f, 0.0f);
 	}
 
 	//map coords are always positive, floor them by casting to int
-	Eigen::Vector2i indMin(coords.cast<int>());
+	vec2i indMin = coords;
 
 	//get factors for bilinear interpolation
-	Eigen::Vector2f factors(coords - indMin.cast<float>());
+	vec2 factors(coords - (vec2)indMin);
 
 	int index = indMin[1] * map.width + indMin[0];
 
-	Eigen::Vector4f intensities;
+	vec4 intensities;
 
 	// get grid values for the 4 grid points surrounding the current
 	// coords. Check cached data first, if not contained filter
@@ -314,7 +309,7 @@ static Eigen::Vector3f hs_interp_map_value_with_derivatives(HectorSlamOccGrid &m
 	float xFacInv = (1.0f - factors[0]);
 	float yFacInv = (1.0f - factors[1]);
 
-	return Eigen::Vector3f(
+	return vec3(
 		((intensities[0] * xFacInv + intensities[1] * factors[0]) * (yFacInv)) +
 		((intensities[2] * xFacInv + intensities[3] * factors[0]) * (factors[1])),
 		-((dx1 * xFacInv) + (dx2 * factors[0])),
@@ -322,31 +317,36 @@ static Eigen::Vector3f hs_interp_map_value_with_derivatives(HectorSlamOccGrid &m
 	);
 }
 
-static inline Eigen::Affine2f hs_get_transform_for_state(const Eigen::Vector3f& transVector) {
-	return Eigen::Translation2f(transVector[0], transVector[1]) * Eigen::Rotation2Df(transVector[2]);
+static inline mat3 hs_get_transform_for_state(const vec3& pose) {
+	mat3 res = mat3(1.0f);
+	res *= glm::translate(mat3(1.0f), hs_position_of_pose(pose));
+	res *= glm::rotate(mat3(1.0f), pose.z);
+	return res;
 }
 
 
 static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
-										   const Eigen::Vector3f &pose,
+										   const vec3 &pose,
 										   vec2 *points, size_t numPoints,
-										   Eigen::Matrix3f &H,
-										   Eigen::Vector3f &dTr) {
+										   mat3 &H,
+										   vec3 &dTr) {
 	int size = numPoints;
 
-	Eigen::Affine2f transform(hs_get_transform_for_state(pose));
+	mat3 transform =
+		hs_get_transform_for_state(pose);
 
 	float sinRot = sin(pose[2]);
 	float cosRot = cos(pose[2]);
 
-	H = Eigen::Matrix3f::Zero();
-	dTr = Eigen::Vector3f::Zero();
+	H = mat3(0.0f);
+	dTr = vec3(0.0f);
 
 	for (int i = 0; i < size; ++i) {
 
-		Eigen::Vector2f currPoint (to_eigen(points[i]) * map.mapScale);
+		vec2 currPoint = points[i] * map.mapScale;
 
-		Eigen::Vector3f transformedPointData(hs_interp_map_value_with_derivatives(map, transform * currPoint));
+		vec3 transformedPointData =
+			hs_interp_map_value_with_derivatives(map, vec2(transform * vec3(currPoint, 1.0f)));
 
 		float funVal = 1.0f - transformedPointData[0];
 
@@ -354,35 +354,35 @@ static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 		dTr[1] += transformedPointData[2] * funVal;
 
 		float rotDeriv =
-			((-sinRot * currPoint.x() - cosRot * currPoint.y()) * transformedPointData[1] +
-			 ( cosRot * currPoint.x() - sinRot * currPoint.y()) * transformedPointData[2]);
+			((-sinRot * currPoint.x - cosRot * currPoint.y) * transformedPointData[1] +
+			 ( cosRot * currPoint.x - sinRot * currPoint.y) * transformedPointData[2]);
 
 		dTr[2] += rotDeriv * funVal;
 
-		H(0, 0) += hs_sqr(transformedPointData[1]);
-		H(1, 1) += hs_sqr(transformedPointData[2]);
-		H(2, 2) += hs_sqr(rotDeriv);
+		H[0][0] += hs_sqr(transformedPointData[1]);
+		H[1][1] += hs_sqr(transformedPointData[2]);
+		H[2][2] += hs_sqr(rotDeriv);
 
-		H(0, 1) += transformedPointData[1] * transformedPointData[2];
-		H(0, 2) += transformedPointData[1] * rotDeriv;
-		H(1, 2) += transformedPointData[2] * rotDeriv;
+		H[0][1] += transformedPointData[1] * transformedPointData[2];
+		H[0][2] += transformedPointData[1] * rotDeriv;
+		H[1][2] += transformedPointData[2] * rotDeriv;
 	}
 
-	H(1, 0) = H(0, 1);
-	H(2, 0) = H(0, 2);
-	H(2, 1) = H(1, 2);
+	H[1][0] = H[0][1];
+	H[2][0] = H[0][2];
+	H[2][1] = H[1][2];
 }
 
 static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
-											  Eigen::Vector3f &estimate,
+											  vec3 &estimate,
 											  vec2 *points, size_t numPoints) {
-	Eigen::Matrix3f H;
-	Eigen::Vector3f dTr;
+	mat3 H;
+	vec3 dTr;
 
 	hs_get_complete_hessian_derivs(map, estimate, points, numPoints, H, dTr);
 
-	if ((H(0, 0) != 0.0f) && (H(1, 1) != 0.0f)) {
-		Eigen::Vector3f searchDir (H.inverse() * dTr);
+	if ((H[0][0] != 0.0f) && (H[1][1] != 0.0f)) {
+		vec3 searchDir (glm::inverse(H) * dTr);
 
 		if (searchDir[2] > 0.2f) {
 			searchDir[2] = 0.2f;
@@ -398,14 +398,14 @@ static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
 	return false;
 }
 
-static Eigen::Vector3f hs_match_data(HectorSlamOccGrid &map,
-									 const Eigen::Vector3f &beginEstimateWorld,
+static vec3 hs_match_data(HectorSlamOccGrid &map,
+									 const vec3 &beginEstimateWorld,
 									 vec2 *points, size_t numPoints,
 									 int maxIterations) {
 
-	Eigen::Vector3f beginEstimateMap(hs_get_map_coords_pose(map, beginEstimateWorld));
-	Eigen::Vector3f estimate(beginEstimateMap);
-	Eigen::Matrix3f covMatrix;
+	vec3 beginEstimateMap(hs_get_map_coords_pose(map, beginEstimateWorld));
+	vec3 estimate(beginEstimateMap);
+	mat3 covMatrix;
 
 	for (int i = 0; i < maxIterations; ++i) {
 		hs_estimate_transformation_log_lh(map, estimate, points, numPoints);
@@ -416,17 +416,17 @@ static Eigen::Vector3f hs_match_data(HectorSlamOccGrid &map,
 	return hs_get_world_coords_pose(map, estimate);
 }
 
-static bool hs_pose_difference_larger_than(const Eigen::Vector3f& pose1,
-										   const Eigen::Vector3f& pose2,
+static bool hs_pose_difference_larger_than(const vec3& pose1,
+										   const vec3& pose2,
 										   float distanceDiffThresh,
 										   float angleDiffThresh)
 {
 	//check distance
-	if (((pose1.head<2>() - pose2.head<2>()).norm()) > distanceDiffThresh) {
+	if (glm::length(hs_position_of_pose(pose1) - hs_position_of_pose(pose2)) > distanceDiffThresh) {
 		return true;
 	}
 
-	float angleDiff = (pose1.z() - pose2.z());
+	float angleDiff = (pose1.z - pose2.z);
 
 	if (angleDiff > M_PI) {
 		angleDiff -= M_PI * 2.0f;
@@ -441,8 +441,8 @@ static bool hs_pose_difference_larger_than(const Eigen::Vector3f& pose1,
 }
 
 void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
-	Eigen::Matrix3f covMatrix;
-	Eigen::Vector3f newPoseEstimateWorld = to_eigen(slam.lastPosition);
+	mat3 covMatrix;
+	vec3 newPoseEstimateWorld = slam.lastPosition;
 
 	for (int i = HECTOR_SLAM_MAP_RESOLUTIONS - 1; i >= 0; --i){
 		newPoseEstimateWorld =
@@ -454,13 +454,13 @@ void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 						   : HECTOR_SLAM_ITERATIONS);
 	}
 
-	slam.lastPosition = to_glm(newPoseEstimateWorld);
+	slam.lastPosition = newPoseEstimateWorld;
 
 	if (hs_pose_difference_larger_than(newPoseEstimateWorld,
-									   to_eigen(slam.lastUpdatePosition),
+									   slam.lastUpdatePosition,
 									   HECTOR_SLAM_DISTANCE_THRESHOLD,
 									   HECTOR_SLAM_ANGLE_THRESHOLD)) {
 		hs_update_by_scan(slam, points, numPoints, newPoseEstimateWorld);
-		slam.lastUpdatePosition = to_glm(newPoseEstimateWorld);
+		slam.lastUpdatePosition = newPoseEstimateWorld;
 	}
 }
