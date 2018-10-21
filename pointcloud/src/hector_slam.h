@@ -23,6 +23,7 @@ struct HectorSlamOccGrid {
 	size_t width;
 	size_t height;
 	float cellSize;
+	float mapScale;
 
 	int currentUpdateIndex;
 };

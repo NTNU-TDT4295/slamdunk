@@ -1,7 +1,6 @@
 #include "hector_slam.h"
 #include <Eigen/Dense>
 #include <iostream>
-#include "hector_slam_lib/scan/DataPointContainer.h"
 
 #include <float.h>
 
@@ -22,31 +21,33 @@ static inline Eigen::Vector3f to_eigen(vec3 in) {
 	return Eigen::Vector3f(in.x, in.y, in.z);
 }
 
+static inline Eigen::Vector2f to_eigen(vec2 in) {
+	return Eigen::Vector2f(in.x, in.y);
+}
+
 static inline float hs_normalize_angle_pos(float angle) {
-  return fmod(fmod(angle, 2.0f*M_PI) + 2.0f*M_PI, 2.0f*M_PI);
+	return fmod(fmod(angle, 2.0f*M_PI) + 2.0f*M_PI, 2.0f*M_PI);
 }
 
 static inline float hs_normalize_angle(float angle) {
-  float a = hs_normalize_angle_pos(angle);
-  if (a > M_PI){
-    a -= 2.0f*M_PI;
-  }
-  return a;
+	float a = hs_normalize_angle_pos(angle);
+	if (a > M_PI){
+		a -= 2.0f*M_PI;
+	}
+	return a;
 }
 
 static inline float hs_sqr(float val)
 {
-  return val * val;
+	return val * val;
 }
 
 static inline int hs_sign(int x)
 {
-  return x > 0 ? 1 : -1;
+	return x > 0 ? 1 : -1;
 }
 
 void hs_init(HectorSlam &slam) {
-	hectorslam::DataContainer *container;
-
 	float mapResolution = HECTOR_SLAM_MAP_CELL_LENGTH;
 	int mapSizeX = HECTOR_SLAM_MAP_WIDTH;
 	int mapSizeY = HECTOR_SLAM_MAP_HEIGHT;
@@ -60,11 +61,13 @@ void hs_init(HectorSlam &slam) {
 	slam.maps[0].width = mapSizeX;
 	slam.maps[0].height = mapSizeY;
 	slam.maps[0].cellSize = mapResolution;
+	slam.maps[0].mapScale = 1.0f;
 
 	for (size_t i = 1; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
 		slam.maps[i].width = slam.maps[i - 1].width / 2;
 		slam.maps[i].height = slam.maps[i - 1].height / 2;
 		slam.maps[i].cellSize = slam.maps[i - 1].cellSize * 2.0f;
+		slam.maps[i].mapScale = slam.maps[i - 1].mapScale / 2.0f;
 	}
 
 	// float totalMapSizeX = mapResolution * static_cast<float>(mapSizeX);
@@ -86,12 +89,6 @@ void hs_init(HectorSlam &slam) {
 
 		slam.maps[i].currentUpdateIndex = 1;
 	}
-
-
-	container = new hectorslam::DataContainer();
-	container->setOrigo(Eigen::Vector2f::Zero());
-
-	slam.cont = container;
 }
 
 void hs_free(HectorSlam &slam) {
@@ -234,7 +231,7 @@ static void hs_update_line_bresenhami(HectorSlamOccGrid &map,
 }
 
 static void hs_update_map_by_scan(HectorSlamOccGrid &map,
-								  const hectorslam::DataContainer &points,
+								  vec2 *points, size_t numPoints,
 								  const Eigen::Vector3f &newPose) {
 	// currMarkFreeIndex = currUpdateIndex + 1;
 	// currMarkOccIndex = currUpdateIndex + 2;
@@ -247,19 +244,19 @@ static void hs_update_map_by_scan(HectorSlamOccGrid &map,
 								   Eigen::Rotation2Df(mapPose[2])));
 
 	//Get start point of all laser beams in map coordinates (same for alle beams, stored in robot coords in dataContainer)
-	Eigen::Vector2f scanBeginMapf(poseTransform * points.getOrigo());
+	Eigen::Vector2f scanBeginMapf(mapPose.head<2>());
 
 	//Get integer vector of laser beams start point
 	Eigen::Vector2i scanBeginMapi(scanBeginMapf[0] + 0.5f, scanBeginMapf[1] + 0.5f);
 
 	//Get number of valid beams in current scan
-	int numValidElems = points.getSize();
+	int numValidElems = (int)numPoints;
 
 	//Iterate over all valid laser beams
 	for (int i = 0; i < numValidElems; ++i) {
 
 		//Get map coordinates of current beam endpoint
-		Eigen::Vector2f scanEndMapf(poseTransform * (points.getVecEntry(i)));
+		Eigen::Vector2f scanEndMapf(poseTransform * (to_eigen(points[i]) * map.mapScale));
 
 		//add 0.5 to beam endpoint vector for following integer cast (to round, not truncate)
 		scanEndMapf.array() += (0.5f);
@@ -277,23 +274,23 @@ static void hs_update_map_by_scan(HectorSlamOccGrid &map,
 	map.currentUpdateIndex += 3;
 }
 
-static void hs_update_by_scan(HectorSlam &slam, hectorslam::DataContainer &points, Eigen::Vector3f newPose) {
-	hectorslam::DataContainer tmpDataContainer;
-
+static void hs_update_by_scan(HectorSlam &slam,
+							  vec2 *points, size_t numPoints,
+							  Eigen::Vector3f newPose) {
 	for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
 		if (i == 0) {
-			hs_update_map_by_scan(slam.maps[i], points, newPose);
+			hs_update_map_by_scan(slam.maps[i], points, numPoints, newPose);
 		} else {
-			float scale = static_cast<float>(1.0 / pow(2.0, static_cast<double>(i)));
-			tmpDataContainer.setFrom(points, scale);
-			hs_update_map_by_scan(slam.maps[i], tmpDataContainer, newPose);
+			// float scale = static_cast<float>(1.0 / pow(2.0, static_cast<double>(i)));
+			// tmpDataContainer.setFrom(points, scale);
+			hs_update_map_by_scan(slam.maps[i], points, numPoints, newPose);
 		}
 	}
 }
 
 float hs_get_grid_probability(float logOddsValue) {
-    float odds = exp(logOddsValue);
-    return odds / (odds + 1.0f);
+	float odds = exp(logOddsValue);
+	return odds / (odds + 1.0f);
 }
 
 Eigen::Vector3f hs_interp_map_value_with_derivatives(HectorSlamOccGrid &map,
@@ -358,10 +355,10 @@ static inline Eigen::Affine2f hs_get_transform_for_state(const Eigen::Vector3f& 
 
 static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 										   const Eigen::Vector3f &pose,
-										   const hectorslam::DataContainer &dataPoints,
+										   vec2 *points, size_t numPoints,
 										   Eigen::Matrix3f &H,
 										   Eigen::Vector3f &dTr) {
-	int size = dataPoints.getSize();
+	int size = numPoints;
 
 	Eigen::Affine2f transform(hs_get_transform_for_state(pose));
 
@@ -373,7 +370,7 @@ static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 
 	for (int i = 0; i < size; ++i) {
 
-		const Eigen::Vector2f& currPoint (dataPoints.getVecEntry(i));
+		Eigen::Vector2f currPoint (to_eigen(points[i]) * map.mapScale);
 
 		Eigen::Vector3f transformedPointData(hs_interp_map_value_with_derivatives(map, transform * currPoint));
 
@@ -402,11 +399,11 @@ static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 
 static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
 											  Eigen::Vector3f &estimate,
-											  const hectorslam::DataContainer &dataPoints) {
+											  vec2 *points, size_t numPoints) {
 	Eigen::Matrix3f H;
 	Eigen::Vector3f dTr;
 
-	hs_get_complete_hessian_derivs(map, estimate, dataPoints, H, dTr);
+	hs_get_complete_hessian_derivs(map, estimate, points, numPoints, H, dTr);
 
 	if ((H(0, 0) != 0.0f) && (H(1, 1) != 0.0f)) {
 		Eigen::Vector3f searchDir (H.inverse() * dTr);
@@ -427,7 +424,7 @@ static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
 
 static Eigen::Vector3f hs_match_data(HectorSlamOccGrid &map,
 									 const Eigen::Vector3f &beginEstimateWorld,
-									 const hectorslam::DataContainer &dataContainer,
+									 vec2 *points, size_t numPoints,
 									 int maxIterations) {
 
 	Eigen::Vector3f beginEstimateMap(hs_get_map_coords_pose(map, beginEstimateWorld));
@@ -435,7 +432,7 @@ static Eigen::Vector3f hs_match_data(HectorSlamOccGrid &map,
 	Eigen::Matrix3f covMatrix;
 
 	for (int i = 0; i < maxIterations + 1; ++i) {
-		hs_estimate_transformation_log_lh(map, estimate, dataContainer);
+		hs_estimate_transformation_log_lh(map, estimate, points, numPoints);
 	}
 
 	estimate[2] = hs_normalize_angle(estimate[2]);
@@ -448,57 +445,42 @@ static bool hs_pose_difference_larger_than(const Eigen::Vector3f& pose1,
 										   float distanceDiffThresh,
 										   float angleDiffThresh)
 {
-  //check distance
-  if ( ( (pose1.head<2>() - pose2.head<2>()).norm() ) > distanceDiffThresh){
-    return true;
-  }
+	//check distance
+	if ( ( (pose1.head<2>() - pose2.head<2>()).norm() ) > distanceDiffThresh){
+		return true;
+	}
 
-  float angleDiff = (pose1.z() - pose2.z());
+	float angleDiff = (pose1.z() - pose2.z());
 
-  if (angleDiff > M_PI) {
-    angleDiff -= M_PI * 2.0f;
-  } else if (angleDiff < -M_PI) {
-    angleDiff += M_PI * 2.0f;
-  }
+	if (angleDiff > M_PI) {
+		angleDiff -= M_PI * 2.0f;
+	} else if (angleDiff < -M_PI) {
+		angleDiff += M_PI * 2.0f;
+	}
 
-  if (fabs(angleDiff) > angleDiffThresh){
-    return true;
-  }
-  return false;
+	if (fabs(angleDiff) > angleDiffThresh){
+		return true;
+	}
+	return false;
 }
 
 void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
-	hectorslam::DataContainer *container;
-
-	container = (hectorslam::DataContainer *)slam.cont;
-
-	container->clear();
-
-	for (size_t i = 0; i < numPoints; i++) {
-		container->add(Eigen::Vector2f(points[i].x, points[i].y));
-	}
-
-
-
-
-
 	Eigen::Matrix3f covMatrix;
 	Eigen::Vector3f newPoseEstimateWorld = to_eigen(slam.lastPosition);
-	hectorslam::DataContainer tmpDataContainer;
 
 	for (int i = HECTOR_SLAM_MAP_RESOLUTIONS - 1; i >= 0; --i){
 		if (i == 0){
 			newPoseEstimateWorld =
 				hs_match_data(slam.maps[i],
 							  newPoseEstimateWorld,
-							  *container, 5);
+							  points, numPoints, 5);
 		} else {
-			float scale = static_cast<float>(1.0 / pow(2.0, static_cast<double>(i)));
-			tmpDataContainer.setFrom(*container, scale);
+			// float scale = static_cast<float>(1.0 / pow(2.0, static_cast<double>(i)));
+			// tmpDataContainer.setFrom(*container, scale);
 			newPoseEstimateWorld =
 				hs_match_data(slam.maps[i],
 							  newPoseEstimateWorld,
-							  tmpDataContainer, 3);
+							  points, numPoints, 3);
 		}
 	}
 
@@ -508,7 +490,7 @@ void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 									   to_eigen(slam.lastUpdatePosition),
 									   HECTOR_SLAM_DISTANCE_THRESHOLD,
 									   HECTOR_SLAM_ANGLE_THRESHOLD)) {
-		hs_update_by_scan(slam, *container, newPoseEstimateWorld);
+		hs_update_by_scan(slam, points, numPoints, newPoseEstimateWorld);
 		slam.lastUpdatePosition = to_glm(newPoseEstimateWorld);
 	}
 }
