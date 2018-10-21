@@ -23,7 +23,6 @@ struct HectorSlamOccGrid {
 	void *container;
 
 	void *gridMap;
-	void *util;
 };
 
 struct HectorSlam {
