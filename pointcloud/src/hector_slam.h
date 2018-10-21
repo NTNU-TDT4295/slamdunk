@@ -28,7 +28,6 @@ struct HectorSlamOccGrid {
 
 struct HectorSlam {
 	void *cont;
-	void *scanMatcher;
 
 	size_t width;
 	size_t height;

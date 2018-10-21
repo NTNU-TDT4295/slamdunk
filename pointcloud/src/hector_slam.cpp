@@ -14,9 +14,6 @@ static inline Eigen::Vector3f to_eigen(vec3 in) {
 
 void hs_init(HectorSlam &slam) {
 	hectorslam::DataContainer *container;
-	hectorslam::ScanMatcher<hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> >* scanMatcher;
-
-	scanMatcher = new hectorslam::ScanMatcher<hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> >(NULL, NULL);
 
 	float mapResolution = 0.025;
 	int mapSizeX = 1024;
@@ -70,7 +67,6 @@ void hs_init(HectorSlam &slam) {
 	container->setOrigo(Eigen::Vector2f::Zero());
 
 	slam.cont = container;
-	slam.scanMatcher = scanMatcher;
 }
 
 void hs_free(HectorSlam &slam) {
@@ -97,6 +93,55 @@ static void hs_update_by_scan(HectorSlam &slam, hectorslam::DataContainer &point
 	}
 }
 
+static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
+											  Eigen::Vector3f &estimate,
+											  const hectorslam::DataContainer &dataPoints) {
+	hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> *gridMapUtil =
+		(hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> *)map.util;
+
+	Eigen::Matrix3f H;
+	Eigen::Vector3f dTr;
+
+	gridMapUtil->getCompleteHessianDerivs(estimate, dataPoints, H, dTr);
+
+	if ((H(0, 0) != 0.0f) && (H(1, 1) != 0.0f)) {
+		Eigen::Vector3f searchDir (H.inverse() * dTr);
+
+		if (searchDir[2] > 0.2f) {
+			searchDir[2] = 0.2f;
+			std::cout << "SearchDir angle change too large\n";
+		} else if (searchDir[2] < -0.2f) {
+			searchDir[2] = -0.2f;
+			std::cout << "SearchDir angle change too large\n";
+		}
+
+		estimate += searchDir;
+		return true;
+	}
+	return false;
+}
+
+static Eigen::Vector3f hs_match_data(HectorSlamOccGrid &map,
+									 const Eigen::Vector3f &beginEstimateWorld,
+									 const hectorslam::DataContainer &dataContainer,
+									 int maxIterations) {
+
+	hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> *gridMapUtil =
+		(hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> *)map.util;
+
+	Eigen::Vector3f beginEstimateMap(gridMapUtil->getMapCoordsPose(beginEstimateWorld));
+	Eigen::Vector3f estimate(beginEstimateMap);
+	Eigen::Matrix3f covMatrix;
+
+	for (int i = 0; i < maxIterations + 1; ++i) {
+		hs_estimate_transformation_log_lh(map, estimate, dataContainer);
+	}
+
+	estimate[2] = util::normalize_angle(estimate[2]);
+
+	return gridMapUtil->getWorldCoordsPose(estimate);
+}
+
 void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 	hectorslam::DataContainer *container;
 
@@ -116,27 +161,19 @@ void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
     Eigen::Vector3f newPoseEstimateWorld = to_eigen(slam.lastPosition);
 	hectorslam::DataContainer tmpDataContainer;
 
-	hectorslam::ScanMatcher<hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> >* scanMatcher;
-	scanMatcher = (hectorslam::ScanMatcher<hectorslam::OccGridMapUtilConfig<hectorslam::GridMap>> *)slam.scanMatcher;
-
 	for (int i = HECTOR_SLAM_MAP_RESOLUTIONS - 1; i >= 0; --i){
-		hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> *gridMapUtil =
-			(hectorslam::OccGridMapUtilConfig<hectorslam::GridMap> *)slam.maps[i].util;
-
 		if (i == 0){
 			newPoseEstimateWorld =
-				scanMatcher->matchData(newPoseEstimateWorld,
-									   *gridMapUtil,
-									   *container,
-									   covMatrix, 5);
+				hs_match_data(slam.maps[i],
+							  newPoseEstimateWorld,
+							  *container, 5);
 		} else {
 			float scale = static_cast<float>(1.0 / pow(2.0, static_cast<double>(i)));
 			tmpDataContainer.setFrom(*container, scale);
 			newPoseEstimateWorld =
-				scanMatcher->matchData(newPoseEstimateWorld,
-									   *gridMapUtil,
-									   tmpDataContainer,
-									   covMatrix, 3);
+				hs_match_data(slam.maps[i],
+							  newPoseEstimateWorld,
+							  tmpDataContainer, 3);
 		}
 	}
 
