@@ -35,7 +35,7 @@ foo:
 	echo $(PC_OBJ)
 
 pc: $(PC_OBJ)
-	$(CXX) $(LDFLAGS) $(PC_OBJ) -o $@
+	$(CXX) $(PC_OBJ) $(LDFLAGS) -o $@
 
 
 # Build simulator
@@ -43,21 +43,21 @@ SIM_SRC=$(shell find $(SRC_DIR)/bin/sim/ -name '*.cpp') $(COMMON_SRC)
 SIM_OBJ=$(SIM_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
 sim: $(SIM_OBJ)
-	$(CXX) $(LDFLAGS) $(SIM_OBJ) -o $@
+	$(CXX) $(SIM_OBJ) $(LDFLAGS) -o $@
 
 # Build lidar
 LIDAR_SRC=$(shell find $(SRC_DIR)/bin/lidar/ -name '*.cpp') $(COMMON_SRC)
 LIDAR_OBJ=$(LIDAR_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
 lidar: $(LIDAR_OBJ)
-	$(CXX) $(LDFLAGS) $(LIDAR_OBJ) -o $@
+	$(CXX) $(LIDAR_OBJ) $(LDFLAGS) -o $@
 
 # Build slam
 SLAM_SRC=$(shell find $(SRC_DIR)/bin/slam/ -name '*.cpp') $(COMMON_SRC)
 SLAM_OBJ=$(SLAM_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
 slam: $(SLAM_OBJ)
-	$(CXX) $(LDFLAGS) $(SLAM_OBJ) -o $@
+	$(CXX) $(SLAM_OBJ) $(LDFLAGS) -o $@
 
 
 $(GLM_DIR)/glm:
