@@ -2,7 +2,10 @@
 
 #include "linmath.h"
 
+constexpr size_t HECTOR_SLAM_MAP_WIDTH = 1024;
+constexpr size_t HECTOR_SLAM_MAP_HEIGHT = 1024;
 constexpr size_t HECTOR_SLAM_MAP_RESOLUTIONS = 3;
+constexpr float HECTOR_SLAM_MAP_CELL_LENGTH = 0.025f;
 
 constexpr float HECTOR_SLAM_UPDATE_FREE_FACTOR = 0.4f;
 constexpr float HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR = 0.9f;
@@ -16,13 +19,12 @@ constexpr int HECTOR_SLAM_ITERATIONS_FINAL = 6;
 
 struct HectorSlamOccGrid {
 	float *values;
+	unsigned int *updateIndex;
 	size_t width;
 	size_t height;
 	float cellSize;
 
-	void *container;
-
-	void *gridMap;
+	int currentUpdateIndex;
 };
 
 struct HectorSlam {
