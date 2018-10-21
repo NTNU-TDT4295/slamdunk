@@ -1,7 +1,9 @@
 #include "hector_slam.h"
 #include <Eigen/Dense>
 #include <iostream>
-#include "hector_slam_lib/slam_main/HectorSlamProcessor.h"
+#include "hector_slam_lib/scan/DataPointContainer.h"
+
+#include <float.h>
 
 constexpr float hs_prob_to_log_odds(float prob) {
 	return log(prob / (1.0f - prob));
@@ -20,6 +22,27 @@ static inline Eigen::Vector3f to_eigen(vec3 in) {
 	return Eigen::Vector3f(in.x, in.y, in.z);
 }
 
+static inline float hs_normalize_angle_pos(float angle) {
+  return fmod(fmod(angle, 2.0f*M_PI) + 2.0f*M_PI, 2.0f*M_PI);
+}
+
+static inline float hs_normalize_angle(float angle) {
+  float a = hs_normalize_angle_pos(angle);
+  if (a > M_PI){
+    a -= 2.0f*M_PI;
+  }
+  return a;
+}
+
+static inline float hs_sqr(float val)
+{
+  return val * val;
+}
+
+static inline int hs_sign(int x)
+{
+  return x > 0 ? 1 : -1;
+}
 
 void hs_init(HectorSlam &slam) {
 	hectorslam::DataContainer *container;
@@ -191,8 +214,8 @@ static void hs_update_line_bresenhami(HectorSlamOccGrid &map,
 	unsigned int abs_dx = abs(dx);
 	unsigned int abs_dy = abs(dy);
 
-	int offset_dx = util::sign(dx);
-	int offset_dy = util::sign(dy) * (int)map.width;
+	int offset_dx = hs_sign(dx);
+	int offset_dy = hs_sign(dy) * (int)map.width;
 
 	unsigned int startOffset = beginMap.y() * map.width + beginMap.x();
 
@@ -363,9 +386,9 @@ static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 
 		dTr[2] += rotDeriv * funVal;
 
-		H(0, 0) += util::sqr(transformedPointData[1]);
-		H(1, 1) += util::sqr(transformedPointData[2]);
-		H(2, 2) += util::sqr(rotDeriv);
+		H(0, 0) += hs_sqr(transformedPointData[1]);
+		H(1, 1) += hs_sqr(transformedPointData[2]);
+		H(2, 2) += hs_sqr(rotDeriv);
 
 		H(0, 1) += transformedPointData[1] * transformedPointData[2];
 		H(0, 2) += transformedPointData[1] * rotDeriv;
@@ -415,9 +438,33 @@ static Eigen::Vector3f hs_match_data(HectorSlamOccGrid &map,
 		hs_estimate_transformation_log_lh(map, estimate, dataContainer);
 	}
 
-	estimate[2] = util::normalize_angle(estimate[2]);
+	estimate[2] = hs_normalize_angle(estimate[2]);
 
 	return hs_get_world_coords_pose(map, estimate);
+}
+
+static bool hs_pose_difference_larger_than(const Eigen::Vector3f& pose1,
+										   const Eigen::Vector3f& pose2,
+										   float distanceDiffThresh,
+										   float angleDiffThresh)
+{
+  //check distance
+  if ( ( (pose1.head<2>() - pose2.head<2>()).norm() ) > distanceDiffThresh){
+    return true;
+  }
+
+  float angleDiff = (pose1.z() - pose2.z());
+
+  if (angleDiff > M_PI) {
+    angleDiff -= M_PI * 2.0f;
+  } else if (angleDiff < -M_PI) {
+    angleDiff += M_PI * 2.0f;
+  }
+
+  if (fabs(angleDiff) > angleDiffThresh){
+    return true;
+  }
+  return false;
 }
 
 void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
@@ -457,7 +504,7 @@ void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 
 	slam.lastPosition = to_glm(newPoseEstimateWorld);
 
-	if (util::poseDifferenceLargerThan(newPoseEstimateWorld,
+	if (hs_pose_difference_larger_than(newPoseEstimateWorld,
 									   to_eigen(slam.lastUpdatePosition),
 									   HECTOR_SLAM_DISTANCE_THRESHOLD,
 									   HECTOR_SLAM_ANGLE_THRESHOLD)) {
