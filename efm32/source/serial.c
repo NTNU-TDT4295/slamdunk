@@ -170,32 +170,39 @@ void I2C0_IRQHandler(void)
 
 
 // Master, txonly. USART1, location 1
-void SPI_setup(void)
+void SPI_init(void)
 {
+	CMU_ClockEnable(cmuClock_USART1, true);
+
 	USART_InitSync_TypeDef usartInit = USART_INITSYNC_DEFAULT;
 
 	// Init
-	usartInit.databits = usartDatabits8;
+	usartInit.enable = usartEnableTx;
 	usartInit.baudrate = SPI_BAUDRATE;
+	usartInit.databits = usartDatabits8;
+	usartInit.master = true;
+	usartInit.msbf = true; // Most significant bit first?
+	usartInit.clockMode = usartClockMode0; // Idle low, sample on rising edge
+	/* usartinit.autoCsEnable = true; */
 	USART_InitSync(USART1, &usartInit);
 
 	// Automatic SS/CS
 	USART1->CTRL |= USART_CTRL_AUTOCS;
 
 	// Enable SPI tx
-	USART_Enable(USART1, usartEnableTx);
+	/* USART_Enable(USART1, usartEnableTx); */
 
 	// https://www.silabs.com/documents/public/data-sheets/efm32gg-datasheet.pdf (Rev. 2.0)
 	// p. 380
 	/* IO configuration (USART1, Location #1, master send setup) */
 	GPIO_PinModeSet(gpioPortD, 0, gpioModePushPull, 0); // MOSI
-	GPIO_PinModeSet(gpioPortD, 2, gpioModePushPull, 0);  // Clock
-	GPIO_PinModeSet(gpioPortD, 3, gpioModePushPull, 0);   // CS
+	GPIO_PinModeSet(gpioPortD, 2, gpioModePushPull, 0); // Clock
+	GPIO_PinModeSet(gpioPortD, 3, gpioModePushPull, 0); // CS
 
 	USART1->ROUTE = USART_ROUTE_TXPEN
-				 | USART_ROUTE_CLKPEN
-				 | USART_ROUTE_CSPEN
-				 | USART_ROUTE_LOCATION_LOC1;
+					| USART_ROUTE_CLKPEN
+					| USART_ROUTE_CSPEN
+					| USART_ROUTE_LOCATION_LOC1;
 }
 
 // USART1, Location 1 (required on efm32gg-stk3700)

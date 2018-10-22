@@ -46,8 +46,8 @@ void I2C0_IRQHandler(void);
 // SPI
 ////////////////
 
-#define SPI_BAUDRATE 1000000
-void SPI_setup(void);
+#define SPI_BAUDRATE 30000
+void SPI_init(void);
 void SPI_sendBuffer(char* txBuffer, int bytesToSend);
 
 
