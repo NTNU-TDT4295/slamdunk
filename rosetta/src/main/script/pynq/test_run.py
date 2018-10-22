@@ -37,5 +37,12 @@ def test_main():
     print(bram_val)
 
 
+def test_SPI():
+    # Test running DMPROTest
+    platform = lib.init_platform()
+    lib.spi_read_ring(platform)
+
+
 if __name__ == '__main__':
-    test_main()
+    # test_main()
+    test_SPI()

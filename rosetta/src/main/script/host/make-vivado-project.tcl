@@ -89,17 +89,17 @@ connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_g] [get_bd_ports led5_g]
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_r] [get_bd_ports led5_r]
 
 # UART
-create_bd_port -dir O io_uart_tx
-create_bd_port -dir I io_uart_rx
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_tx] [get_bd_ports io_uart_tx]
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_rx] [get_bd_ports io_uart_rx]
+# create_bd_port -dir O io_uart_tx
+# create_bd_port -dir I io_uart_rx
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_tx] [get_bd_ports io_uart_tx]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_uart_rx] [get_bd_ports io_uart_rx]
 
 # SPI // Slave
-create_bd_port -dir O io_spi_miso
+# create_bd_port -dir O io_spi_miso
 create_bd_port -dir I io_spi_mosi
 create_bd_port -dir I io_spi_sck
 create_bd_port -dir I io_spi_ss
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_miso] [get_bd_ports io_spi_miso]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_miso] [get_bd_ports io_spi_miso]
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_mosi] [get_bd_ports io_spi_mosi]
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_sck] [get_bd_ports io_spi_sck]
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_spi_ss] [get_bd_ports io_spi_ss]

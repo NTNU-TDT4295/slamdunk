@@ -143,8 +143,8 @@ set_property -dict { PACKAGE_PIN L19   IOSTANDARD LVCMOS33 } [get_ports { io_btn
 #set_property -dict { PACKAGE_PIN Y7    IOSTANDARD LVCMOS33 } [get_ports { ck_io[37] }]; #IO_L13P_T2_MRCC_13 Sch=ck_io[37]
 #set_property -dict { PACKAGE_PIN W8    IOSTANDARD LVCMOS33 } [get_ports { ck_io[38] }]; #IO_L15N_T2_DQS_13 Sch=ck_io[38]
 #set_property -dict { PACKAGE_PIN Y8    IOSTANDARD LVCMOS33 } [get_ports { ck_io[39] }]; #IO_L14N_T2_SRCC_13 Sch=ck_io[39]
-set_property -dict { PACKAGE_PIN W9    IOSTANDARD LVCMOS33 } [get_ports { io_uart_tx }]; #IO_L16N_T2_13 Sch=ck_io[40]
-set_property -dict { PACKAGE_PIN Y9    IOSTANDARD LVCMOS33 } [get_ports { io_uart_rx }]; #IO_L14P_T2_SRCC_13 Sch=ck_io[41]
+#set_property -dict { PACKAGE_PIN W9    IOSTANDARD LVCMOS33 } [get_ports { io_uart_tx }]; #IO_L16N_T2_13 Sch=ck_io[40]
+#set_property -dict { PACKAGE_PIN Y9    IOSTANDARD LVCMOS33 } [get_ports { io_uart_rx }]; #IO_L14P_T2_SRCC_13 Sch=ck_io[41]
 #set_property -dict { PACKAGE_PIN Y13   IOSTANDARD LVCMOS33 } [get_ports { ck_io[42] }]; #IO_L20N_T3_13 Sch=ck_ioa
 
 ## ChipKit SPI

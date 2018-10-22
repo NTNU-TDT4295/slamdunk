@@ -12,5 +12,10 @@ void dmemset(void *platform, void *dst, void *src, unsigned int num);
 void dmemread(void *platform, void *dst, void *src, unsigned int num);
 void bwrite(void *platform, unsigned waddr, unsigned wdata);
 unsigned bread(void *platform, unsigned raddr);
+// unsigned int spi_read_addr(void *platform);
+// unsigned char spi_read_data(void *platform);
+void spi_read_ring(void *platform);
 
 void run(void *platform);
+
+void SPI(void* platform);
