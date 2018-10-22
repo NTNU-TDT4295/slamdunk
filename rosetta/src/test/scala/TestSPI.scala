@@ -46,10 +46,10 @@ class TestSPISuite extends JUnitSuite {
       ) // A->M
 
       poke(c.io.spi_ss, 0) // select
-      for (i <- 0 until mosi.size) {
+      for (i <- 0 until mosi.size + 1) {
 
-        poke(c.io.spi_sck, 1)
         poke(c.io.spi_mosi, mosi(i))
+        poke(c.io.spi_sck, 1)
         step(1)
 
         poke(c.io.spi_sck, 0)
@@ -57,8 +57,8 @@ class TestSPISuite extends JUnitSuite {
 
         // peek(c.byte_counter)
         peek(c.word_data_received)
-        peek(c.word_received)
-        peek(c.byte_signal_received)
+        // peek(c.word_received)
+        // peek(c.byte_signal_received)
         // peek(c.word_received)
         // peek(c.bitcnt)
         // peek(c.byte_counter)
@@ -66,6 +66,8 @@ class TestSPISuite extends JUnitSuite {
         // peek(c.word_data_received)
       }
 
+      // peek(c.word_data_received)
+        // peek(c.word_received)
     }
 
     // Chisel arguments to pass to chiselMainTest

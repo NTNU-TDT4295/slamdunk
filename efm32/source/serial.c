@@ -62,7 +62,7 @@ void echo_uart()
 	}
 }
 
-void put_uart_simple(int channel, uint8_t *data, size_t length)
+void put_uart_simple(int channel, uint8_t* data, size_t length)
 {
 	for (size_t i = 0; i < length; ++i) {
 		if (channel == 0)
@@ -99,7 +99,7 @@ void init_i2c(void)
 
 // NOTE: the address of the register must be the first byte *buf (this
 // is super stupid, TODO me)
-void performI2CTransfer(uint8_t addr, uint8_t *buf, uint8_t bytes)
+void performI2CTransfer(uint8_t addr, uint8_t* buf, uint8_t bytes)
 {
 	/* Transfer structure */
 	I2C_TransferSeq_TypeDef i2cTransfer;
@@ -124,12 +124,12 @@ void performI2CTransfer(uint8_t addr, uint8_t *buf, uint8_t bytes)
 	GPIO_PinOutClear(gpioPortC, 0);
 }
 
-void performI2CRead(uint8_t addr, int8_t reg, uint8_t *buf, uint8_t bytes)
+void performI2CRead(uint8_t addr, int8_t reg, uint8_t* buf, uint8_t bytes)
 {
 	/* Transfer structure */
 	I2C_TransferSeq_TypeDef i2cTransfer;
 
-	uint8_t regid[1] = { reg };
+	uint8_t regid[1] = {reg};
 
 	// EULER data registers
 	// 0x1A to 0x1F, 0x1A is LSB 0x1B is MSB of 16-bit value
@@ -181,12 +181,11 @@ void SPI_init(void)
 	usartInit.baudrate = SPI_BAUDRATE;
 	usartInit.databits = usartDatabits8;
 	usartInit.master = true;
-	usartInit.msbf = true; // Most significant bit first?
+	usartInit.msbf = true;				   // Matches current FPGA implementation
 	usartInit.clockMode = usartClockMode0; // Idle low, sample on rising edge
-	/* usartinit.autoCsEnable = true; */
 	USART_InitSync(USART1, &usartInit);
 
-	// Automatic SS/CS
+	// Automatic CS
 	USART1->CTRL |= USART_CTRL_AUTOCS;
 
 	// Enable SPI tx
@@ -207,6 +206,7 @@ void SPI_init(void)
 
 // USART1, Location 1 (required on efm32gg-stk3700)
 // TODO: update n for USARTn and LOCn to match PCB layout
+// This has to be done, SPI layout is a bit off.
 void SPI_sendBuffer(char* txBuffer, int bytesToSend)
 {
 	USART_TypeDef* spi = USART1;

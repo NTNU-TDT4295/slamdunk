@@ -9,8 +9,8 @@
 #include <string.h>
 
 // SPI
-/* char transmitBuffer[] = "abcdefgh"; */
-/* #define BUFFERSIZE (sizeof(transmitBuffer) / sizeof(char)) */
+char transmitBuffer[] = "ABCDWXYZ";
+#define BUFFERSIZE (sizeof(transmitBuffer) / sizeof(char))
 
 int main(void)
 {
@@ -31,7 +31,7 @@ int main(void)
 	init_bno055();
 
 	// SPI
-	//SPI_setup();
+	SPI_init();
 
 	// RTC
 	//rtcSetup();
@@ -40,7 +40,7 @@ int main(void)
 	//init_sonar();
 
 	// Reset lidar completely to make it ready for scanning
-	init_lidar(false);
+	/* init_lidar(false); */
 
 	// Hold IMU data
 	uint8_t status_buf[1] = { 7 };
@@ -52,18 +52,22 @@ int main(void)
 	size_t lidar_samples = 360;
 	uint8_t lidar_data[lidar_samples*5];
 
-	init_scan_lidar(false);
+	/* init_scan_lidar(false); */
+
 	while (1) {
 		// 500 us per sample, 2000 samples per second, LIDAR
+// SPI
 		get_samples_lidar(lidar_data, lidar_samples);
 		put_uart_simple(0, lidar_data, lidar_samples*5);
+		SPI_sendBuffer(lidar_data, lidar_samples*5);
 
-		// IMU
-		quat = get_quaternion_sample();
-		for (size_t i = 0; i < 8; ++i) {
-			uint8_t quat_data = *(((uint8_t *) &quat.w) + i);
-			USART_Tx(UART0, quat_data);
-		}
+		while(1);
+		/* // IMU */
+		/* quat = get_quaternion_sample(); */
+		/* for (size_t i = 0; i < 8; ++i) { */
+		/* 	uint8_t quat_data = *(((uint8_t *) &quat.w) + i); */
+		/* 	USART_Tx(UART0, quat_data); */
+		/* } */
 
 		/*
 		// Fetch system status
@@ -87,7 +91,10 @@ int main(void)
 		/* uartPutData((uint8_t *) &accelerations.x, 6); */
 
 		// SPI
-		// SPI_sendBuffer(transmitBuffer, BUFFERSIZE);
+		SPI_sendBuffer(transmitBuffer, BUFFERSIZE);
+		
+		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
+		Delay(25);
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)

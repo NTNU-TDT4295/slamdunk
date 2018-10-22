@@ -37,16 +37,12 @@ class SPI_Slave() extends RosettaAccelerator {
   sckreg := Cat(sckreg(1, 0), io.spi_sck)
   val sck_rise = Bool()
   sck_rise := sckreg(2, 1) === Bits("b01")
-  // val sck_rise = sckreg(2) == Bits(0) && sckreg(1) == Bits(1) // detect SCK rise
-  // val sck_fall = sckreg(2) == Bits(1) && sckreg(1) == Bits(0) // TX only
 
   // sync ss
   val ssreg = Reg(init = Bits("b000", 3))
   ssreg := Cat(ssreg(1, 0), io.spi_ss)
   val ss_active = Bool()
   ss_active := ~ssreg(1)
-  // val ss_startmsg = ssreg(2) == UInt(1) && ssreg(1) == UInt(0)
-  // val ss_endmsg = ssreg(2) == UInt(0) && ssreg(1) == UInt(1)
   val ss_startmsg = Bool()
   ss_startmsg := ssreg(2, 1) === Bits("b10")
   val ss_endmsg = Bool()
@@ -78,22 +74,24 @@ class SPI_Slave() extends RosettaAccelerator {
   // byte_received := ss_active && sck_rise && bitcnt === 7.U
   val byte_signal_received = Bool()
   byte_signal_received := ss_active && sck_rise && bitcnt === 7.U
-  byte_received := byte_signal_received // TODO: remove
+  // byte_received := byte_signal_received // TODO: remove
 
   val write_adress = Reg(init = UInt(0, width = 11)) // 2048 lines of words
-  val byte_counter = Reg(init = UInt(0, width = 3)) // 4 bytes/word
+  val byte_counter = Reg(init = UInt(0, width = 3))  // 4 bytes/word
   when (byte_signal_received) {
-    byte_counter := (byte_counter + 1.U) % 5.U
+    byte_counter := (byte_counter + 1.U)
   }
 
   val word_signal_received = Bool()
   word_signal_received := byte_signal_received && byte_counter === 4.U
-  when (word_signal_received) { // 5 bytes received => next write_adress
+  when (word_signal_received) { // 4 bytes received => next write_adress
     write_adress := write_adress + 1.U
   }
 
   val word_data_received = Reg(init = UInt(0, width = 32))
-  word_data_received := Cat(byte_data_received, word_data_received(31, 8))
+  // word_data_received := Cat(word_data_received(23, 0), byte_data_received)
+  word_data_received := Cat(UInt(0, width = 24), byte_data_received)
+  // word_data_received := Cat(byte_data_received, word_data_received(31, 8))
   val word_received = Reg(init = Bool(false))
   word_received := word_signal_received
 
