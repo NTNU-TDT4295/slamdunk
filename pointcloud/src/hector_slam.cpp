@@ -7,6 +7,19 @@
 #include <float.h>
 #include <limits.h>
 
+constexpr size_t HECTOR_SLAM_MAP_WIDTH = 1024;
+constexpr size_t HECTOR_SLAM_MAP_HEIGHT = 1024;
+constexpr float HECTOR_SLAM_MAP_CELL_LENGTH = 0.025f;
+
+constexpr float HECTOR_SLAM_UPDATE_FREE_FACTOR = 0.4f;
+constexpr float HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR = 0.9f;
+
+constexpr float HECTOR_SLAM_DISTANCE_THRESHOLD = 0.4f;
+constexpr float HECTOR_SLAM_ANGLE_THRESHOLD = 0.9f;
+
+constexpr int HECTOR_SLAM_ITERATIONS = 4;
+constexpr int HECTOR_SLAM_ITERATIONS_FINAL = 6;
+
 constexpr float hs_prob_to_log_odds(float prob) {
 	return log(prob / (1.0f - prob));
 }
@@ -238,13 +251,15 @@ static void hs_update_map_by_scan(HectorSlamOccGrid &map,
 		//Get map coordinates of current beam endpoint
 		vec2 scanEndMapf = vec2(poseTransform * vec3(points[i] * map.mapScale, 1.0f));
 
-		//add 0.5 to beam endpoint vector for following integer cast (to round, not truncate)
+		//add 0.5 to beam endpoint vector for following integer cast
+		//(to round, not truncate)
 		scanEndMapf += 0.5f;
 
 		//Get integer map coordinates of current beam endpoint
 		vec2i scanEndMapi = (vec2i)scanEndMapf;
 
-		//Update map using a bresenham variant for drawing a line from beam start to beam endpoint in map coordinates
+		//Update map using a bresenham variant for drawing a line from
+		//beam start to beam endpoint in map coordinates
 		if (scanBeginMapi != scanEndMapi){
 			hs_update_line_bresenhami(map, scanBeginMapi, scanEndMapi);
 		}
@@ -324,8 +339,6 @@ static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 										   vec2 *points, size_t numPoints,
 										   mat3 &H,
 										   vec3 &dTr) {
-	int size = numPoints;
-
 	mat3 transform =
 		hs_get_transform_for_state(pose);
 
@@ -335,7 +348,7 @@ static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 	H = mat3(0.0f);
 	dTr = vec3(0.0f);
 
-	for (int i = 0; i < size; ++i) {
+	for (size_t i = 0; i < numPoints; ++i) {
 
 		vec2 currPoint = points[i] * map.mapScale;
 
@@ -399,7 +412,6 @@ static vec3 hs_match_data(HectorSlamOccGrid &map,
 
 	vec3 beginEstimateMap(hs_get_map_coords_pose(map, beginEstimateWorld));
 	vec3 estimate(beginEstimateMap);
-	mat3 covMatrix;
 
 	for (int i = 0; i < maxIterations; ++i) {
 		hs_estimate_transformation_log_lh(map, estimate, points, numPoints);
@@ -435,7 +447,6 @@ static bool hs_pose_difference_larger_than(const vec3& pose1,
 }
 
 void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
-	mat3 covMatrix;
 	vec3 newPoseEstimateWorld = slam.lastPosition;
 
 	for (int i = HECTOR_SLAM_MAP_RESOLUTIONS - 1; i >= 0; --i){

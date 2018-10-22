@@ -2,20 +2,7 @@
 
 #include "linmath.h"
 
-constexpr size_t HECTOR_SLAM_MAP_WIDTH = 1024;
-constexpr size_t HECTOR_SLAM_MAP_HEIGHT = 1024;
 constexpr size_t HECTOR_SLAM_MAP_RESOLUTIONS = 3;
-constexpr float HECTOR_SLAM_MAP_CELL_LENGTH = 0.025f;
-
-constexpr float HECTOR_SLAM_UPDATE_FREE_FACTOR = 0.4f;
-constexpr float HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR = 0.9f;
-
-constexpr float HECTOR_SLAM_DISTANCE_THRESHOLD = 0.4f;
-constexpr float HECTOR_SLAM_ANGLE_THRESHOLD = 0.9f;
-
-constexpr int HECTOR_SLAM_ITERATIONS = 4;
-constexpr int HECTOR_SLAM_ITERATIONS_FINAL = 6;
-
 
 struct HectorSlamOccGrid {
 	float *values;
