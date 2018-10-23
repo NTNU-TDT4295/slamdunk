@@ -9,7 +9,7 @@
 #include <string.h>
 
 // SPI
-char transmitBuffer[] = "ABCDWXYZ";
+char transmitBuffer[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 #define BUFFERSIZE (sizeof(transmitBuffer) / sizeof(char))
 
 int main(void)
@@ -24,11 +24,11 @@ int main(void)
 	SegmentLCD_Init(false);
 
 	// UART
-	init_uart();
+	/* init_uart(); */
 
 	// I2C and the BNO055
-	init_i2c();
-	init_bno055();
+	/* init_i2c(); */
+	/* init_bno055(); */
 
 	// SPI
 	SPI_init();
@@ -57,11 +57,13 @@ int main(void)
 	while (1) {
 		// 500 us per sample, 2000 samples per second, LIDAR
 // SPI
-		get_samples_lidar(lidar_data, lidar_samples);
-		put_uart_simple(0, lidar_data, lidar_samples*5);
-		SPI_sendBuffer(lidar_data, lidar_samples*5);
+		/* get_samples_lidar(lidar_data, lidar_samples); */
+		/* put_uart_simple(0, lidar_data, lidar_samples*5); */
+		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
+		SPI_sendBuffer(transmitBuffer, BUFFERSIZE);
+		Delay(25);
+		continue;
 
-		while(1);
 		/* // IMU */
 		/* quat = get_quaternion_sample(); */
 		/* for (size_t i = 0; i < 8; ++i) { */
