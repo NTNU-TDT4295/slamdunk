@@ -3,6 +3,7 @@
 #include "window.h"
 #include "lidar_socket.h"
 #include "hector_slam.h"
+#include <time.h>
 
 struct SlamContext {
 	LidarSocketContext lidar_socket;
@@ -27,6 +28,9 @@ struct SlamContext {
 	int res;
 
 	uint8_t *tex_buffer;
+
+	int client_fd;
+	struct timespec last_reconnect;
 };
 
 void init_slam(SlamContext &ctx);

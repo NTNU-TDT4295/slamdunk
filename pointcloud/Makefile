@@ -5,7 +5,7 @@ GLAD_OUT_DIR:=$(BUILD_DIR)/glad
 GLM_DIR:=$(LIB_DIR)/glm
 SRC_DIR:=./src
 
-CFLAGS:=-std=c++11 -O3 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(GLM_DIR)
+CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(GLM_DIR)
 LDFLAGS:=-lX11 -lGL -lGLU -ldl -pthread
 
 SRC=$(shell find $(SRC_DIR)/ -name *.cpp)
@@ -16,7 +16,7 @@ GLAD_OBJ=$(GLAD_OUT_DIR)/glad.o $(GLAD_OUT_DIR)/glad_glx.o
 
 GLAD:=PYTHONPATH=$(PYTHONPATH):$(GLAD_DIR) python -m glad
 
-all: pc sim lidar slam
+all: pc sim lidar slam slam_vis
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(GLM_DIR)/glm $(GLAD_INCLUDES)
 	@mkdir -p $(dir $@)
@@ -58,6 +58,13 @@ SLAM_OBJ=$(SLAM_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
 slam: $(SLAM_OBJ)
 	$(CXX) $(SLAM_OBJ) $(LDFLAGS) -o $@
+
+# Build slam_vis
+SLAM_VIS_SRC=$(shell find $(SRC_DIR)/bin/slam_vis/ -name '*.cpp') $(COMMON_SRC)
+SLAM_VIS_OBJ=$(SLAM_VIS_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
+
+slam_vis: $(SLAM_VIS_OBJ)
+	$(CXX) $(SLAM_VIS_OBJ) $(LDFLAGS) -o $@
 
 
 $(GLM_DIR)/glm:

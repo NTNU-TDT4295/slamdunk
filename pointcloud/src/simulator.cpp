@@ -155,7 +155,7 @@ void tick_simulator(SimulatorContext &ctx, const WindowFrameInfo &frame) {
 	if (frame.keyboard.device_forward)  {move_delta.z -= 1.0f;}
 	if (frame.keyboard.device_backward) {move_delta.z += 1.0f;}
 
-	move_delta /= 8.0f;
+	move_delta /= 32.0f;
 
 	ctx.sensor.position += move_delta;
 

@@ -2,10 +2,30 @@
 #include <iostream>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include "opengl.h"
+// #include "opengl.h"
 #include "utils.h"
 
 #include <glm/gtc/type_ptr.hpp>
+
+static double timespec_diff_to_sec(const timespec &from, const timespec &to) {
+    timespec result;    if ((to.tv_nsec - from.tv_nsec) < 0) {
+       result.tv_sec = to.tv_sec - from.tv_sec - 1;
+       result.tv_nsec = to.tv_nsec - from.tv_nsec + 1000000000;
+   } else {
+       result.tv_sec = to.tv_sec - from.tv_sec;
+       result.tv_nsec = to.tv_nsec - from.tv_nsec;
+   }    return result.tv_sec + (double)result.tv_nsec / 1000000000.0;
+}
+
+static struct timespec read_time() {
+	struct timespec time;
+	int error;
+
+	error = clock_gettime(CLOCK_MONOTONIC, &time);
+	assert(!error);
+
+	return time;
+}
 
 // static int send_point_data(int fd, vec3 point) {
 // 	int32_t buffer[3];
@@ -28,6 +48,46 @@
 // 	return 0;
 // }
 
+static int send_map(int fd, float *map, size_t width, size_t height) {
+	if (fd == -1) {
+		return -1;
+	}
+
+	uint8_t packet_type = 0;
+
+	ssize_t err;
+	err = send(fd, &packet_type, sizeof(packet_type), 0);
+
+	uint8_t buffer[(1024*1024)/4] = {0};
+	assert(width == 1024);
+	assert(height == 1024);
+
+	for (size_t i = 0; i < width*height; i++) {
+		uint8_t val;
+		if (hs_is_occupied(map[i])) {
+			val = 0x2;
+		} else if (hs_is_free(map[i])) {
+			val = 0x1;
+		} else {
+			val = 0x0;
+		}
+		buffer[i/4] |= val << ((i % 4)*2);
+	}
+
+	size_t bytes_sent = 0;
+	while (bytes_sent < sizeof(buffer)) {
+		err = send(fd, buffer + bytes_sent,
+				   sizeof(buffer) - bytes_sent, 0);
+		if (err < 0) {
+			perror("send");
+			return - 1;
+		}
+		bytes_sent += err;
+	}
+
+	return 0;
+}
+
 void init_slam(SlamContext &ctx) {
 	ctx.numPoints = 0;
 	ctx.capPoints = scan_data_cap;
@@ -35,86 +95,88 @@ void init_slam(SlamContext &ctx) {
 
 	hs_init(ctx.slam);
 
-	const float quad[] = {
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+	// const float quad[] = {
+	// 	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+	// 	 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+	// 	-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
 
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, 0.0f,	1.0f, 0.0f,
-		 1.0f,  1.0f, 0.0f,	1.0f, 1.0f,
-	};
+	// 	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+	// 	 1.0f, -1.0f, 0.0f,	1.0f, 0.0f,
+	// 	 1.0f,  1.0f, 0.0f,	1.0f, 1.0f,
+	// };
 
-	GLuint vao, buffer;
+	// GLuint vao, buffer;
 
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	// glGenVertexArrays(1, &vao);
+	// glBindVertexArray(vao);
 
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	// glGenBuffers(1, &buffer);
+	// glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quad),
-				 &quad, GL_STATIC_DRAW);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(quad),
+	// 			 &quad, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *)(sizeof(float) * 3));
+	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
+	// glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *)(sizeof(float) * 3));
 
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(2);
+	// glEnableVertexAttribArray(0);
+	// glEnableVertexAttribArray(2);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	// glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// glBindVertexArray(0);
 
-	ctx.quad_vao = vao;
+	// ctx.quad_vao = vao;
 
-	glGenTextures(1, &ctx.texture);
-	glBindTexture(GL_TEXTURE_2D, ctx.texture);
+	// glGenTextures(1, &ctx.texture);
+	// glBindTexture(GL_TEXTURE_2D, ctx.texture);
 
-	int mapWidth = ctx.slam.width;
-	int mapHeight = ctx.slam.height;
+	// int mapWidth = ctx.slam.width;
+	// int mapHeight = ctx.slam.height;
 
-	ctx.tex_buffer = (uint8_t *)calloc(mapWidth * mapHeight, sizeof(uint8_t));
+	// ctx.tex_buffer = (uint8_t *)calloc(mapWidth * mapHeight, sizeof(uint8_t));
 
-	memset(ctx.tex_buffer, 0, mapHeight * mapHeight * sizeof(uint8_t));
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mapWidth, mapHeight, 0,
-				 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
+	// memset(ctx.tex_buffer, 0, mapHeight * mapHeight * sizeof(uint8_t));
+	// glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mapWidth, mapHeight, 0,
+	// 			 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
-	GLuint vshader, fshader;
-	vshader = create_shader_from_file("assets/shaders/test.vsh", GL_VERTEX_SHADER);
-	fshader = create_shader_from_file("assets/shaders/texture.fsh", GL_FRAGMENT_SHADER);
+	// GLuint vshader, fshader;
+	// vshader = create_shader_from_file("assets/shaders/test.vsh", GL_VERTEX_SHADER);
+	// fshader = create_shader_from_file("assets/shaders/texture.fsh", GL_FRAGMENT_SHADER);
 
-	ctx.shader.id = glCreateProgram();
+	// ctx.shader.id = glCreateProgram();
 
-	glAttachShader(ctx.shader.id, vshader);
-	glAttachShader(ctx.shader.id, fshader);
+	// glAttachShader(ctx.shader.id, vshader);
+	// glAttachShader(ctx.shader.id, fshader);
 
-	if (!link_shader_program(ctx.shader.id)) {
-		panic("Could not compile the shader!");
-	}
+	// if (!link_shader_program(ctx.shader.id)) {
+	// 	panic("Could not compile the shader!");
+	// }
 
-	ctx.shader.in_matrix            = glGetUniformLocation(ctx.shader.id, "in_matrix");
-	ctx.shader.in_projection_matrix = glGetUniformLocation(ctx.shader.id, "in_projection_matrix");
-	ctx.shader.in_tex = glGetUniformLocation(ctx.shader.id, "tex");
+	// ctx.shader.in_matrix            = glGetUniformLocation(ctx.shader.id, "in_matrix");
+	// ctx.shader.in_projection_matrix = glGetUniformLocation(ctx.shader.id, "in_projection_matrix");
+	// ctx.shader.in_tex = glGetUniformLocation(ctx.shader.id, "tex");
 
-	glUseProgram(ctx.shader.id);
+	// glUseProgram(ctx.shader.id);
 
-	mat4 mat (1.0f);
+	// mat4 mat (1.0f);
 
-	glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(mat));
-	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(mat));
-	glUniform1i(ctx.shader.in_tex, 0);
+	// glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(mat));
+	// glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(mat));
+	// glUniform1i(ctx.shader.in_tex, 0);
 
-	glUseProgram(0);
+	// glUseProgram(0);
+
+	ctx.client_fd = -1;
 
 	init_lidar_socket(ctx.lidar_socket, "0.0.0.0", "6002");
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
@@ -149,7 +211,7 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 
 	sem_post(&ctx.lidar_socket.lock);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (ctx.numPoints > 0) {
 		printf("Updating, %zu\n", ctx.numPoints);
@@ -163,38 +225,61 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 			   ctx.slam.lastPosition.z);
 	}
 
-	if (info.keyboard.forward && !ctx.btn_down) {
-		ctx.res = (ctx.res + 1) % HECTOR_SLAM_MAP_RESOLUTIONS;
+	struct timespec time_current;
+	time_current = read_time();
+
+	if (ctx.client_fd < 0 && timespec_diff_to_sec(ctx.last_reconnect, time_current) > 1.0) {
+		printf("Attempting to connect... ");
+		fflush(stdout);
+		ctx.client_fd = net_client_connect("127.0.0.1", "6000");
+		if (ctx.client_fd >= 0) {
+			printf("done!\n");
+		}
+		ctx.last_reconnect = time_current;
 	}
-	ctx.btn_down = info.keyboard.forward;
 
-	HectorSlamOccGrid &map = ctx.slam.maps[ctx.res];
-
-	memset(ctx.tex_buffer, 0, map.width * map.height);
-
-	for (size_t i = 0; i < map.width * map.height; i++) {
-		if (hs_is_occupied(map.values[i])) {
-			ctx.tex_buffer[i] = 255;
-		} else if (hs_is_free(map.values[i])) {
-			ctx.tex_buffer[i] = 50;
+	if (ctx.client_fd >= 0) {
+		if (send_map(ctx.client_fd,
+					ctx.slam.maps[0].values,
+					ctx.slam.maps[0].width,
+					ctx.slam.maps[0].height) < 0) {
+			ctx.client_fd = -1;
+			ctx.last_reconnect = time_current;
 		}
 	}
 
-	glUseProgram(ctx.shader.id);
-	glBindVertexArray(ctx.quad_vao);
+	// if (info.keyboard.forward && !ctx.btn_down) {
+	// 	ctx.res = (ctx.res + 1) % HECTOR_SLAM_MAP_RESOLUTIONS;
+	// }
+	// ctx.btn_down = info.keyboard.forward;
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ctx.texture);
+	// HectorSlamOccGrid &map = ctx.slam.maps[ctx.res];
 
-	// glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, map.width, map.height,
-	// 				GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, map.width, map.height, 0,
-				 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
+	// memset(ctx.tex_buffer, 0, map.width * map.height);
 
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	// for (size_t i = 0; i < map.width * map.height; i++) {
+	// 	if (hs_is_occupied(map.values[i])) {
+	// 		ctx.tex_buffer[i] = 255;
+	// 	} else if (hs_is_free(map.values[i])) {
+	// 		ctx.tex_buffer[i] = 50;
+	// 	}
+	// }
 
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindVertexArray(0);
+	// glUseProgram(ctx.shader.id);
+	// glBindVertexArray(ctx.quad_vao);
+
+	// glActiveTexture(GL_TEXTURE0);
+	// glBindTexture(GL_TEXTURE_2D, ctx.texture);
+
+	// // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, map.width, map.height,
+	// // 				GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
+	// glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, map.width, map.height, 0,
+	// 			 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
+
+	// glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	// glBindTexture(GL_TEXTURE_2D, 0);
+	// glBindVertexArray(0);
 }
 
 void free_slam(SlamContext &ctx) {
