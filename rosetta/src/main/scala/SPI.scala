@@ -56,7 +56,6 @@ class SPI_Slave() extends RosettaAccelerator {
 
   // Receive
   val bitcnt = Reg(init = Bits("b000", 3))
-  val byte_received = Reg(Bool(), init = false.B)
   // val byte_data_received = Reg(UInt(width = 8), init = 0.U)
   val byte_data_received = Reg(UInt(width = 8))
 
@@ -71,46 +70,26 @@ class SPI_Slave() extends RosettaAccelerator {
     }
   }
 
-  // byte_received := ss_active && sck_rise && bitcnt === 7.U
-  val byte_signal_received = Bool()
+  val byte_signal_received = Reg(init = Bool(false))
   byte_signal_received := ss_active && sck_rise && bitcnt === 7.U
-  // byte_received := byte_signal_received // TODO: remove
 
   val write_adress = Reg(init = UInt(0, width = 11)) // 2048 lines of words
   val byte_counter = Reg(init = UInt(0, width = 3))  // 4 bytes/word
+  val word_data_received = Reg(init = UInt(0, width = 32))
   when (byte_signal_received) {
+    word_data_received := Cat(word_data_received(23, 0), byte_data_received)
     byte_counter := (byte_counter + 1.U)
   }
 
-  val word_signal_received = Bool()
-  word_signal_received := byte_signal_received && byte_counter === 4.U
+  val word_signal_received = Reg(init = Bool(false))
+  word_signal_received := byte_signal_received && byte_counter === 3.U
+
   when (word_signal_received) { // 4 bytes received => next write_adress
     write_adress := write_adress + 1.U
   }
 
-  val word_data_received = Reg(init = UInt(0, width = 32))
-  // word_data_received := Cat(word_data_received(23, 0), byte_data_received)
-  word_data_received := Cat(UInt(0, width = 24), byte_data_received)
-  // word_data_received := Cat(byte_data_received, word_data_received(31, 8))
   val word_received = Reg(init = Bool(false))
   word_received := word_signal_received
-
-
-  // when (byte_received) {
-  //   io.led1 := true.B
-  // }
-
-  // io.led1 := byte_received
-
-
-  // AXI handshake (source)
-  // io.spi_valid := byte_received
-  // io.spi_data := byte_data_received
-
-  // Status LEDs
-  // io.led0 := ~io.spi_ss // ss low, activity
-  // io.led1 := io.spi_mosi
-  // io.led3 := io.spi_mosi
 
   io.led3 := io.btn(3)
 
@@ -125,10 +104,8 @@ class SPI_Slave() extends RosettaAccelerator {
 
   readPort.req.writeEn := Bool(false)
   readPort.req.addr := io.read_addr
-  // readPort.req.addr := io.readAddr
   io.read_data := readPort.rsp.readData
 
   // the result will appear the next cycle, it is not noticeable in
   // software, but be wary when interfacing with BRAM from chisel
-  // io.readData := readPort.rsp.readData
 }

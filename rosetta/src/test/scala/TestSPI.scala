@@ -34,19 +34,19 @@ class TestSPISuite extends JUnitSuite {
         0,1,0,0,0,0,1,0,
         0,1,0,0,0,0,1,1,
         0,1,0,0,0,1,0,0,
-        0,1,0,0,0,1,0,1// ,
-        // 0,1,0,0,0,1,1,0,
-        // 0,1,0,0,0,1,1,1,
-        // 0,1,0,0,1,0,0,0,
-        // 0,1,0,0,1,0,0,1,
-        // 0,1,0,0,1,0,1,0,
-        // 0,1,0,0,1,0,1,1,
-        // 0,1,0,0,1,1,0,0,
-        // 0,1,0,0,1,1,0,1
+        0,1,0,0,0,1,0,1,
+        0,1,0,0,0,1,1,0,
+        0,1,0,0,0,1,1,1,
+        0,1,0,0,1,0,0,0,
+        0,1,0,0,1,0,0,1,
+        0,1,0,0,1,0,1,0,
+        0,1,0,0,1,0,1,1,
+        0,1,0,0,1,1,0,0,
+        0,1,0,0,1,1,0,1
       ) // A->M
 
       poke(c.io.spi_ss, 0) // select
-      for (i <- 0 until mosi.size + 1) {
+      for (i <- 0 until mosi.size) {
 
         poke(c.io.spi_mosi, mosi(i))
         poke(c.io.spi_sck, 1)
@@ -66,7 +66,10 @@ class TestSPISuite extends JUnitSuite {
         // peek(c.word_data_received)
       }
 
-      // peek(c.word_data_received)
+      step(1)
+      poke(c.io.spi_ss, 0)
+      step(1)
+      peek(c.word_data_received)
         // peek(c.word_received)
     }
 

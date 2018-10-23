@@ -79,21 +79,26 @@ void spi_read_ring(void *platform)
 	SPI_Slave t((WrapperRegDriver *) platform);
 	int read_addr = 0;
 	while (true) {
-		t.set_read_addr(read_addr);
+		t.set_read_addr(read_addr++);
+		std::this_thread::sleep_for(std::chrono::milliseconds(4));
 		uint32_t int_data = t.get_read_data();
-		char* char_data = reinterpret_cast<char*>(&int_data);
-		std::cout << "read_addr: " << read_addr << ", read_data: ";
-		for (int i = 0; i < 4; ++i) {
-			std::cout << char_data[i] << ' ';
-		}
-		std::cout << std::endl;
 
-		if (read_addr == 2047)
-			read_addr = 0;
-		++read_addr;
+		// std::cout << "0x" << std::hex << int_data << " = " << std::dec << int_data << std::endl;
+		
+		// char* char_data = reinterpret_cast<char*>(&int_data);
+		// std::cout << "read_addr: " << std::dec << read_addr << ", read_data: ";
+		std::cout << "0x" << std::hex << int_data << "\t= " << std::dec << int_data << std::endl;
+		// for (int i = 3; i >= 0; --i) {
+		// 	std::cout << char_data[i] << ' ';
+		// }
+		// std::cout << std::endl;
+
+		// if (read_addr == 2047)
+		// 	read_addr = 0;
+		// ++read_addr;
 		// read_addr = ++read_addr % 2048;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}
 }
 
