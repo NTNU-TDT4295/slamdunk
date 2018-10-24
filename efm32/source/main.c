@@ -24,7 +24,7 @@ int main(void)
 	SegmentLCD_Init(false);
 
 	// UART
-	/* init_uart(); */
+	init_uart();
 
 	// I2C and the BNO055
 	/* init_i2c(); */
@@ -57,11 +57,11 @@ int main(void)
 	while (1) {
 		// 500 us per sample, 2000 samples per second, LIDAR
 // SPI
-		/* get_samples_lidar(lidar_data, lidar_samples); */
-		/* put_uart_simple(0, lidar_data, lidar_samples*5); */
-		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
-		SPI_sendBuffer(transmitBuffer, BUFFERSIZE);
-		Delay(25);
+		get_samples_lidar(lidar_data, lidar_samples);
+		USART_Tx(UART0, lidar_data[lidar_samples*5 - 1]);
+		SPI_sendBuffer(lidar_data, lidar_samples*5);
+
+		/* for ( ;; ); */
 		continue;
 
 		/* // IMU */
