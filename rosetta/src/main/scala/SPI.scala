@@ -22,8 +22,10 @@ class SPI_Slave() extends RosettaAccelerator {
     val spi_valid = Bool(OUTPUT)
     val spi_ready = Bool(INPUT)
 
+    val lidar_burst_counter = UInt(OUTPUT, 32)
+
     val read_data = Bits(OUTPUT, 32)
-    val read_addr = Bits(INPUT, 11)
+    val read_addr = Bits(INPUT, 12)
     // Decoupled
   }
 
@@ -69,34 +71,47 @@ class SPI_Slave() extends RosettaAccelerator {
   }
 
   val byte_signal_received = Reg(init = Bool(false))
-  val write_address = Reg(init = UInt(0, width = 11)) // 2048 lines of words
+  val write_address = Reg(init = UInt(0, width = 12)) // 4096 lines of words
+  val write_address_delayed = Reg(next = write_address)
   val byte_counter = Reg(init = UInt(0, width = 2))  // 4 bytes/word
   val word_data_received = Reg(init = UInt(0, width = 32))
   val word_signal_received = Reg(init = Bool(false))
   val word_received = Reg(init = Bool(false))
+
+  val lidar_burst_counter = Reg(init = UInt(0, width = 32))
 
   byte_signal_received := ss_active && sck_rise && bitcnt === 7.U
 
   word_signal_received := byte_signal_received && byte_counter === 3.U
   when (byte_signal_received) {
     word_data_received := Cat(word_data_received(23, 0), byte_data_received)
-    byte_counter := (byte_counter + 1.U)
+    byte_counter := byte_counter + 1.U
   }
 
   when (word_signal_received) { // 4 bytes received => next write_address
-    write_address := write_address + 1.U
+    when (write_address === 449.U) {
+      write_address := 512.U
+      lidar_burst_counter := lidar_burst_counter + 1.U
+    } .elsewhen (write_address === 961.U) {
+      write_address := 0.U
+      lidar_burst_counter := lidar_burst_counter + 1.U
+    } .otherwise {
+      write_address := write_address + 1.U
+    }
   }
+
+  io.lidar_burst_counter := lidar_burst_counter
 
   word_received := word_signal_received
 
   io.led3 := io.btn(3)
 
   // Choose buffer (double buffering) 0x0-0x7ff
-  val bram = Module(new DualPortBRAM(addrBits = 11, dataBits = 32)).io
+  val bram = Module(new DualPortBRAM(addrBits = 12, dataBits = 32)).io
   val writePort = bram.ports(0)
   val readPort = bram.ports(1)
 
-  writePort.req.addr := write_address
+  writePort.req.addr := write_address_delayed
   writePort.req.writeData := word_data_received
   writePort.req.writeEn := word_received
 

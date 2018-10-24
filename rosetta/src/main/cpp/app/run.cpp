@@ -79,17 +79,40 @@ void spi_read_ring(void *platform)
 {
 	SPI_Slave t((WrapperRegDriver *) platform);
 	int read_addr = 0;
+	int prev_burst = t.get_lidar_burst_counter();
+	int current_burst = t.get_lidar_burst_counter();
 	while (true) {
-		t.set_read_addr(read_addr++);
+		// t.set_read_addr(read_addr++);
 
-		uint32_t int_data = t.get_read_data();
+		current_burst = t.get_lidar_burst_counter();
+		if (current_burst != prev_burst) {
+			std::cout << "TICKO: ";
+			prev_burst = current_burst;
+
+			read_addr = (current_burst % 2 == 0) ? 961 : 449;
+			t.set_read_addr(read_addr);
+			std::cout << std::hex << std::setw(8) << t.get_read_data() << std::endl;
+		}
+
+		// while (read_addr != 512) {
+		// 	++read_addr;
+		// 	t.set_read_addr(read_addr);
+		// 	t.get_read_data();
+		// }
+		// read_addr = 0;
+
+
+		// read_addr = (current_burst % 2 == 0) ? : ;
+		// t.set_read_addr(read_addr);
+
+		// uint32_t int_data = t.get_read_data();
 
 		// std::cout << "0x" << std::hex << int_data << " = " << std::dec << int_data << std::endl;
 		
 		// char* char_data = reinterpret_cast<char*>(&int_data);
 		// std::cout << "read_addr: " << std::dec << read_addr << ", read_data: ";
 		// std::cout << "0x" << std::hex << int_data << "\t= " << std::dec << int_data << std::endl;
-		std::cout << "0x" << std::hex << std::setw(8) << int_data << '\t';
+		// std::cout << "0x" << std::hex << std::setw(8) << int_data << '\t';
 		// for (int i = 3; i >= 0; --i) {
 		// 	std::cout << char_data[i] << ' ';
 		// }
