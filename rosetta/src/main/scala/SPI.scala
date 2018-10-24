@@ -72,7 +72,7 @@ class SPI_Slave() extends RosettaAccelerator {
 
   val byte_signal_received = Reg(init = Bool(false))
   val write_address = Reg(init = UInt(0, width = 12)) // 4096 lines of words
-  val write_address_delayed = Reg(next = write_address)
+  val write_address_delayed = Reg(next = write_address) // Needed to delay write_address
   val byte_counter = Reg(init = UInt(0, width = 2))  // 4 bytes/word
   val word_data_received = Reg(init = UInt(0, width = 32))
   val word_signal_received = Reg(init = Bool(false))

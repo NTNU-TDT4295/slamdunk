@@ -10,12 +10,12 @@
 
 void* init_platform()
 {
-	return (WrapperRegDriver *) initPlatform();
+	return (WrapperRegDriver*)initPlatform();
 }
 
-void deinit_platform(void *platform)
+void deinit_platform(void* platform)
 {
-	deinitPlatform((WrapperRegDriver *) platform);
+	deinitPlatform((WrapperRegDriver*)platform);
 }
 
 // void *dalloc(void *platform, size_t size)
@@ -75,23 +75,39 @@ void deinit_platform(void *platform)
 // 	return t.get_read_data();
 // }
 
-void spi_read_ring(void *platform)
+void spi_read_ring(void* platform)
 {
-	SPI_Slave t((WrapperRegDriver *) platform);
+	SPI_Slave t((WrapperRegDriver*)platform);
 	int read_addr = 0;
 	int prev_burst = t.get_lidar_burst_counter();
 	int current_burst = t.get_lidar_burst_counter();
+	// constexpr int lidar_packet_size = 5;
+	constexpr int lidar_data_size = 1800/4;
+	uint32_t lidar_data[lidar_data_size];
 	while (true) {
 		// t.set_read_addr(read_addr++);
 
 		current_burst = t.get_lidar_burst_counter();
 		if (current_burst != prev_burst) {
-			std::cout << "TICKO: ";
 			prev_burst = current_burst;
 
-			read_addr = (current_burst % 2 == 0) ? 961 : 449;
-			t.set_read_addr(read_addr);
-			std::cout << std::hex << std::setw(8) << t.get_read_data() << std::endl;
+			// read_addr = (current_burst % 2 == 0) ? 961 : 449;
+			// t.set_read_addr(read_addr);
+			// std::cout << std::hex << std::setw(8) << t.get_read_data() << std::endl;
+
+			read_addr = (current_burst % 2 == 0) ? 512 : 0;
+			uint32_t read_data = 0;
+
+			for (int i = 0; i < lidar_data_size; ++i) {
+				t.set_read_addr(read_addr);
+				read_data = t.get_read_data();
+
+				lidar_data[i] = read_data;
+				volatile int yolo = read_data * 192738;
+
+				++read_addr;
+			}
+			printf("0x%08X 0x%08X\n", *lidar_data, lidar_data[lidar_data_size - 1]);
 		}
 
 		// while (read_addr != 512) {
@@ -108,7 +124,7 @@ void spi_read_ring(void *platform)
 		// uint32_t int_data = t.get_read_data();
 
 		// std::cout << "0x" << std::hex << int_data << " = " << std::dec << int_data << std::endl;
-		
+
 		// char* char_data = reinterpret_cast<char*>(&int_data);
 		// std::cout << "read_addr: " << std::dec << read_addr << ", read_data: ";
 		// std::cout << "0x" << std::hex << int_data << "\t= " << std::dec << int_data << std::endl;
