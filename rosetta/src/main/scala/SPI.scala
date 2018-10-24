@@ -29,8 +29,6 @@ class SPI_Slave() extends RosettaAccelerator {
 
   io.signature := makeDefaultSignature()
 
-  io.led1 := false.B
-
   // Setup
   // sync SCK to the FPGA clock using 3-bit shift register
   val sckreg = Reg(init = Bits("b000", 3))
@@ -71,24 +69,24 @@ class SPI_Slave() extends RosettaAccelerator {
   }
 
   val byte_signal_received = Reg(init = Bool(false))
+  val write_address = Reg(init = UInt(0, width = 11)) // 2048 lines of words
+  val byte_counter = Reg(init = UInt(0, width = 2))  // 4 bytes/word
+  val word_data_received = Reg(init = UInt(0, width = 32))
+  val word_signal_received = Reg(init = Bool(false))
+  val word_received = Reg(init = Bool(false))
+
   byte_signal_received := ss_active && sck_rise && bitcnt === 7.U
 
-  val write_adress = Reg(init = UInt(0, width = 11)) // 2048 lines of words
-  val byte_counter = Reg(init = UInt(0, width = 3))  // 4 bytes/word
-  val word_data_received = Reg(init = UInt(0, width = 32))
+  word_signal_received := byte_signal_received && byte_counter === 3.U
   when (byte_signal_received) {
     word_data_received := Cat(word_data_received(23, 0), byte_data_received)
     byte_counter := (byte_counter + 1.U)
   }
 
-  val word_signal_received = Reg(init = Bool(false))
-  word_signal_received := byte_signal_received && byte_counter === 3.U
-
-  when (word_signal_received) { // 4 bytes received => next write_adress
-    write_adress := write_adress + 1.U
+  when (word_signal_received) { // 4 bytes received => next write_address
+    write_address := write_address + 1.U
   }
 
-  val word_received = Reg(init = Bool(false))
   word_received := word_signal_received
 
   io.led3 := io.btn(3)
@@ -98,7 +96,7 @@ class SPI_Slave() extends RosettaAccelerator {
   val writePort = bram.ports(0)
   val readPort = bram.ports(1)
 
-  writePort.req.addr := write_adress
+  writePort.req.addr := write_address
   writePort.req.writeData := word_data_received
   writePort.req.writeEn := word_received
 

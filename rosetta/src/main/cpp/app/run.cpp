@@ -6,6 +6,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <iomanip>
 
 void* init_platform()
 {
@@ -80,14 +81,15 @@ void spi_read_ring(void *platform)
 	int read_addr = 0;
 	while (true) {
 		t.set_read_addr(read_addr++);
-		std::this_thread::sleep_for(std::chrono::milliseconds(4));
+
 		uint32_t int_data = t.get_read_data();
 
 		// std::cout << "0x" << std::hex << int_data << " = " << std::dec << int_data << std::endl;
 		
 		// char* char_data = reinterpret_cast<char*>(&int_data);
 		// std::cout << "read_addr: " << std::dec << read_addr << ", read_data: ";
-		std::cout << "0x" << std::hex << int_data << "\t= " << std::dec << int_data << std::endl;
+		// std::cout << "0x" << std::hex << int_data << "\t= " << std::dec << int_data << std::endl;
+		std::cout << "0x" << std::hex << std::setw(8) << int_data << '\t';
 		// for (int i = 3; i >= 0; --i) {
 		// 	std::cout << char_data[i] << ' ';
 		// }
@@ -98,7 +100,7 @@ void spi_read_ring(void *platform)
 		// ++read_addr;
 		// read_addr = ++read_addr % 2048;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		// std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}
 }
 

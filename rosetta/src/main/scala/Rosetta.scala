@@ -42,17 +42,17 @@ class RosettaAcceleratorIF(numMemPorts: Int) extends Bundle {
   // user LEDs LD3..0
   // val led = UInt(OUTPUT, 4)
   // user switches SW1 and SW0
-  val sw = UInt(INPUT, 2)
+  // val sw = UInt(INPUT, 2)
   // user buttons BN3..0
   val btn = UInt(INPUT, 4)
   // user RGB LEDs
-  val led4 = Vec(3, UInt(OUTPUT, 1))
-  val led5 = Vec(3, UInt(OUTPUT, 1))
+  // val led4 = Vec(3, UInt(OUTPUT, 1))
+  // val led5 = Vec(3, UInt(OUTPUT, 1))
 
   // Pre-indexed leds
-  val led0 = UInt(OUTPUT, 1)
-  val led1 = UInt(OUTPUT, 1)
-  val led2 = UInt(OUTPUT, 1)
+  // val led0 = UInt(OUTPUT, 1)
+  // val led1 = UInt(OUTPUT, 1)
+  // val led2 = UInt(OUTPUT, 1)
   val led3 = UInt(OUTPUT, 1)
 
   // SPI - FPGA slave, rx only
@@ -122,21 +122,21 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
     // user LEDs LD3..0
     // val led = UInt(OUTPUT, 4)
     // user switches SW1 and SW0
-    val sw = UInt(INPUT, 2)
+    // val sw = UInt(INPUT, 2)
     // user buttons BN3..0
     val btn = UInt(INPUT, 4)
     // user RGB LEDs LD4, LD5
-    val led4_r = UInt(OUTPUT, 1)
-    val led4_g = UInt(OUTPUT, 1)
-    val led4_b = UInt(OUTPUT, 1)
-    val led5_r = UInt(OUTPUT, 1)
-    val led5_g = UInt(OUTPUT, 1)
-    val led5_b = UInt(OUTPUT, 1)
+    // val led4_r = UInt(OUTPUT, 1)
+    // val led4_g = UInt(OUTPUT, 1)
+    // val led4_b = UInt(OUTPUT, 1)
+    // val led5_r = UInt(OUTPUT, 1)
+    // val led5_g = UInt(OUTPUT, 1)
+    // val led5_b = UInt(OUTPUT, 1)
 
     // Pre-indexed leds
-    val led0 = UInt(OUTPUT, 1)
-    val led1 = UInt(OUTPUT, 1)
-    val led2 = UInt(OUTPUT, 1)
+    // val led0 = UInt(OUTPUT, 1)
+    // val led1 = UInt(OUTPUT, 1)
+    // val led2 = UInt(OUTPUT, 1)
     val led3 = UInt(OUTPUT, 1)
 
     // SPI - FPGA slave, rx only
@@ -259,20 +259,20 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
   for(i <- 0 until numPYNQMemPorts) {io.mem(i).renameSignals(s"mem$i")}
 
   // connections to board I/O
-  accel.io.sw := io.sw
+  // accel.io.sw := io.sw
   accel.io.btn := io.btn
   // io.led := accel.io.led
-  io.led4_b := accel.io.led4(0)
-  io.led4_g := accel.io.led4(1)
-  io.led4_r := accel.io.led4(2)
-  io.led5_b := accel.io.led5(0)
-  io.led5_g := accel.io.led5(1)
-  io.led5_r := accel.io.led5(2)
+  // io.led4_b := accel.io.led4(0)
+  // io.led4_g := accel.io.led4(1)
+  // io.led4_r := accel.io.led4(2)
+  // io.led5_b := accel.io.led5(0)
+  // io.led5_g := accel.io.led5(1)
+  // io.led5_r := accel.io.led5(2)
 
   // Pre-indexed leds
-  io.led0 := accel.io.led0
-  io.led1 := accel.io.led1
-  io.led2 := accel.io.led2
+  // io.led0 := accel.io.led0
+  // io.led1 := accel.io.led1
+  // io.led2 := accel.io.led2
   io.led3 := accel.io.led3
 
   // SPI - FPGA slave, rx only

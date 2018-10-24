@@ -60,33 +60,33 @@ connect_bd_net [get_bd_pins [get_bd_cells *rst_ps7*]/peripheral_reset] [get_bd_p
 # LEDs
 # create_bd_port -dir O -from 3 -to 0 io_led
 # connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led] [get_bd_ports io_led]
-create_bd_port -dir O io_led0
-create_bd_port -dir O io_led1
-create_bd_port -dir O io_led2
+# create_bd_port -dir O io_led0
+# create_bd_port -dir O io_led1
+# create_bd_port -dir O io_led2
 create_bd_port -dir O io_led3
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led0] [get_bd_ports io_led0]
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led1] [get_bd_ports io_led1]
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led2] [get_bd_ports io_led2]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led0] [get_bd_ports io_led0]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led1] [get_bd_ports io_led1]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led2] [get_bd_ports io_led2]
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led3] [get_bd_ports io_led3]
 # switches
-create_bd_port -dir I -from 1 -to 0 io_sw
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_sw] [get_bd_ports io_sw]
+# create_bd_port -dir I -from 1 -to 0 io_sw
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_sw] [get_bd_ports io_sw]
 # buttons
 create_bd_port -dir I -from 3 -to 0 io_btn
 connect_bd_net [get_bd_pins /PYNQWrapper_0/io_btn] [get_bd_ports io_btn]
 # RGB LEDs
-create_bd_port -dir O led4_b
-create_bd_port -dir O led4_g
-create_bd_port -dir O led4_r
-create_bd_port -dir O led5_b
-create_bd_port -dir O led5_g
-create_bd_port -dir O led5_r
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led4_b] [get_bd_ports led4_b]
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led4_g] [get_bd_ports led4_g]
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led4_r] [get_bd_ports led4_r]
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_b] [get_bd_ports led5_b]
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_g] [get_bd_ports led5_g]
-connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_r] [get_bd_ports led5_r]
+# create_bd_port -dir O led4_b
+# create_bd_port -dir O led4_g
+# create_bd_port -dir O led4_r
+# create_bd_port -dir O led5_b
+# create_bd_port -dir O led5_g
+# create_bd_port -dir O led5_r
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led4_b] [get_bd_ports led4_b]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led4_g] [get_bd_ports led4_g]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led4_r] [get_bd_ports led4_r]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_b] [get_bd_ports led5_b]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_g] [get_bd_ports led5_g]
+# connect_bd_net [get_bd_pins /PYNQWrapper_0/io_led5_r] [get_bd_ports led5_r]
 
 # UART
 # create_bd_port -dir O io_uart_tx
