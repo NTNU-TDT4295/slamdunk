@@ -7,9 +7,6 @@ import fpgatidbits.streams._
 import fpgatidbits.PlatformWrapper._
 
 // Accelerator
-// TODO: validate with logic analyser:
-// - Internal: Vivado, verify shift regs are posedge
-// - External: efm->zynq, verify transmission signals, stop-bit (1, 1.5, 2)
 class SPI_Slave() extends RosettaAccelerator {
   val numMemPorts = 0
   val io = new RosettaAcceleratorIF(numMemPorts) {
@@ -25,7 +22,7 @@ class SPI_Slave() extends RosettaAccelerator {
     val lidar_burst_counter = UInt(OUTPUT, 32)
 
     val read_data = Bits(OUTPUT, 32)
-    val read_addr = Bits(INPUT, 12)
+    val read_addr = Bits(INPUT, 11)
     // Decoupled
   }
 
@@ -71,7 +68,7 @@ class SPI_Slave() extends RosettaAccelerator {
   }
 
   val byte_signal_received = Reg(init = Bool(false))
-  val write_address = Reg(init = UInt(0, width = 12)) // 4096 lines of words
+  val write_address = Reg(init = UInt(0, width = 11)) // 4096 lines of words
   val write_address_delayed = Reg(next = write_address) // Needed to delay write_address
   val byte_counter = Reg(init = UInt(0, width = 2))  // 4 bytes/word
   val word_data_received = Reg(init = UInt(0, width = 32))
@@ -88,6 +85,8 @@ class SPI_Slave() extends RosettaAccelerator {
     byte_counter := byte_counter + 1.U
   }
 
+  // Simple double buffering based on 1800 bytes
+  // of lidar data bursts.
   when (word_signal_received) { // 4 bytes received => next write_address
     when (write_address === 449.U) {
       write_address := 512.U
@@ -107,7 +106,7 @@ class SPI_Slave() extends RosettaAccelerator {
   io.led3 := io.btn(3)
 
   // Choose buffer (double buffering) 0x0-0x7ff
-  val bram = Module(new DualPortBRAM(addrBits = 12, dataBits = 32)).io
+  val bram = Module(new DualPortBRAM(addrBits = 11, dataBits = 32)).io
   val writePort = bram.ports(0)
   val readPort = bram.ports(1)
 

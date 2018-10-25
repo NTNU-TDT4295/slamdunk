@@ -40,41 +40,6 @@ void deinit_platform(void* platform)
 // 		copyBufferAccelToHost(src, dst, num);
 // }
 
-// void bwrite(void *platform, unsigned waddr, unsigned wdata)
-// {
-// 	SPI_Slave t((WrapperRegDriver *) platform);
-
-// 	t.set_writeAddr(waddr);
-// 	t.set_writeData(wdata);
-
-// 	t.set_writeEnable(1);
-// 	t.set_writeEnable(0);
-// }
-
-// unsigned bread(void *platform, unsigned raddr)
-// {
-// 	SPI_Slave t((WrapperRegDriver *) platform);
-
-// 	t.set_readAddr((unsigned int) raddr);
-// 	return t.get_readData();
-// }
-
-// unsigned int spi_read_addr(void *platform)
-// {
-// 	SPI_Slave t((WrapperRegDriver *) platform);
-
-// 	// t.set_readAddr((unsigned int) raddr);
-// 	return t.get_readAddr();
-// }
-
-// unsigned char spi_read_data(void *platform)
-// {
-// 	SPI_Slave t((WrapperRegDriver *) platform);
-
-// 	// t.set_readAddr((unsigned int) raddr);
-// 	return t.get_read_data();
-// }
-
 void spi_read_ring(void* platform)
 {
 	SPI_Slave t((WrapperRegDriver*)platform);
@@ -82,64 +47,50 @@ void spi_read_ring(void* platform)
 	int prev_burst = t.get_lidar_burst_counter();
 	int current_burst = t.get_lidar_burst_counter();
 	// constexpr int lidar_packet_size = 5;
-	constexpr int lidar_data_size = 1800/4;
-	uint32_t lidar_data[lidar_data_size];
+	constexpr int lidar_burst_size = 1800;
+	// constexpr int lidar_data_size = lidar_burst_size / 4;
+	// uint32_t lidar_data[lidar_data_size];
+	uint8_t lidar_data[lidar_burst_size];
 	while (true) {
-		// t.set_read_addr(read_addr++);
-
 		current_burst = t.get_lidar_burst_counter();
 		if (current_burst != prev_burst) {
 			prev_burst = current_burst;
 
-			// read_addr = (current_burst % 2 == 0) ? 961 : 449;
-			// t.set_read_addr(read_addr);
-			// std::cout << std::hex << std::setw(8) << t.get_read_data() << std::endl;
-
 			read_addr = (current_burst % 2 == 0) ? 512 : 0;
 			uint32_t read_data = 0;
+			uint8_t* read_byte = reinterpret_cast<uint8_t*>(&read_data);
 
-			for (int i = 0; i < lidar_data_size; ++i) {
+			for (int i = 0; i < lidar_burst_size; i += 4) {
 				t.set_read_addr(read_addr);
 				read_data = t.get_read_data();
 
-				lidar_data[i] = read_data;
-				volatile int yolo = read_data * 192738;
+				lidar_data[i] = read_byte[3];
+				lidar_data[i + 1] = read_byte[2];
+				lidar_data[i + 2] = read_byte[1];
+				lidar_data[i + 3] = read_byte[0];
 
 				++read_addr;
 			}
-			printf("0x%08X 0x%08X\n", *lidar_data, lidar_data[lidar_data_size - 1]);
+			// printf("0x%08X 0x%08X\n", *lidar_data, lidar_data[lidar_data_size - 1]);
+
+			uint16_t angle_q;
+			float angle;
+			float dist;
+
+			uint8_t* lidar_data_byte = reinterpret_cast<uint8_t*>(&lidar_data);
+
+			for (int i = 0; i < lidar_burst_size; i += 5) {
+
+				angle_q = ((lidar_data[i + 2] << 8) | (lidar_data[i + 1]));
+				angle = (float)(angle_q >> 1);
+				angle = angle / 64.0f;
+				dist = (float)((lidar_data[i + 4] << 8) | lidar_data[i + 3]) / 4.0f;
+				// if (i % 50 == 0)
+				// 	std::cout << std::endl;
+				std::cout << std::setw(3) << static_cast<int>(angle) << ' ' << dist << '\n';
+			}
+			std::cout << "\n=================================" << std::endl;
 		}
-
-		// while (read_addr != 512) {
-		// 	++read_addr;
-		// 	t.set_read_addr(read_addr);
-		// 	t.get_read_data();
-		// }
-		// read_addr = 0;
-
-
-		// read_addr = (current_burst % 2 == 0) ? : ;
-		// t.set_read_addr(read_addr);
-
-		// uint32_t int_data = t.get_read_data();
-
-		// std::cout << "0x" << std::hex << int_data << " = " << std::dec << int_data << std::endl;
-
-		// char* char_data = reinterpret_cast<char*>(&int_data);
-		// std::cout << "read_addr: " << std::dec << read_addr << ", read_data: ";
-		// std::cout << "0x" << std::hex << int_data << "\t= " << std::dec << int_data << std::endl;
-		// std::cout << "0x" << std::hex << std::setw(8) << int_data << '\t';
-		// for (int i = 3; i >= 0; --i) {
-		// 	std::cout << char_data[i] << ' ';
-		// }
-		// std::cout << std::endl;
-
-		// if (read_addr == 2047)
-		// 	read_addr = 0;
-		// ++read_addr;
-		// read_addr = ++read_addr % 2048;
-
-		// std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}
 }
 
@@ -178,28 +129,4 @@ void spi_read_ring(void* platform)
 // 	delete[] read_buf;
 // 	dfree(platform, dram_read_ptr);
 // 	dfree(platform, dram_write_ptr);
-// }
-
-// void SPI(void* platform)
-// {
-// 	SPI_Slave t((WrapperRegDriver *) platform);
-
-// 	// char input;
-
-// 	// int count = 0;
-// 	// unsigned int data = 0;
-// 	// while (true) {
-// 	// 	if (t.get_spi_valid()) {
-// 	// 		data = t.get_spi_data();
-// 	// 		std::cout << data << std::endl;
-// 	// 	}
-// 	// 	// std::cout << t.get_spi_data();
-// 	// }
-// 	// ++count;
-// 	// if (count % 10000 == 0) {
-// 	// 	std::cout << t.get_spi_data() << std::endl;
-// 	// 	count = 0;
-// 	// }
-// 	// std::cout << t.get_spi_sck() << " ";
-// 	// std::cout << t.get_spi_valid();
 // }
