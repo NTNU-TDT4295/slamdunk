@@ -5,7 +5,7 @@ VIVADO_MODE := batch # gui
 # which C++ compiler to use
 CC = g++
 # scp/rsync target to copy files to board
-BOARD_URI := xilinx@pynq:~/
+BOARD_URI := xilinx@pynq
 
 # other project settings
 SBT ?= sbt
@@ -93,7 +93,8 @@ update_build: pynq_script
 deploy: update_build
 	@echo ""
 	@echo "Deploying to: $(BOARD_URI)"
-	rsync -avz $(BUILD_DIR_PYNQ) $(BOARD_URI)
+	rsync -avz $(BUILD_DIR_PYNQ) $(BOARD_URI):~/rosetta
+	ssh -t $(BOARD_URI) "cd ~/rosetta && make cpp && sudo ./load_bitfile.sh && make run"
 
 # remove everything that is built
 clean:
