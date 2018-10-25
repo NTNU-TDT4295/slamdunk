@@ -3,6 +3,17 @@
 # Setup interfaces
 echo $1 | sudo -i -S
 
+# setup wifi connection
+echo "network={
+    ssid=\"SLAMDUNK_5G\"
+    psk=\$wifi_password\"
+    proto=RSN
+    key_mgmt=WPA-PSK
+    pairwise=CCMP
+    auth_alg=OPEN
+}" > /etc/wpa_supplicant/wpa_supplicant.conf
+
+# setup network interfaces
 echo "source /etc/network/interfaces.d/*
 
 # The loopback network interface
@@ -13,7 +24,15 @@ auto eth0
 iface eth0 inet static
 address 192.168.2.99
 netmask 255.255.255.0
-gateway 192.168.2.89" > /etc/network/interfaces
+gateway 192.168.2.89
+
+#allow-hotplug wlan0
+auto wlx74da38930a18
+
+allow-hotplug wwlx74da38930a18
+iface wlx74da38930a18 inet dhcp
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+iface default inet dhcp" > /etc/network/interfaces
 
 # Hardcode NTNUs dns-servers with google backup
 chattr -i /etc/resolv.conf

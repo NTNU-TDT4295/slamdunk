@@ -1,0 +1,10 @@
+#!/usr/bin/expect
+
+set ip   [lindex $argv 0];
+set pwd  [lindex $argv 1];
+set file [lindex $argv 2];
+
+spawn scp -6 $file xilinx@\[${ip}]\:
+expect {
+    password: {send "${pwd}\r"; exp_continue}
+}

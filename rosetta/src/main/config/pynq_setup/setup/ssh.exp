@@ -2,9 +2,10 @@
 
 set ip [lindex $argv 0];
 set pwd [lindex $argv 1];
+set cmd [lindex $argv 2];
 
 spawn ssh xilinx@${ip} \
-"echo $pwd | sudo -S bash /home/xilinx/setup_pynq.sh 2> /dev/null"
+"echo $pwd | sudo -S bash /home/xilinx/$cmd 2> /dev/null"
 expect {
     password: {send "${pwd}\r"; exp_continue}
 }
