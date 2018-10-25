@@ -52,17 +52,19 @@ int main(void)
 	size_t lidar_samples = 360;
 	uint8_t lidar_data[lidar_samples*5];
 
-	/* init_scan_lidar(false); */
+	char lidar_sample;
+	init_scan_lidar(false);
 
 	while (1) {
 		// 500 us per sample, 2000 samples per second, LIDAR
 // SPI
-		get_samples_lidar(lidar_data, lidar_samples);
-		USART_Tx(UART0, lidar_data[0]);
-		USART_Tx(UART0, lidar_data[lidar_samples*5 - 1]);
-		SPI_sendBuffer(lidar_data, lidar_samples*5);
+		/* get_samples_lidar(lidar_data, lidar_samples); */
+		/* put_uart_simple(0, lidar_data, lidar_samples*5); */
+		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
 
-		/* for ( ;; ); */
+		lidar_sample = USART_Rx(UART1);
+		SPI_sendBuffer(&lidar_sample, 1);
+
 		continue;
 
 		/* // IMU */
