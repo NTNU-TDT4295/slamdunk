@@ -1,0 +1,108 @@
+# Connect to the pynq via ssh from a linux machine via ethernet
+==============================================================
+1. Connect an ethernet cable between your computer and the pynq
+
+2. Find the pynqs link-local ipv6 address by pining all hosts on your ethernet interface: (you need a dynamic ipv6 address on the interface for this)
+
+    ping6 ff02::1%<your eth interface>
+
+3. If the pynq is the only thing connected to your computer the address marked
+with "(Dup!)" is the pynq. ssh to this address with username and password «xilinx».
+
+4. Assign the eth interface on the pynq to a static ip address in the
+/etc/network/interfaces file:
+
+    auto eth1
+    iface eth1 inet static
+    address 192.168.2.99
+    netmask 255.255.255.0
+    gateway 192.168.2.89
+
+and do the same on your own ethernet port with an address on the same subnet eg:
+
+    auto enp0s31f6
+    iface enp0s31f6 inet6 auto
+    iface enp0s31f6 inet static
+    address 192.168.2.89
+    netmask 255.255.255.0
+
+
+5. Add the address to your ssh config (~/.ssh/config):
+
+    Host pynq
+        Hostname 192.168.2.99
+        User xilinx
+
+you can now ssh and rsync using "pynq" instead of the ip address.
+
+Connect the pynq to the internet via ethernet
+============================================
+
+1. Setup iptable rules on your host and enable ipv4 forwarding:
+
+sudo iptables -t nat -A POSTROUTING -o <wifi interface> -s 192.168.2.0/24 -j MASQUERADE
+sudo iptables -I FORWARD -o <eth interface> -s 192.168.2.0/24 -j ACCEPT
+sudo iptables -I INPUT -s 192.168.2.0/24 -j ACCEPT
+sudo sysctl -w net.ipv4.ip_forward=1
+
+2. On the pynq route your packets using your computer as a gateway:
+sudo route add default gw 192.168.2.89 (or add it in the interfaces file as shown above)
+
+3. Finaly add a nameserver for dns. Eg. using NTNUs nameserver with google as a backup:
+sudo echo "nameserver 129.241.0.200" >> /etc/resolv.conf
+sudo echo "nameserver 129.241.0.201" >> /etc/resolv.conf
+sudo echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+
+setting up wifi using edimax N150 wifi dongle
+=============================================
+Using a wifi dongle we can give the pynq wifi capabilities. To make it work we need to first compile the driver.
+
+1. clone the driver:
+
+    git clone https://github.com/lwfinger/rtl8723bu $HOME
+
+2. the linux headers in the pynq default build is sadly broken, and we have to import them directly from xilinx:
+
+git clone https://github.com/Xilinx/linux-xlnx.git --depth 1 --branch xilinx-v2017.4 $HOME
+
+3. make the lib-files point to the correct headers:
+
+    ln -sf /home/xilinx/linux-xlnx /lib/modules/4.9.0-xilinx/build
+
+4. finaly compile the driver:
+
+    cd ~/rtl8723bu
+    make
+
+5. load the driver:
+    sudo insmod 8723bu.ko
+
+6. setup autoloading of the driver on boot:
+    cp 8723bu.ko /lib/modules/4.9.0-xilinx/kernel/drivers/
+
+
+ssh to pynq from anywhere using external router and tunnel
+========================================================
+Because of the complexity of eduroam, we are using our own router.
+
+1. Connect to the router, edit /etc/wpa_supplicant/wpa_supplicant.conf:
+
+    network={
+        ssid="SLAMDUNK"
+        psk="..."
+        proto=RSN
+        key_mgmt=WPA-PSK
+        pairwise=CCMP
+        auth_alg=OPEN
+    }
+
+2. setup a reverse ssh tunnel to an external server to bypass NAT-rules, currently using thomas box with ip 35.196.88.68 - forwarding port 19999 on the server to port 22 on the pynq
+
+    ssh -f -N -T -g -R 19999:localhost:22 dmpro@35.195.88.68
+
+3. you can now update your ~/.ssh/.config to ssh to the pynq wierlessly:
+
+    Host pynq
+        Hostname 35.195.88.68
+        Port 19999
+        User xilinx

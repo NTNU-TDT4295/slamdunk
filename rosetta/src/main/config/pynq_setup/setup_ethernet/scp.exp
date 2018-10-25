@@ -1,0 +1,9 @@
+#!/usr/bin/expect
+
+set ip [lindex $argv 0];
+set pwd [lindex $argv 1];
+
+spawn scp -6 setup_pynq.sh xilinx@\[${ip}]\:
+expect {
+    password: {send "${pwd}\r"; exp_continue}
+}
