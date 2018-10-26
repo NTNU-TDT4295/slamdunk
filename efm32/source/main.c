@@ -40,7 +40,7 @@ int main(void)
 	//init_sonar();
 
 	// Reset lidar completely to make it ready for scanning
-	/* init_lidar(false); */
+	init_lidar(false);
 
 	// Hold IMU data
 	uint8_t status_buf[1] = { 7 };

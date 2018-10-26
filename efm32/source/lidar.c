@@ -84,6 +84,7 @@ void init_scan_lidar(bool verbose)
 
 void init_lidar(bool verbose)
 {
+	GPIO_PinModeSet(gpioPortF, 8, gpioModePushPull, 1);
 	stop_lidar();
 	reset_lidar(verbose);
 	health_lidar(verbose);
