@@ -21,7 +21,7 @@ int main(void)
 	/* interrupt_test(); */
 
 	// Setup screen for debug
-	SegmentLCD_Init(false);
+	/* SegmentLCD_Init(false); */
 
 	// UART
 	init_uart();
@@ -40,7 +40,8 @@ int main(void)
 	//init_sonar();
 
 	// Reset lidar completely to make it ready for scanning
-	init_lidar(false);
+    unsigned int uart_channel = 0; // uart input channel
+	init_lidar(false, 0);
 
 	// Hold IMU data
 	uint8_t status_buf[1] = { 7 };
@@ -53,7 +54,7 @@ int main(void)
 	uint8_t lidar_data[lidar_samples*5];
 
 	char lidar_sample;
-	init_scan_lidar(false);
+	init_scan_lidar(false, 0);
 
 	while (1) {
 		// 500 us per sample, 2000 samples per second, LIDAR
@@ -62,8 +63,8 @@ int main(void)
 		/* put_uart_simple(0, lidar_data, lidar_samples*5); */
 		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
 
-		lidar_sample = USART_Rx(UART1);
-		SPI_sendBuffer(&lidar_sample, 1);
+		lidar_sample = USART_Rx(UART0);
+        SPI_sendBuffer(&lidar_sample, 1);
 
 		continue;
 

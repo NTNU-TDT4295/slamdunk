@@ -4,12 +4,14 @@
 #include "setup.h"
 #include "serial.h"
 
-void stop_lidar();
-void reset_lidar(bool verbose);
-void health_lidar(bool verbose);
-void sample_rate_lidar(bool verbose);
-void init_scan_lidar(bool verbose);
-void init_lidar(bool verbose);
-void get_samples_lidar(uint8_t data[], size_t samples);
+USART_TypeDef* getUart_input(unsigned int uart_channel);
+USART_TypeDef* getUart_output(unsigned int uart_channel);
+void stop_lidar(unsigned int uart_channel);
+void reset_lidar(bool verbose, unsigned int uart_channel);
+void health_lidar(bool verbose, unsigned int uart_channel);
+void sample_rate_lidar(bool verbose, unsigned int uart_channel);
+void init_scan_lidar(bool verbose, unsigned int uart_channel);
+void init_lidar(bool verbose, unsigned int uart_channel);
+void get_samples_lidar(uint8_t data[], size_t samples, unsigned int uart_channel);
 
 #endif

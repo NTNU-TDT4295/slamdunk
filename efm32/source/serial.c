@@ -42,7 +42,7 @@ void recv_char_cb(char c)
 void init_uart()
 {
 	// LCD for proof of concept, remove later (TODO)
-	SegmentLCD_Init(false);
+	/* SegmentLCD_Init(false); */
 
 	/* Setup UART for testing */
 	set_recv_callback(&recv_char_cb);
