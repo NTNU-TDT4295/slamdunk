@@ -41,7 +41,7 @@ int main(void)
 
 	// Reset lidar completely to make it ready for scanning
     unsigned int uart_channel = 0; // uart input channel
-	init_lidar(false, 0);
+	init_lidar(false, uart_channel);
 
 	// Hold IMU data
 	uint8_t status_buf[1] = { 7 };
