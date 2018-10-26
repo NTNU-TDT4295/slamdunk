@@ -2,11 +2,11 @@ BUILD_DIR:=./build
 LIB_DIR:=./lib
 GLAD_DIR:=$(LIB_DIR)/glad
 GLAD_OUT_DIR:=$(BUILD_DIR)/glad
-GLM_DIR:=$(LIB_DIR)/glm
+COMMON_DIR:=../slam_common
 SRC_DIR:=./src
 
-CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(GLM_DIR)
-LDFLAGS:=-lX11 -lGL -lGLU -ldl -pthread
+CFLAGS:=-std=c++11 -Wall -pthread -g -I$(GLAD_OUT_DIR)/include -I$(COMMON_DIR)/src/
+LDFLAGS:=-lX11 -lGL -lGLU -ldl -pthread $(COMMON_DIR)/libslamcommon.a
 
 SRC=$(shell find $(SRC_DIR)/ -name *.cpp)
 HEADERS:=$(find $(SRC_DIR)/ -name *.h)
@@ -18,7 +18,7 @@ GLAD:=PYTHONPATH=$(PYTHONPATH):$(GLAD_DIR) python -m glad
 
 all: pc sim lidar slam slam_vis
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(GLM_DIR)/glm $(GLAD_INCLUDES)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(GLAD_INCLUDES)
 	@mkdir -p $(dir $@)
 	$(CXX) -c $(CFLAGS) $< -o $@
 
@@ -30,11 +30,7 @@ COMMON_SRC=$(shell find $(SRC_DIR)/ -path "$(SRC_DIR)/bin" -prune -o -name '*.cp
 PC_SRC=$(shell find $(SRC_DIR)/bin/pc/ -name '*.cpp') $(COMMON_SRC)
 PC_OBJ=$(PC_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
-foo:
-	echo $(PC_SRC)
-	echo $(PC_OBJ)
-
-pc: $(PC_OBJ)
+pc: $(PC_OBJ) $(COMMON_DIR)/libslamcommon.a
 	$(CXX) $(PC_OBJ) $(LDFLAGS) -o $@
 
 
@@ -42,40 +38,35 @@ pc: $(PC_OBJ)
 SIM_SRC=$(shell find $(SRC_DIR)/bin/sim/ -name '*.cpp') $(COMMON_SRC)
 SIM_OBJ=$(SIM_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
-sim: $(SIM_OBJ)
+sim: $(SIM_OBJ) $(COMMON_DIR)/libslamcommon.a
 	$(CXX) $(SIM_OBJ) $(LDFLAGS) -o $@
 
 # Build lidar
 LIDAR_SRC=$(shell find $(SRC_DIR)/bin/lidar/ -name '*.cpp') $(COMMON_SRC)
 LIDAR_OBJ=$(LIDAR_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
-lidar: $(LIDAR_OBJ)
+lidar: $(LIDAR_OBJ) $(COMMON_DIR)/libslamcommon.a
 	$(CXX) $(LIDAR_OBJ) $(LDFLAGS) -o $@
 
 # Build slam
 SLAM_SRC=$(shell find $(SRC_DIR)/bin/slam/ -name '*.cpp') $(COMMON_SRC)
 SLAM_OBJ=$(SLAM_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
-slam: $(SLAM_OBJ)
+slam: $(SLAM_OBJ) $(COMMON_DIR)/libslamcommon.a
 	$(CXX) $(SLAM_OBJ) $(LDFLAGS) -o $@
 
 # Build slam_vis
 SLAM_VIS_SRC=$(shell find $(SRC_DIR)/bin/slam_vis/ -name '*.cpp') $(COMMON_SRC)
 SLAM_VIS_OBJ=$(SLAM_VIS_SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(GLAD_OBJ)
 
-slam_vis: $(SLAM_VIS_OBJ)
+slam_vis: $(SLAM_VIS_OBJ) $(COMMON_DIR)/libslamcommon.a
 	$(CXX) $(SLAM_VIS_OBJ) $(LDFLAGS) -o $@
 
-
-$(GLM_DIR)/glm:
-	git submodule update --init --depth 1 $(GLM_DIR)
+$(COMMON_DIR)/libslamcommon.a:
+	make -C $(COMMON_DIR)/ --no-print-directory libslamcommon.a
 
 
 # Fetch and build GLAD
-$(GLAD_DIR)/main.py:
-	echo "checkout glad"
-	git submodule update --init --depth 1 $(GLAD_DIR)
-
 $(GLAD_OUT_DIR)/src/glad.c: $(GLAD_DIR)/main.py
 	$(GLAD) --out-path $(GLAD_OUT_DIR)/ --generator c --spec gl
 
