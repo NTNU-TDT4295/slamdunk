@@ -146,8 +146,8 @@ void uartSetup(void) {
   GPIO_PinModeSet(gpioPortF, 6, gpioModePushPull, 1);	//TX
   GPIO_PinModeSet(gpioPortF, 7, gpioModeInput, 0);	//RX
 
-  GPIO_PinModeSet(gpioPortE, 2, gpioModePushPull, 1);	//TX
-  GPIO_PinModeSet(gpioPortE, 3, gpioModeInput, 0);	//RX
+  GPIO_PinModeSet(gpioPortF, 10, gpioModePushPull, 1);	//TX
+  GPIO_PinModeSet(gpioPortF, 11, gpioModeInput, 0);	//RX
 
 
   /* Prepare struct for initializing UART in asynchronous mode*/
@@ -164,7 +164,7 @@ void uartSetup(void) {
 
   /* Initialize USART with uartInit struct */
   USART_InitAsync(uart0, &uartInit);
-  /* USART_InitAsync(uart1, &uartInit); */
+  USART_InitAsync(uart1, &uartInit);
 
   // Disable TX on 0 and RX on 1 for now to use USART_{T,R}x directly
   // in main loop to avoid interrupt overhead
@@ -173,15 +173,16 @@ void uartSetup(void) {
   USART_IntEnable(uart0, UART_IF_RXDATAV);
   NVIC_ClearPendingIRQ(UART0_RX_IRQn);
   NVIC_ClearPendingIRQ(UART0_TX_IRQn);
-  NVIC_EnableIRQ(UART0_RX_IRQn);
-  //NVIC_EnableIRQ(UART0_TX_IRQn);
+  /* NVIC_EnableIRQ(UART0_RX_IRQn); */
+  NVIC_EnableIRQ(UART0_TX_IRQn);
+
 
   USART_IntClear(uart1, _UART_IF_MASK);
   USART_IntEnable(uart1, UART_IF_RXDATAV);
   NVIC_ClearPendingIRQ(UART1_RX_IRQn);
   NVIC_ClearPendingIRQ(UART1_TX_IRQn);
-  //NVIC_EnableIRQ(UART1_RX_IRQn);
-  NVIC_EnableIRQ(UART1_TX_IRQn);
+  NVIC_EnableIRQ(UART1_RX_IRQn);
+  /* NVIC_EnableIRQ(UART1_TX_IRQn); */
 
   /* Enable I/O pins at UART1 location #2 */
   // LOC3 = PE2/PE3
@@ -189,7 +190,7 @@ void uartSetup(void) {
   // LOC1 = PE0/PE1
   /* uart0->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC1; */
   uart0->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC0;
-  uart1->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC3;
+  uart1->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC1;
 
   /* Enable UART */
   USART_Enable(uart0, usartEnable);
