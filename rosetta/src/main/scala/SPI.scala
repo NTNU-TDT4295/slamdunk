@@ -16,8 +16,6 @@ class SPI_Slave() extends RosettaAccelerator {
     // val spi_mosi = Bits(INPUT, 1)
     // val spi_sck  = Bits(INPUT, 1)
     // val spi_ss   = Bits(INPUT, 1)
-    val spi_valid = Bool(OUTPUT)
-    val spi_ready = Bool(INPUT)
 
     val lidar_burst_counter = UInt(OUTPUT, 32)
 
@@ -103,7 +101,7 @@ class SPI_Slave() extends RosettaAccelerator {
 
   word_received := word_signal_received
 
-  io.led3 := io.btn(3)
+  io.led3 := io.btn3
 
   // Choose buffer (double buffering) 0x0-0x7ff
   val bram = Module(new DualPortBRAM(addrBits = 11, dataBits = 32)).io

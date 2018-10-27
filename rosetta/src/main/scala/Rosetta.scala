@@ -44,7 +44,7 @@ class RosettaAcceleratorIF(numMemPorts: Int) extends Bundle {
   // user switches SW1 and SW0
   // val sw = UInt(INPUT, 2)
   // user buttons BN3..0
-  val btn = UInt(INPUT, 4)
+  val btn3 = UInt(INPUT, 4)
   // user RGB LEDs
   // val led4 = Vec(3, UInt(OUTPUT, 1))
   // val led5 = Vec(3, UInt(OUTPUT, 1))
@@ -124,7 +124,7 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
     // user switches SW1 and SW0
     // val sw = UInt(INPUT, 2)
     // user buttons BN3..0
-    val btn = UInt(INPUT, 4)
+    val btn3 = UInt(INPUT, 4)
     // user RGB LEDs LD4, LD5
     // val led4_r = UInt(OUTPUT, 1)
     // val led4_g = UInt(OUTPUT, 1)
@@ -260,7 +260,7 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
 
   // connections to board I/O
   // accel.io.sw := io.sw
-  accel.io.btn := io.btn
+  accel.io.btn3 := io.btn3
   // io.led := accel.io.led
   // io.led4_b := accel.io.led4(0)
   // io.led4_g := accel.io.led4(1)
