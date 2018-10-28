@@ -7,6 +7,18 @@
 #include "linmath.h"
 #include <semaphore.h>
 
+constexpr size_t SLAM_PATH_PAGE_SIZE = 1024;
+struct SlamPathPage {
+	vec3 entries[SLAM_PATH_PAGE_SIZE];
+	size_t num_entries;
+
+	// num_entries the last time the opengl buffer was updated.
+	size_t last_vbo_update;
+	unsigned int vao, vbo;
+	SlamPathPage *next;
+	bool inited;
+};
+
 struct SlamVisContext {
 	unsigned int quad_vao;
 	unsigned int texture;
@@ -39,6 +51,9 @@ struct SlamVisContext {
 	vec3 pose;
 
 	net_context net;
+
+	SlamPathPage *path;
+	SlamPathPage *path_last_page;
 };
 
 void init_slam_vis(SlamVisContext &ctx);

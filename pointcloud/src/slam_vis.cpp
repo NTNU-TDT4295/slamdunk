@@ -121,6 +121,13 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 							(float)buffer[2] / 1000000.0f);
 
 			ctx->pose = pos;
+
+			if (ctx->path_last_page->num_entries >= SLAM_PATH_PAGE_SIZE) {
+				ctx->path_last_page->next = (SlamPathPage *)calloc(1, sizeof(SlamPathPage));
+				ctx->path_last_page = ctx->path_last_page->next;
+			}
+			ctx->path_last_page->entries[ctx->path_last_page->num_entries] = pos;
+			ctx->path_last_page->num_entries += 1;
 		} break;
 
 		default:
@@ -148,6 +155,23 @@ constexpr float pose_marker_data[] = {
 	// -0.3f, 0.7f, 1.0f,
 };
 constexpr size_t pose_marker_points = sizeof(pose_marker_data) / (sizeof(float) * 3);
+
+static void init_slam_path_page(SlamPathPage *page) {
+	glGenVertexArrays(1, &page->vao);
+	glBindVertexArray(page->vao);
+
+	glGenBuffers(1, &page->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, page->vbo);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(page->entries), page->entries, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), 0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	page->inited = true;
+}
 
 void init_slam_vis(SlamVisContext &ctx) {
 	const float quad[] = {
@@ -271,6 +295,7 @@ void init_slam_vis(SlamVisContext &ctx) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	ctx.path = ctx.path_last_page = (SlamPathPage *)calloc(1, sizeof(SlamPathPage));
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -298,7 +323,6 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindVertexArray(0);
 
 	// Draw pose marker
 	glUseProgram(ctx.shader.id);
@@ -308,13 +332,44 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
 	mat4 matrix;
 	matrix = mat4(1.0f);
-	float scale = 1.0f / (SLAM_MAP_METERS_PER_PIXEL * (float)SLAM_MAP_WIDTH);
+	float scale = 1.0f / (SLAM_MAP_METERS_PER_PIXEL * (float)SLAM_MAP_WIDTH / 2.0f);
 	matrix = glm::translate(matrix, vec3(ctx.pose.x, ctx.pose.y, 0.0f) * scale);
 	matrix = glm::rotate(matrix, ctx.pose.z, vec3(0.0f, 0.0f, 1.0f));
 	matrix = glm::scale(matrix, vec3(scale, scale, 0.0f));
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 	glLineWidth(2.0f);
 	glDrawArrays(GL_LINES, 0, pose_marker_points);
+
+	glUniform3f(ctx.shader.emission_color, 0.0f, 1.0f, 0.0f);
+	glLineWidth(1.0f);
+	matrix = mat4(1.0f);
+	matrix = glm::scale(matrix, vec3(scale, scale, 0.0f));
+	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
+
+	for (SlamPathPage *page = ctx.path; page != NULL; page = page->next) {
+		size_t num_entries = page->num_entries;
+		if (num_entries > 0) {
+			if (num_entries > page->last_vbo_update) {
+				if (!page->inited) {
+					init_slam_path_page(page);
+				}
+
+				glBindBuffer(GL_ARRAY_BUFFER, page->vbo);
+				// glBufferSubData(GL_ARRAY_BUFFER,
+				// 				page->last_vbo_update * sizeof(vec3),
+				// 				(num_entries - page->last_vbo_update) * sizeof(vec3),
+				// 				page->entries);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(page->entries),
+							 page->entries, GL_DYNAMIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+				page->last_vbo_update = num_entries;
+			}
+
+			glBindVertexArray(page->vao);
+			glDrawArrays(GL_LINE_STRIP, 0, num_entries);
+		}
+	}
 }
 
 void free_slam_vis(SlamVisContext &ctx) {
