@@ -1,5 +1,6 @@
 /pc
 /sim
 /slam
+/slam_vis
 /lidar
 /build/

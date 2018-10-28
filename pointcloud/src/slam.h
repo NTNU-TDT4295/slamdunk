@@ -29,6 +29,8 @@ struct SlamContext {
 
 	uint8_t *tex_buffer;
 
+	unsigned int last_sent_update;
+
 	int client_fd;
 	struct timespec last_reconnect;
 };

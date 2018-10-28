@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 // #include "opengl.h"
 #include "utils.h"
+#include "slam_vis_net.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -48,21 +49,86 @@ static struct timespec read_time() {
 // 	return 0;
 // }
 
-static int send_map(int fd, float *map, size_t width, size_t height) {
+static int send_packet_id(int fd, uint8_t packet_id) {
 	if (fd == -1) {
 		return -1;
 	}
 
-	uint8_t packet_type = 0;
+	ssize_t err;
+	err = send(fd, &packet_id, sizeof(packet_id), 0);
+
+	if (err < 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+static int send_map_tile_begin(int fd) {
+	return send_packet_id(fd, SLAM_PACKET_TILE_BEGIN);
+}
+
+static int send_map_tile_done(int fd) {
+	return send_packet_id(fd, SLAM_PACKET_TILE_DONE);
+}
+
+static int send_map_tile(int fd, float *map, size_t chunk_x, size_t chunk_y) {
+	if (fd == -1) {
+		return -1;
+	}
+
+	uint8_t buffer[(SLAM_MAP_TILE_SIZE*SLAM_MAP_TILE_SIZE)/4] = {0};
+
+	size_t map_offset =
+		(chunk_x * SLAM_MAP_TILE_SIZE) +
+		(chunk_y * SLAM_MAP_TILE_SIZE) * SLAM_MAP_WIDTH;
+
+	size_t map_row_stride = SLAM_MAP_WIDTH - SLAM_MAP_TILE_SIZE;
+
+	for (size_t i = 0; i < SLAM_MAP_TILE_SIZE*SLAM_MAP_TILE_SIZE; i++) {
+		uint8_t val;
+
+		size_t j = map_offset + i + (i / SLAM_MAP_TILE_SIZE) * map_row_stride;
+
+		if (hs_is_occupied(map[j])) {
+			val = 0x2;
+		} else if (hs_is_free(map[j])) {
+			val = 0x1;
+		} else {
+			val = 0x0;
+		}
+
+		buffer[i/4] |= val << ((j % 4)*2);
+	}
+
+	uint8_t header[3];
+
+	header[0] = SLAM_PACKET_TILE;
+	header[1] = chunk_x;
+	header[2] = chunk_y;
 
 	ssize_t err;
-	err = send(fd, &packet_type, sizeof(packet_type), 0);
+	err = send(fd, header, sizeof(header), 0);
 
-	uint8_t buffer[(1024*1024)/4] = {0};
-	assert(width == 1024);
-	assert(height == 1024);
+	err = send(fd, buffer, sizeof(buffer), 0);
+	if (err < 0) {
+		perror("send");
+		return -1;
+	}
 
-	for (size_t i = 0; i < width*height; i++) {
+	return 0;
+}
+
+static int send_full_map(int fd, float *map) {
+	if (fd == -1) {
+		return -1;
+	}
+
+	send_packet_id(fd, SLAM_PACKET_MAP);
+
+	uint8_t buffer[(SLAM_MAP_WIDTH*SLAM_MAP_HEIGHT)/4] = {0};
+
+	for (size_t i = 0; i < SLAM_MAP_WIDTH*SLAM_MAP_HEIGHT; i++) {
 		uint8_t val;
 		if (hs_is_occupied(map[i])) {
 			val = 0x2;
@@ -75,6 +141,7 @@ static int send_map(int fd, float *map, size_t width, size_t height) {
 	}
 
 	size_t bytes_sent = 0;
+	ssize_t err;
 	while (bytes_sent < sizeof(buffer)) {
 		err = send(fd, buffer + bytes_sent,
 				   sizeof(buffer) - bytes_sent, 0);
@@ -88,6 +155,65 @@ static int send_map(int fd, float *map, size_t width, size_t height) {
 	return 0;
 }
 
+static int send_map(int fd, float *map, unsigned int *map_last_update, unsigned int last_update) {
+	if (fd == -1) {
+		return -1;
+	}
+
+	constexpr size_t map_area =
+		SLAM_MAP_WIDTH * SLAM_MAP_HEIGHT;
+	constexpr size_t total_tiles =
+		SLAM_MAP_TILES_X * SLAM_MAP_TILES_Y;
+	constexpr size_t dirty_tiles_chunks =
+		(total_tiles / 64) +
+		(((total_tiles % 64) == 0) ? 0 : 1);
+
+	uint64_t dirty_tiles[dirty_tiles_chunks] = {0};
+	size_t num_dirty_tiles = 0;
+
+	for (size_t i = 0; i < map_area; i++) {
+		if (map_last_update[i] >= last_update) {
+			size_t tile_x = (i % SLAM_MAP_WIDTH) / SLAM_MAP_TILE_SIZE;
+			size_t tile_y = (i / SLAM_MAP_WIDTH) / SLAM_MAP_TILE_SIZE;
+			size_t tile_i = tile_x + tile_y * SLAM_MAP_TILES_X;
+
+			uint64_t mask = 1 << (tile_i % 64);
+
+			// Only increment num_dirty_tiles if this tile was not
+			// already marked as dirty.
+			num_dirty_tiles += !(dirty_tiles[tile_i / 64] & mask);
+			dirty_tiles[tile_i / 64] |= mask;
+		}
+	}
+
+	if (num_dirty_tiles > total_tiles / 2) {
+		printf("send map %zu\n", num_dirty_tiles);
+		return send_full_map(fd, map);
+	} else if (num_dirty_tiles > 0) {
+		size_t err;
+		printf("send tiles %zu\n", num_dirty_tiles);
+
+		if (send_map_tile_begin(fd) < 0) {
+			return -1;
+		}
+
+		for (size_t i = 0; i < total_tiles; i++) {
+			if ((dirty_tiles[i / 64] & (1 << (i % 64))) > 0) {
+				err = send_map_tile(fd, map, i % SLAM_MAP_TILES_X, i / SLAM_MAP_TILES_X);
+				if (err < 0) {
+					return err;
+				}
+			}
+		}
+
+		if (send_map_tile_done(fd) < 0) {
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 void init_slam(SlamContext &ctx) {
 	ctx.numPoints = 0;
 	ctx.capPoints = scan_data_cap;
@@ -95,95 +221,15 @@ void init_slam(SlamContext &ctx) {
 
 	hs_init(ctx.slam);
 
-	// const float quad[] = {
-	// 	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-	// 	 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-	// 	-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-
-	// 	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-	// 	 1.0f, -1.0f, 0.0f,	1.0f, 0.0f,
-	// 	 1.0f,  1.0f, 0.0f,	1.0f, 1.0f,
-	// };
-
-	// GLuint vao, buffer;
-
-	// glGenVertexArrays(1, &vao);
-	// glBindVertexArray(vao);
-
-	// glGenBuffers(1, &buffer);
-	// glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(quad),
-	// 			 &quad, GL_STATIC_DRAW);
-
-	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
-	// glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *)(sizeof(float) * 3));
-
-	// glEnableVertexAttribArray(0);
-	// glEnableVertexAttribArray(2);
-
-	// glBindBuffer(GL_ARRAY_BUFFER, 0);
-	// glBindVertexArray(0);
-
-	// ctx.quad_vao = vao;
-
-	// glGenTextures(1, &ctx.texture);
-	// glBindTexture(GL_TEXTURE_2D, ctx.texture);
-
-	// int mapWidth = ctx.slam.width;
-	// int mapHeight = ctx.slam.height;
-
-	// ctx.tex_buffer = (uint8_t *)calloc(mapWidth * mapHeight, sizeof(uint8_t));
-
-	// memset(ctx.tex_buffer, 0, mapHeight * mapHeight * sizeof(uint8_t));
-	// glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mapWidth, mapHeight, 0,
-	// 			 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
-
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-
-	// glBindTexture(GL_TEXTURE_2D, 0);
-
-	// GLuint vshader, fshader;
-	// vshader = create_shader_from_file("assets/shaders/test.vsh", GL_VERTEX_SHADER);
-	// fshader = create_shader_from_file("assets/shaders/texture.fsh", GL_FRAGMENT_SHADER);
-
-	// ctx.shader.id = glCreateProgram();
-
-	// glAttachShader(ctx.shader.id, vshader);
-	// glAttachShader(ctx.shader.id, fshader);
-
-	// if (!link_shader_program(ctx.shader.id)) {
-	// 	panic("Could not compile the shader!");
-	// }
-
-	// ctx.shader.in_matrix            = glGetUniformLocation(ctx.shader.id, "in_matrix");
-	// ctx.shader.in_projection_matrix = glGetUniformLocation(ctx.shader.id, "in_projection_matrix");
-	// ctx.shader.in_tex = glGetUniformLocation(ctx.shader.id, "tex");
-
-	// glUseProgram(ctx.shader.id);
-
-	// mat4 mat (1.0f);
-
-	// glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(mat));
-	// glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(mat));
-	// glUniform1i(ctx.shader.in_tex, 0);
-
-	// glUseProgram(0);
-
 	ctx.client_fd = -1;
 
 	init_lidar_socket(ctx.lidar_socket, "0.0.0.0", "6002");
-
-	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 	sem_wait(&ctx.lidar_socket.lock);
 
 	size_t length = ctx.lidar_socket.scan_data_length[ctx.lidar_socket.scan_data_read_select];
-	// printf("%zu\n", length);
 
 	float scale = 1.0f / ctx.slam.maps[0].cellSize;
 
@@ -201,28 +247,23 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 			}
 
 			vec2 point = vec2(cos(angle) * dist, sin(angle) * dist);
-
-			//printf("setting point %f %f\n", point.x, point.y);
 			ctx.points[ctx.numPoints] = point;
-
 			ctx.numPoints += 1;
 		}
 	}
 
 	sem_post(&ctx.lidar_socket.lock);
 
-	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	if (ctx.numPoints > 0) {
-		printf("Updating, %zu\n", ctx.numPoints);
+		// printf("Updating, %zu\n", ctx.numPoints);
 		hs_update(ctx.slam,
 				  ctx.points,
 				  ctx.numPoints);
 
-		printf("position: %f %f - %f\n",
-			   ctx.slam.lastPosition.x,
-			   ctx.slam.lastPosition.y,
-			   ctx.slam.lastPosition.z);
+		// printf("position: %f %f - %f\n",
+		// 	   ctx.slam.lastPosition.x,
+		// 	   ctx.slam.lastPosition.y,
+		// 	   ctx.slam.lastPosition.z);
 	}
 
 	struct timespec time_current;
@@ -240,46 +281,18 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 
 	if (ctx.client_fd >= 0) {
 		if (send_map(ctx.client_fd,
-					ctx.slam.maps[0].values,
-					ctx.slam.maps[0].width,
-					ctx.slam.maps[0].height) < 0) {
+					 ctx.slam.maps[0].values,
+					 ctx.slam.maps[0].updateIndex,
+					 ctx.last_sent_update) == 0) {
+			if ((unsigned int)ctx.slam.maps[0].currentUpdateIndex > ctx.last_sent_update) {
+				printf("last sendt update %u\n", ctx.slam.maps[0].currentUpdateIndex);
+			}
+			ctx.last_sent_update = ctx.slam.maps[0].currentUpdateIndex;
+		} else {
 			ctx.client_fd = -1;
 			ctx.last_reconnect = time_current;
 		}
 	}
-
-	// if (info.keyboard.forward && !ctx.btn_down) {
-	// 	ctx.res = (ctx.res + 1) % HECTOR_SLAM_MAP_RESOLUTIONS;
-	// }
-	// ctx.btn_down = info.keyboard.forward;
-
-	// HectorSlamOccGrid &map = ctx.slam.maps[ctx.res];
-
-	// memset(ctx.tex_buffer, 0, map.width * map.height);
-
-	// for (size_t i = 0; i < map.width * map.height; i++) {
-	// 	if (hs_is_occupied(map.values[i])) {
-	// 		ctx.tex_buffer[i] = 255;
-	// 	} else if (hs_is_free(map.values[i])) {
-	// 		ctx.tex_buffer[i] = 50;
-	// 	}
-	// }
-
-	// glUseProgram(ctx.shader.id);
-	// glBindVertexArray(ctx.quad_vao);
-
-	// glActiveTexture(GL_TEXTURE0);
-	// glBindTexture(GL_TEXTURE_2D, ctx.texture);
-
-	// // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, map.width, map.height,
-	// // 				GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
-	// glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, map.width, map.height, 0,
-	// 			 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer);
-
-	// glDrawArrays(GL_TRIANGLES, 0, 6);
-
-	// glBindTexture(GL_TEXTURE_2D, 0);
-	// glBindVertexArray(0);
 }
 
 void free_slam(SlamContext &ctx) {

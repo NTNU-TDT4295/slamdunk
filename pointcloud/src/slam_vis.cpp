@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "slam_vis_net.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -27,11 +28,12 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 		}
 
 		switch (packet_type) {
-		case 0: {
+		case SLAM_PACKET_MAP: {
 			size_t bytes_read = 0;
-			while (bytes_read < (ctx->width * ctx->height) / 4) {
+			size_t bytes_total = (SLAM_MAP_WIDTH * SLAM_MAP_HEIGHT) / 4;
+			while (bytes_read < bytes_total) {
 				err = recv(net_ctx->socket_fd, ctx->read_buffer + bytes_read,
-						   ((ctx->width*ctx->height)/4 * sizeof(uint8_t)) - bytes_read, 0);
+						   (bytes_total * sizeof(uint8_t)) - bytes_read, 0);
 				if (err < 0) {
 					perror("recv");
 					return;
@@ -40,10 +42,10 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 				bytes_read += err;
 			}
 
-			uint8_t *out_buffer = ctx->tex_buffer[ctx->tex_buffer_read ^ 0x1];
-			uint8_t *read_buffer  = ctx->read_buffer;
+			uint8_t *out_buffer  = ctx->tex_buffer[ctx->tex_buffer_read ^ 0x1];
+			uint8_t *read_buffer = ctx->read_buffer;
 
-			for (size_t i = 0; i < ctx->width * ctx->height; i++) {
+			for (size_t i = 0; i < SLAM_MAP_WIDTH * SLAM_MAP_HEIGHT; i++) {
 				uint8_t val = (read_buffer[i / 4] >> (2 * (i % 4))) & 0x3;
 				switch (val) {
 				case 0x1: out_buffer[i] = 50;  break;
@@ -57,7 +59,58 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 			sem_post(&ctx->lock);
 		} break;
 
-		case 1: {
+		case SLAM_PACKET_TILE_BEGIN: {
+			uint8_t *out_buffer  = ctx->tex_buffer[ctx->tex_buffer_read ^ 0x1];
+			uint8_t *read_buffer = ctx->tex_buffer[ctx->tex_buffer_read];
+
+			memcpy(out_buffer, read_buffer, SLAM_MAP_WIDTH * SLAM_MAP_HEIGHT);
+		} break;
+
+		case SLAM_PACKET_TILE_DONE: {
+			sem_wait(&ctx->lock);
+			ctx->tex_buffer_read ^= 0x1;
+			sem_post(&ctx->lock);
+		} break;
+
+		case SLAM_PACKET_TILE: {
+			uint8_t header[2];
+			err = recv(net_ctx->socket_fd, header, sizeof(header), 0);
+
+			uint8_t chunk_x = header[0];
+			uint8_t chunk_y = header[1];
+
+			uint8_t buffer[(SLAM_MAP_TILE_SIZE*SLAM_MAP_TILE_SIZE) / 4] = {0};
+
+			err = recv(net_ctx->socket_fd, buffer, sizeof(buffer), 0);
+			if (err != sizeof(buffer)) {
+				perror("recv");
+				return;
+			}
+
+			printf("updating %i %i\n", chunk_x, chunk_y);
+
+			size_t map_row_stride = SLAM_MAP_WIDTH - SLAM_MAP_TILE_SIZE;
+			size_t map_offset =
+				((size_t)chunk_x * SLAM_MAP_TILE_SIZE) +
+				((size_t)chunk_y * SLAM_MAP_TILE_SIZE) * SLAM_MAP_WIDTH;
+
+			uint8_t *out_buffer = ctx->tex_buffer[ctx->tex_buffer_read ^ 0x1];
+
+			for (size_t i = 0; i < SLAM_MAP_TILE_SIZE*SLAM_MAP_TILE_SIZE; i++) {
+				size_t j = map_offset + i + (i / SLAM_MAP_TILE_SIZE) * map_row_stride;
+
+				uint8_t val = (buffer[i / 4] >> ((i % 4) * 2)) & 0x3;
+
+				switch (val) {
+				case 0x1: out_buffer[j] = 50;  break;
+				case 0x2: out_buffer[j] = 255; break;
+				default:  out_buffer[j] = 0;  break;
+				}
+			}
+
+		} break;
+
+		case SLAM_PACKET_POSE: {
 			uint32_t buffer[3];
 			err = recv(net_ctx->socket_fd, buffer, sizeof(buffer), 0);
 			if (err < 0) {
@@ -115,8 +168,8 @@ void init_slam_vis(SlamVisContext &ctx) {
 	glGenTextures(1, &ctx.texture);
 	glBindTexture(GL_TEXTURE_2D, ctx.texture);
 
-	ctx.width = 1024;
-	ctx.height = 1024;
+	ctx.width = SLAM_MAP_WIDTH;
+	ctx.height = SLAM_MAP_HEIGHT;
 
 	int mapWidth = ctx.width;
 	int mapHeight = ctx.height;
