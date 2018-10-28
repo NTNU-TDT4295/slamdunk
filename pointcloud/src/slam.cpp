@@ -214,6 +214,28 @@ static int send_map(int fd, float *map, unsigned int *map_last_update, unsigned 
 	return 0;
 }
 
+int send_pose(int fd, vec3 pose) {
+	if (fd == -1) {
+		return -1;
+	}
+
+	uint8_t buffer[1 + 3*sizeof(int32_t)];
+	int32_t *pos_buffer = (int32_t *)&buffer[1];
+
+	buffer[0] = SLAM_PACKET_POSE;
+	pos_buffer[0] = pose.x * 1000.0f;
+	pos_buffer[1] = pose.y * 1000.0f;
+	pos_buffer[2] = pose.z * 1000000.0f;
+
+	ssize_t err;
+	err = send(fd, buffer, sizeof(buffer), 0);
+	if (err < (ssize_t)sizeof(buffer)) {
+		return -1;
+	}
+
+	return 0;
+}
+
 void init_slam(SlamContext &ctx) {
 	ctx.numPoints = 0;
 	ctx.capPoints = scan_data_cap;
@@ -255,15 +277,11 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 	sem_post(&ctx.lidar_socket.lock);
 
 	if (ctx.numPoints > 0) {
-		// printf("Updating, %zu\n", ctx.numPoints);
 		hs_update(ctx.slam,
 				  ctx.points,
 				  ctx.numPoints);
 
-		// printf("position: %f %f - %f\n",
-		// 	   ctx.slam.lastPosition.x,
-		// 	   ctx.slam.lastPosition.y,
-		// 	   ctx.slam.lastPosition.z);
+		send_pose(ctx.client_fd, ctx.slam.lastPosition);
 	}
 
 	struct timespec time_current;
