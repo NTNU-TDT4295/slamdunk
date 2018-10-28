@@ -132,14 +132,20 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 
 
 constexpr float pose_marker_data[] = {
-	0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 1.0f,
+	-0.5f, -0.5f, 0.0f,
+	 0.5f,  0.5f, 0.0f,
 
-	0.0f, 1.0f, 1.0f,
-	0.3f, 0.7f, 1.0f,
+	 0.5f, -0.5f, 0.0f,
+	-0.5f,  0.5f, 0.0f,
 
-	0.0f, 1.0f, 1.0f,
-	-0.3f, 0.7f, 1.0f,
+	// 0.0f, 0.0f, 1.0f,
+	// 0.0f, 1.0f, 1.0f,
+
+	// 0.0f, 1.0f, 1.0f,
+	// 0.3f, 0.7f, 1.0f,
+
+	// 0.0f, 1.0f, 1.0f,
+	// -0.3f, 0.7f, 1.0f,
 };
 constexpr size_t pose_marker_points = sizeof(pose_marker_data) / (sizeof(float) * 3);
 

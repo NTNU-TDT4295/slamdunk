@@ -28,34 +28,13 @@ static struct timespec read_time() {
 	return time;
 }
 
-// static int send_point_data(int fd, vec3 point) {
-// 	int32_t buffer[3];
-
-// 	if (fd == -1) {
-// 		return -1;
-// 	}
-
-// 	buffer[0] = (int32_t)(point.x * 1000.0f);
-// 	buffer[1] = (int32_t)(point.y * 1000.0f);
-// 	buffer[2] = (int32_t)(point.z * 1000.0f);
-
-// 	ssize_t err;
-// 	err = send(fd, buffer, sizeof(buffer), 0);
-// 	if (err < 0) {
-// 		perror("send");
-// 		return -1;
-// 	}
-
-// 	return 0;
-// }
-
 static int send_packet_id(int fd, uint8_t packet_id) {
 	if (fd == -1) {
 		return -1;
 	}
 
 	ssize_t err;
-	err = send(fd, &packet_id, sizeof(packet_id), 0);
+	err = send(fd, &packet_id, sizeof(packet_id), MSG_NOSIGNAL);
 
 	if (err < 0) {
 		return -1;
@@ -108,9 +87,9 @@ static int send_map_tile(int fd, float *map, size_t chunk_x, size_t chunk_y) {
 	header[2] = chunk_y;
 
 	ssize_t err;
-	err = send(fd, header, sizeof(header), 0);
+	err = send(fd, header, sizeof(header), MSG_NOSIGNAL);
 
-	err = send(fd, buffer, sizeof(buffer), 0);
+	err = send(fd, buffer, sizeof(buffer), MSG_NOSIGNAL);
 	if (err < 0) {
 		perror("send");
 		return -1;
@@ -144,7 +123,7 @@ static int send_full_map(int fd, float *map) {
 	ssize_t err;
 	while (bytes_sent < sizeof(buffer)) {
 		err = send(fd, buffer + bytes_sent,
-				   sizeof(buffer) - bytes_sent, 0);
+				   sizeof(buffer) - bytes_sent, MSG_NOSIGNAL);
 		if (err < 0) {
 			perror("send");
 			return - 1;
@@ -228,7 +207,7 @@ int send_pose(int fd, vec3 pose) {
 	pos_buffer[2] = pose.z * 1000000.0f;
 
 	ssize_t err;
-	err = send(fd, buffer, sizeof(buffer), 0);
+	err = send(fd, buffer, sizeof(buffer), MSG_NOSIGNAL);
 	if (err < (ssize_t)sizeof(buffer)) {
 		return -1;
 	}
@@ -295,6 +274,7 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 			printf("done!\n");
 		}
 		ctx.last_reconnect = time_current;
+		ctx.last_sent_update = 0;
 	}
 
 	if (ctx.client_fd >= 0 && ctx.last_sent_update < (unsigned int)ctx.slam.maps[0].currentUpdateIndex) {
