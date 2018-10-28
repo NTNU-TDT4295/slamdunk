@@ -187,12 +187,9 @@ static int send_map(int fd, float *map, unsigned int *map_last_update, unsigned 
 	}
 
 	if (num_dirty_tiles > total_tiles / 2) {
-		printf("send map %zu\n", num_dirty_tiles);
 		return send_full_map(fd, map);
 	} else if (num_dirty_tiles > 0) {
 		size_t err;
-		printf("send tiles %zu\n", num_dirty_tiles);
-
 		if (send_map_tile_begin(fd) < 0) {
 			return -1;
 		}
