@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "net.h"
+#include "linmath.h"
 #include <semaphore.h>
 
 struct SlamVisContext {
@@ -15,7 +16,18 @@ struct SlamVisContext {
 		unsigned int in_matrix;
 		unsigned int in_projection_matrix;
 		unsigned int in_tex;
+	} tex_shader;
+
+	struct {
+		unsigned int id;
+		unsigned int in_matrix;
+		unsigned int in_projection_matrix;
+		unsigned int emission_color;
+		unsigned int diffuse_color;
 	} shader;
+
+	unsigned int pose_marker_vbo;
+	unsigned int pose_marker_vao;
 
 	uint8_t *read_buffer;
 
@@ -23,6 +35,8 @@ struct SlamVisContext {
 	uint8_t *tex_buffer[2];
 	int tex_buffer_read;
 	size_t width, height;
+
+	vec3 pose;
 
 	net_context net;
 };

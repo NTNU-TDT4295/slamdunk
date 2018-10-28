@@ -102,14 +102,14 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 				switch (val) {
 				case 0x1: out_buffer[j] = 50;  break;
 				case 0x2: out_buffer[j] = 255; break;
-				default:  out_buffer[j] = 20;  break;
+				default:  out_buffer[j] = 0;   break;
 				}
 			}
 
 		} break;
 
 		case SLAM_PACKET_POSE: {
-			uint32_t buffer[3];
+			int32_t buffer[3];
 			err = recv(net_ctx->socket_fd, buffer, sizeof(buffer), 0);
 			if (err < 0) {
 				perror("recv");
@@ -120,7 +120,7 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 							(float)buffer[1] / 1000.0f,
 							(float)buffer[2] / 1000000.0f);
 
-			printf("%f %f - %f\n", pos.x, pos.y, pos.z);
+			ctx->pose = pos;
 		} break;
 
 		default:
@@ -129,6 +129,19 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 		}
 	}
 }
+
+
+constexpr float pose_marker_data[] = {
+	0.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 1.0f,
+
+	0.0f, 1.0f, 1.0f,
+	0.3f, 0.7f, 1.0f,
+
+	0.0f, 1.0f, 1.0f,
+	-0.3f, 0.7f, 1.0f,
+};
+constexpr size_t pose_marker_points = sizeof(pose_marker_data) / (sizeof(float) * 3);
 
 void init_slam_vis(SlamVisContext &ctx) {
 	const float quad[] = {
@@ -190,6 +203,34 @@ void init_slam_vis(SlamVisContext &ctx) {
 	vshader = create_shader_from_file("assets/shaders/test.vsh", GL_VERTEX_SHADER);
 	fshader = create_shader_from_file("assets/shaders/texture.fsh", GL_FRAGMENT_SHADER);
 
+	ctx.tex_shader.id = glCreateProgram();
+
+	glAttachShader(ctx.tex_shader.id, vshader);
+	glAttachShader(ctx.tex_shader.id, fshader);
+
+	if (!link_shader_program(ctx.tex_shader.id)) {
+		panic("Could not compile the shader!");
+	}
+
+	ctx.tex_shader.in_matrix            = glGetUniformLocation(ctx.tex_shader.id, "in_matrix");
+	ctx.tex_shader.in_projection_matrix = glGetUniformLocation(ctx.tex_shader.id, "in_projection_matrix");
+	ctx.tex_shader.in_tex = glGetUniformLocation(ctx.tex_shader.id, "tex");
+
+	glUseProgram(ctx.tex_shader.id);
+
+	mat4 mat (1.0f);
+
+	glUniformMatrix4fv(ctx.tex_shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(mat));
+	glUniformMatrix4fv(ctx.tex_shader.in_matrix, 1, GL_FALSE, glm::value_ptr(mat));
+	glUniform1i(ctx.tex_shader.in_tex, 0);
+
+	glUseProgram(0);
+
+
+
+	vshader = create_shader_from_file("assets/shaders/test.vsh", GL_VERTEX_SHADER);
+	fshader = create_shader_from_file("assets/shaders/test.fsh", GL_FRAGMENT_SHADER);
+
 	ctx.shader.id = glCreateProgram();
 
 	glAttachShader(ctx.shader.id, vshader);
@@ -201,17 +242,29 @@ void init_slam_vis(SlamVisContext &ctx) {
 
 	ctx.shader.in_matrix            = glGetUniformLocation(ctx.shader.id, "in_matrix");
 	ctx.shader.in_projection_matrix = glGetUniformLocation(ctx.shader.id, "in_projection_matrix");
-	ctx.shader.in_tex = glGetUniformLocation(ctx.shader.id, "tex");
+	ctx.shader.emission_color       = glGetUniformLocation(ctx.shader.id, "emission_color");
+	ctx.shader.diffuse_color        = glGetUniformLocation(ctx.shader.id, "diffuse_color");
 
 	glUseProgram(ctx.shader.id);
-
-	mat4 mat (1.0f);
-
 	glUniformMatrix4fv(ctx.shader.in_projection_matrix, 1, GL_FALSE, glm::value_ptr(mat));
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(mat));
-	glUniform1i(ctx.shader.in_tex, 0);
 
-	glUseProgram(0);
+
+	glGenVertexArrays(1, &ctx.pose_marker_vao);
+	glBindVertexArray(ctx.pose_marker_vao);
+
+	glGenBuffers(1, &ctx.pose_marker_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, ctx.pose_marker_vbo);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pose_marker_data),
+				 pose_marker_data, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*3, 0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -223,8 +276,9 @@ void init_slam_vis(SlamVisContext &ctx) {
 
 void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
 
-	glUseProgram(ctx.shader.id);
+	glUseProgram(ctx.tex_shader.id);
 	glBindVertexArray(ctx.quad_vao);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -239,6 +293,22 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
+
+	// Draw pose marker
+	glUseProgram(ctx.shader.id);
+
+	glBindVertexArray(ctx.pose_marker_vao);
+	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
+	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
+	mat4 matrix;
+	matrix = mat4(1.0f);
+	float scale = 1.0f / (SLAM_MAP_METERS_PER_PIXEL * (float)SLAM_MAP_WIDTH);
+	matrix = glm::translate(matrix, vec3(ctx.pose.x, ctx.pose.y, 0.0f) * scale);
+	matrix = glm::rotate(matrix, ctx.pose.z, vec3(0.0f, 0.0f, 1.0f));
+	matrix = glm::scale(matrix, vec3(scale, scale, 0.0f));
+	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
+	glLineWidth(2.0f);
+	glDrawArrays(GL_LINES, 0, pose_marker_points);
 }
 
 void free_slam_vis(SlamVisContext &ctx) {
