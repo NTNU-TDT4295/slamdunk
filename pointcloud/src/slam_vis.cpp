@@ -87,8 +87,6 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 				return;
 			}
 
-			printf("updating %i %i\n", chunk_x, chunk_y);
-
 			size_t map_row_stride = SLAM_MAP_WIDTH - SLAM_MAP_TILE_SIZE;
 			size_t map_offset =
 				((size_t)chunk_x * SLAM_MAP_TILE_SIZE) +
@@ -104,7 +102,7 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 				switch (val) {
 				case 0x1: out_buffer[j] = 50;  break;
 				case 0x2: out_buffer[j] = 255; break;
-				default:  out_buffer[j] = 0;  break;
+				default:  out_buffer[j] = 20;  break;
 				}
 			}
 

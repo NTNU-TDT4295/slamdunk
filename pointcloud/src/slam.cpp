@@ -177,7 +177,7 @@ static int send_map(int fd, float *map, unsigned int *map_last_update, unsigned 
 			size_t tile_y = (i / SLAM_MAP_WIDTH) / SLAM_MAP_TILE_SIZE;
 			size_t tile_i = tile_x + tile_y * SLAM_MAP_TILES_X;
 
-			uint64_t mask = 1 << (tile_i % 64);
+			uint64_t mask = 1UL << (tile_i % 64);
 
 			// Only increment num_dirty_tiles if this tile was not
 			// already marked as dirty.
@@ -197,9 +197,12 @@ static int send_map(int fd, float *map, unsigned int *map_last_update, unsigned 
 			return -1;
 		}
 
+		size_t tiles_updated = 0;
+
 		for (size_t i = 0; i < total_tiles; i++) {
-			if ((dirty_tiles[i / 64] & (1 << (i % 64))) > 0) {
+			if ((dirty_tiles[i / 64] & (1UL << (i % 64))) > 0) {
 				err = send_map_tile(fd, map, i % SLAM_MAP_TILES_X, i / SLAM_MAP_TILES_X);
+				tiles_updated += 1;
 				if (err < 0) {
 					return err;
 				}
@@ -279,14 +282,11 @@ void tick_slam(SlamContext &ctx, const WindowFrameInfo &info) {
 		ctx.last_reconnect = time_current;
 	}
 
-	if (ctx.client_fd >= 0) {
+	if (ctx.client_fd >= 0 && ctx.last_sent_update < (unsigned int)ctx.slam.maps[0].currentUpdateIndex) {
 		if (send_map(ctx.client_fd,
 					 ctx.slam.maps[0].values,
 					 ctx.slam.maps[0].updateIndex,
 					 ctx.last_sent_update) == 0) {
-			if ((unsigned int)ctx.slam.maps[0].currentUpdateIndex > ctx.last_sent_update) {
-				printf("last sendt update %u\n", ctx.slam.maps[0].currentUpdateIndex);
-			}
 			ctx.last_sent_update = ctx.slam.maps[0].currentUpdateIndex;
 		} else {
 			ctx.client_fd = -1;
