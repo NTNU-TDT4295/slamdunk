@@ -129,15 +129,17 @@ set_property -dict { PACKAGE_PIN L19   IOSTANDARD LVCMOS33 } [get_ports { io_btn
 
 ##ChipKit Digital I/O High
 
-#set_property -dict { PACKAGE_PIN U5    IOSTANDARD LVCMOS33 } [get_ports { ck_io[26] }]; #IO_L19N_T3_VREF_13 Sch=ck_io[26]
-#set_property -dict { PACKAGE_PIN V5    IOSTANDARD LVCMOS33 } [get_ports { ck_io[27] }]; #IO_L6N_T0_VREF_13 Sch=ck_io[27]
-#set_property -dict { PACKAGE_PIN V6    IOSTANDARD LVCMOS33 } [get_ports { ck_io[28] }]; #IO_L22P_T3_13 Sch=ck_io[28]
-#set_property -dict { PACKAGE_PIN U7    IOSTANDARD LVCMOS33 } [get_ports { ck_io[29] }]; #IO_L11P_T1_SRCC_13 Sch=ck_io[29]
-set_property -dict { PACKAGE_PIN V7    IOSTANDARD LVCMOS33 } [get_ports { io_spi_mosi }]; #IO_L11N_T1_SRCC_13 Sch=ck_io[30]
-# set_property -dict { PACKAGE_PIN U8    IOSTANDARD LVCMOS33 } [get_ports { io_spi_miso }]; #IO_L17N_T2_13 Sch=ck_io[31]
-set_property -dict { PACKAGE_PIN V8    IOSTANDARD LVCMOS33 } [get_ports { io_spi_sck }]; #IO_L15P_T2_DQS_13 Sch=ck_io[32]
-set_property -dict { PACKAGE_PIN V10   IOSTANDARD LVCMOS33 } [get_ports { io_spi_ss }]; #IO_L21N_T3_DQS_13 Sch=ck_io[33]
-#set_property -dict { PACKAGE_PIN W10   IOSTANDARD LVCMOS33 } [get_ports { ck_io[34] }]; #IO_L16P_T2_13 Sch=ck_io[34]
+# Fixing botched design
+set_property -dict { PACKAGE_PIN U5    IOSTANDARD LVCMOS33 } [get_ports { io_spi_mosi }]; #IO_L19N_T3_VREF_13 Sch=ck_io[26]
+#set_property -dict { PACKAGE_PIN V5    IOSTANDARD LVCMOS33 } [get_ports { io_spi_miso }]; #IO_L6N_T0_VREF_13 Sch=ck_io[27]
+set_property -dict { PACKAGE_PIN V6    IOSTANDARD LVCMOS33 } [get_ports { io_spi_sck }]; #IO_L22P_T3_13 Sch=ck_io[28]
+set_property -dict { PACKAGE_PIN U7    IOSTANDARD LVCMOS33 } [get_ports { io_spi_ss }]; #IO_L11P_T1_SRCC_13 Sch=ck_io[29]
+
+#set_property -dict { PACKAGE_PIN V7    IOSTANDARD LVCMOS33 } [get_ports {  }]; #IO_L11N_T1_SRCC_13 Sch=ck_io[30]
+#set_property -dict { PACKAGE_PIN U8    IOSTANDARD LVCMOS33 } [get_ports { }]; #IO_L17N_T2_13 Sch=ck_io[31]
+#set_property -dict { PACKAGE_PIN V8    IOSTANDARD LVCMOS33 } [get_ports {  }]; #IO_L15P_T2_DQS_13 Sch=ck_io[32]
+#set_property -dict { PACKAGE_PIN V10   IOSTANDARD LVCMOS33 } [get_ports {  }]; #IO_L21N_T3_DQS_13 Sch=ck_io[33]
+#set_property -dict { PACKAGE_PIN W10   IOSTANDARD LVCMOS33 } [get_ports {  }]; #IO_L16P_T2_13 Sch=ck_io[34]
 #set_property -dict { PACKAGE_PIN W6    IOSTANDARD LVCMOS33 } [get_ports { ck_io[35] }]; #IO_L22N_T3_13 Sch=ck_io[35]
 #set_property -dict { PACKAGE_PIN Y6    IOSTANDARD LVCMOS33 } [get_ports { ck_io[36] }]; #IO_L13N_T2_MRCC_13 Sch=ck_io[36]
 #set_property -dict { PACKAGE_PIN Y7    IOSTANDARD LVCMOS33 } [get_ports { ck_io[37] }]; #IO_L13P_T2_MRCC_13 Sch=ck_io[37]
@@ -149,6 +151,7 @@ set_property -dict { PACKAGE_PIN V10   IOSTANDARD LVCMOS33 } [get_ports { io_spi
 
 ## ChipKit SPI
 
+# Original design:
 #set_property -dict { PACKAGE_PIN W15   IOSTANDARD LVCMOS33 } [get_ports { io_spi_miso }]; #IO_L10N_T1_34 Sch=ck_miso
 #set_property -dict { PACKAGE_PIN T12   IOSTANDARD LVCMOS33 } [get_ports { io_spi_mosi }]; #IO_L2P_T0_34 Sch=ck_mosi
 #set_property -dict { PACKAGE_PIN H15   IOSTANDARD LVCMOS33 } [get_ports { io_spi_sck }]; #IO_L19P_T3_35 Sch=ck_sck
