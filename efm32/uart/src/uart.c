@@ -164,7 +164,7 @@ void uartSetup(void) {
 
   /* Initialize USART with uartInit struct */
   USART_InitAsync(uart0, &uartInit);
-  /* USART_InitAsync(uart1, &uartInit); */
+  USART_InitAsync(uart1, &uartInit);
 
   // Disable TX on 0 and RX on 1 for now to use USART_{T,R}x directly
   // in main loop to avoid interrupt overhead
