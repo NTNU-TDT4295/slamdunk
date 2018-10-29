@@ -79,6 +79,7 @@ git clone https://github.com/Xilinx/linux-xlnx.git --depth 1 --branch xilinx-v20
 
 6. setup autoloading of the driver on boot:
     cp 8723bu.ko /lib/modules/4.9.0-xilinx/kernel/drivers/
+    echo "8723bu" >> /etc/modules
 
 
 ssh to pynq from anywhere using external router and tunnel
@@ -95,6 +96,9 @@ Because of the complexity of eduroam, we are using our own router.
         pairwise=CCMP
         auth_alg=OPEN
     }
+
+    sudo wpa_supplicant -B -i wlx74da38930a18 -c /etc/wpa_supplicant/wpa_supplicant.conf
+
 
 2. setup a reverse ssh tunnel to an external server to bypass NAT-rules, currently using thomas box with ip 35.196.88.68 - forwarding port 19999 on the server to port 22 on the pynq
 

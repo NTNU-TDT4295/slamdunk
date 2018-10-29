@@ -1,12 +1,9 @@
 #!/bin/bash
 
-# Setup interfaces
-echo $1 | sudo -i -S
-
 # setup wifi connection
 echo "network={
     ssid=\"SLAMDUNK_5G\"
-    psk=\$wifi_password\"
+    psk=\"password\"
     proto=RSN
     key_mgmt=WPA-PSK
     pairwise=CCMP
@@ -29,17 +26,17 @@ gateway 192.168.2.89
 #allow-hotplug wlan0
 auto wlx74da38930a18
 
-allow-hotplug wwlx74da38930a18
+allow-hotplug wlx74da38930a18
 iface wlx74da38930a18 inet dhcp
 wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 iface default inet dhcp" > /etc/network/interfaces
 
 # Hardcode NTNUs dns-servers with google backup
-chattr -i /etc/resolv.conf
+sudo chattr -i /etc/resolv.conf
 echo "nameserver 129.241.0.200
 nameserver 129.241.0.201
 nameserver 8.8.8.8" > /etc/resolv.conf
-chattr +i /etc/resolv.conf
+sudo chattr +i /etc/resolv.conf
 
 # restart networking
-systemctl restart networking 2>/dev/null
+sudo systemctl restart networking 2>/dev/null

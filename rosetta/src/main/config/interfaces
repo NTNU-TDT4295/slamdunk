@@ -11,7 +11,7 @@ netmask 255.255.255.0
 #allow-hotplug wlan0
 auto wlx74da38930a18
 
-allow-hotplug wwlx74da38930a18
+allow-hotplug wlx74da38930a18
 iface wlx74da38930a18 inet dhcp
 wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 iface default inet dhcp

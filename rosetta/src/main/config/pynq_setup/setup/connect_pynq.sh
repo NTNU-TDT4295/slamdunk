@@ -16,6 +16,7 @@ ip=$(ping6 -c 2 ff02::1%${interface} | grep DUP | awk '{print $4}')
 if [ $ip ]; then
     if [ $# -gt 0 ]; then # use any argument to just get the address
         echo $ip
+        exit 0
     else
         ssh xilinx@$ip
     fi

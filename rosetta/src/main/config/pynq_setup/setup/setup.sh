@@ -6,14 +6,13 @@ ip=$(bash connect_pynq.sh 1)
 printf 'pynq password: '
 read -s password
 
-# setup and execute wifi driver settings
-expect scp.exp ${ip} $password "8723bu.ko"
-expect scp.exp ${ip} $password "setup_wifi.sh"
-expect ssh.exp ${ip} $password "setup_wifi.sh"
+printf '\nsetup and execute wifi driver settings...\n'
+expect scp.exp ${ip} $password "8723bu.ko"     > /dev/null
+expect scp.exp ${ip} $password "setup_wifi.sh" > /dev/null
+expect ssh.exp ${ip} $password "setup_wifi.sh" > /dev/null
 
-
-# setup and execute network settings
-expect scp.exp ${ip} $password "setup_net.sh"
-expect ssh.exp ${ip} $password "setup_net.sh"
+printf '\nsetup and execute network settings...\n'
+expect scp.exp ${ip} $password "setup_net.sh" >/dev/null
+expect ssh.exp ${ip} $password "setup_net.sh" >/dev/null
 
 exit 0
