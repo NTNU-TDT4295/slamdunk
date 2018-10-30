@@ -28,7 +28,7 @@ int main(void)
 	// UART
 	init_uart();
 	/* GPIO_PinModeSet(gpioPortF, 8, gpioModePushPull, 1); //motoctl */
-	
+
 
 	// I2C and the BNO055
 	/* init_i2c(); */
@@ -62,11 +62,7 @@ int main(void)
 	char lidar_sample;
 	init_lidar(true, 0);
 
-///////////////
-	char buffer[255];
-///////////////
-	
-while (1) {
+	while (1) {
 		// 500 us per sample, 2000 samples per second, LIDAR
 		// SPI
 		/* get_samples_lidar(lidar_data, lidar_samples); */
@@ -74,7 +70,8 @@ while (1) {
 		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
 		/* put_uart_simple(1, buffer, 255); */
 
-		while (!enable_lidar);
+		while (!enable_lidar)
+			; // Busy wait, toggled by Top left button
 
 		lidar_sample = USART_Rx(UART0);
 		put_uart_simple(1, lidar_sample, 1);
