@@ -94,7 +94,7 @@ deploy: update_build
 	@echo ""
 	@echo "Deploying to: $(BOARD_URI)"
 	rsync -avz $(BUILD_DIR_PYNQ) $(BOARD_URI):
-	ssh -t $(BOARD_URI) "cd ~/rosetta && make cpp && sudo ./load_bitfile.sh && make run"
+	ssh -t $(BOARD_URI) "cd ~/rosetta && make cpp && make run"
 
 # remove everything that is built
 clean:

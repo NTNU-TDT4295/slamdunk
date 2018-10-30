@@ -83,6 +83,8 @@ class SPI_Slave() extends RosettaAccelerator {
     byte_counter := byte_counter + 1.U
   }
 
+
+  // TODO: SYNC sequence
   // Simple double buffering based on 1800 bytes
   // of lidar data bursts.
   when (word_signal_received) { // 4 bytes received => next write_address
