@@ -9,8 +9,8 @@ static void lidar_in_client(net_client_context *net_ctx) {
 
 	uint8_t buffer[5];
 	size_t bytes_read = 0;
-	size_t num_aligns = 0;
-	float last_angle = 0;
+	// size_t num_aligns = 0;
+	// float last_angle = 0;
 
 	while (!net_ctx->should_quit) {
 		while (bytes_read < sizeof(buffer)) {
@@ -31,20 +31,20 @@ static void lidar_in_client(net_client_context *net_ctx) {
 		// 	   buffer[0], buffer[1], buffer[2],
 		// 	   buffer[3], buffer[4], buffer[5]);
 
-		if (buffer[0] != 0xa5) {
-			printf("Missalignment...");
-			bytes_read = 0;
-			for (unsigned int i = 1; i < sizeof(buffer); i++) {
-				if (buffer[i] == 0xa5) {
-					printf(" offsetting %i", i);
-					bytes_read = sizeof(buffer) - i;
-					memmove(&buffer[0], &buffer[i], sizeof(buffer) - i);
-				}
-			}
-			printf("\n");
-			num_aligns += 1;
-			continue;
-		}
+		// if (buffer[0] != 0xa5 && buffer[0] != 0xa4) {
+		// 	printf("Missalignment...");
+		// 	bytes_read = 0;
+		// 	for (unsigned int i = 1; i < sizeof(buffer); i++) {
+		// 		if (buffer[i] == 0xa5 || buffer[i] == 0xa4) {
+		// 			printf(" offsetting %i", i);
+		// 			bytes_read = sizeof(buffer) - i;
+		// 			memmove(&buffer[0], &buffer[i], sizeof(buffer) - i);
+		// 		}
+		// 	}
+		// 	printf("\n");
+		// 	num_aligns += 1;
+		// 	continue;
+		// }
 
 		uint16_t angle_q;
 		float angle;
@@ -61,13 +61,27 @@ static void lidar_in_client(net_client_context *net_ctx) {
 
 		// printf("%f %f\n", angle, dist);
 
-		if (angle < last_angle - 50.0f) {
+		// if (angle < last_angle - 50.0f) {
+		if ((buffer[0] & 0x1) > 0 && (buffer[0] & 0x2) == 0) {
 			sem_wait(&ctx->lock);
+
+			if (ctx->scan_data_length[ctx->scan_data_read_select] < 100) {
+				for (size_t i = 0; i < ctx->scan_data_length[ctx->scan_data_read_select]; i++) {
+					printf("%.4f %.4f\n",
+						   ctx->scan_data[ctx->scan_data_read_select][i].x,
+						   ctx->scan_data[ctx->scan_data_read_select][i].y);
+				}
+			}
+
 			ctx->scan_data_read_select ^= 1;
 			ctx->scan_data_length[ctx->scan_data_read_select ^ 1] = 0;
 			sem_post(&ctx->lock);
 		}
-		last_angle = angle;
+		// last_angle = angle;
+
+		// if (buffer[0] == 0xa4) {
+		// 	continue;
+		// }
 
 		int write_select = ctx->scan_data_read_select ^ 1;
 

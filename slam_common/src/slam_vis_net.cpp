@@ -189,3 +189,7 @@ int slam_vis_send_pose(int fd, vec3 pose) {
 
 	return 0;
 }
+
+int slam_vis_send_reset_path(int fd) {
+	return send_packet_id(fd, SLAM_PACKET_RESET_PATH);
+}

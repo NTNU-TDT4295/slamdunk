@@ -301,6 +301,10 @@ static vec3 hs_interp_map_value_with_derivatives(HectorSlamOccGrid &map,
 
 	vec4 intensities;
 
+	if (index < 0 || (index + map.width + 1) >= map.width * map.height) {
+		return vec3(0.0f, 0.0f, 0.0f);
+	}
+
 	// get grid values for the 4 grid points surrounding the current
 	// coords. Check cached data first, if not contained filter
 	// gridPoint with gaussian and store in cache.

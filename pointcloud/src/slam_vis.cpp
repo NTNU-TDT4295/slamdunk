@@ -130,6 +130,10 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 			ctx->path_last_page->num_entries += 1;
 		} break;
 
+		case SLAM_PACKET_RESET_PATH: {
+			ctx->should_reset_path = true;
+		} break;
+
 		default:
 			print_error("net", "Got invalid packet type %i!\n", packet_type);
 			break;
@@ -346,10 +350,27 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	matrix = glm::scale(matrix, vec3(scale, scale, 0.0f));
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
+	if (ctx.should_reset_path) {
+		for (SlamPathPage *page = ctx.path->next; page != NULL;) {
+			glDeleteVertexArrays(1, &page->vao);
+			glDeleteBuffers(1, &page->vbo);
+
+			SlamPathPage *last_page = page;
+			page = page->next;
+			free(last_page);
+		}
+
+		ctx.path->num_entries = 0;
+		ctx.path->last_vbo_update = -1;
+		ctx.path_last_page = ctx.path;
+
+		ctx.should_reset_path = false;
+	}
+
 	for (SlamPathPage *page = ctx.path; page != NULL; page = page->next) {
 		size_t num_entries = page->num_entries;
 		if (num_entries > 0) {
-			if (num_entries > page->last_vbo_update) {
+			if ((ssize_t)num_entries > page->last_vbo_update) {
 				if (!page->inited) {
 					init_slam_path_page(page);
 				}

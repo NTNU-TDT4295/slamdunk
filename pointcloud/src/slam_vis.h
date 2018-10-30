@@ -13,7 +13,7 @@ struct SlamPathPage {
 	size_t num_entries;
 
 	// num_entries the last time the opengl buffer was updated.
-	size_t last_vbo_update;
+	ssize_t last_vbo_update;
 	unsigned int vao, vbo;
 	SlamPathPage *next;
 	bool inited;
@@ -52,6 +52,7 @@ struct SlamVisContext {
 
 	net_context net;
 
+	bool should_reset_path;
 	SlamPathPage *path;
 	SlamPathPage *path_last_page;
 };

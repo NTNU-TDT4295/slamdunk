@@ -96,7 +96,8 @@ int main(int argc, char *argv[]) {
 				uint16_t angle_q = (uint16_t)(theta * 64.0f) << 1;
 				uint16_t dist_q = (uint16_t)(dist * 4.0f * 1000.0f);
 
-				buffer[buffer_i*5 + 0] = 0xa5;
+				uint8_t sync = (nodes[pos].flag & RPLIDAR_RESP_MEASUREMENT_SYNCBIT) > 0;
+				buffer[buffer_i*5 + 0] = (nodes[pos].quality & ~0x3) | (!sync) << 1 | sync;
 				buffer[buffer_i*5 + 1] = angle_q & 0xff;
 				buffer[buffer_i*5 + 2] = angle_q >> 8;
 				buffer[buffer_i*5 + 3] = dist_q & 0xff;
