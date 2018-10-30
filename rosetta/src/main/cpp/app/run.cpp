@@ -30,37 +30,42 @@ void deinit_platform(void* platform)
 
 void spi_read_ring(void* platform)
 {
+	bool network = false;
+
 	std::string hostname = "192.168.1.100";
 	std::string port = "6002";
-	constexpr int buffer_size = 2048;
 
 	int sockfd, portno, n;
 	struct sockaddr_in serv_addr;
 	struct hostent* server;
 
-	char buffer[buffer_size];
-	portno = atoi(port.c_str());
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0) {
-		std::cerr << "ERROR opening socket" << std::endl;
-		exit(1);
-	}
-	server = gethostbyname(hostname.c_str());
-	if (server == NULL) {
-		std::cerr << "ERROR, no such host" << std::endl;
-		exit(1);
-	}
-	bzero((char*)&serv_addr, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	bcopy((char*)server->h_addr,
-		  (char*)&serv_addr.sin_addr.s_addr,
-		  server->h_length);
-	serv_addr.sin_port = htons(portno);
-	if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-		std::cerr << "ERROR connecting" << std::endl;
-		exit(1);
-	}
+	// Ev. receive
+	// constexpr int buffer_size = 255;
+	// char buffer[buffer_size];
 
+	if (network) {
+		portno = atoi(port.c_str());
+		sockfd = socket(AF_INET, SOCK_STREAM, 0);
+		if (sockfd < 0) {
+			std::cerr << "ERROR opening socket" << std::endl;
+			exit(1);
+		}
+		server = gethostbyname(hostname.c_str());
+		if (server == NULL) {
+			std::cerr << "ERROR, no such host" << std::endl;
+			exit(1);
+		}
+		bzero((char*)&serv_addr, sizeof(serv_addr));
+		serv_addr.sin_family = AF_INET;
+		bcopy((char*)server->h_addr,
+			  (char*)&serv_addr.sin_addr.s_addr,
+			  server->h_length);
+		serv_addr.sin_port = htons(portno);
+		if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+			std::cerr << "ERROR connecting" << std::endl;
+			exit(1);
+		}
+	}
 
 	//////////////////////////////
 
@@ -103,6 +108,22 @@ void spi_read_ring(void* platform)
 
 			uint8_t* lidar_data_byte = reinterpret_cast<uint8_t*>(&lidar_data);
 
+			if (network) {
+				for (int i = 0; i < lidar_burst_size; i += 5) {
+					if ((lidar_data[i] >> 2) < 20)
+						lidar_data[i] = 0xa5;
+					else
+						lidar_data[i] = 0xa4;
+				}
+
+				n = write(sockfd, lidar_data, lidar_burst_size);
+				if (n < 0) {
+					std::cerr << "ERROR writing to socket" << std::endl;
+					exit(1);
+				}
+			}
+
+			/////////////////////////////////
 
 			for (int i = 0; i < lidar_burst_size; i += 5) {
 				angle_q = ((lidar_data[i + 2] << 8) | (lidar_data[i + 1]));
@@ -113,32 +134,6 @@ void spi_read_ring(void* platform)
 				// 	std::cout << std::endl;
 				std::cout << std::setw(3) << static_cast<int>(angle) << ' ' << dist << '\n';
 			}
-
-
-			for (int i = 0; i < lidar_burst_size; i += 5) {
-				if ((lidar_data[i] >> 2) < 20)
-					lidar_data[i] = 0xa5;
-				else
-					lidar_data[i] = 0xa4;
-			}
-
-			n = write(sockfd, lidar_data, lidar_burst_size);
-			if (n < 0) {
-				std::cerr << "ERROR writing to socket" << std::endl;
-				exit(1);
-			}
-
-			/////////////////////////////////
-
-			// for (int i = 0; i < lidar_burst_size; i += 5) {
-			// 	angle_q = ((lidar_data[i + 2] << 8) | (lidar_data[i + 1]));
-			// 	angle = (float)(angle_q >> 1);
-			// 	angle = angle / 64.0f;
-			// 	dist = (float)((lidar_data[i + 4] << 8) | lidar_data[i + 3]) / 4.0f;
-			// 	// if (i % 50 == 0)
-			// 	// 	std::cout << std::endl;
-			// 	std::cout << std::setw(3) << static_cast<int>(angle) << ' ' << dist << '\n';
-			// }
 			std::cout << "\n=================================" << std::endl;
 		}
 
@@ -149,7 +144,8 @@ void spi_read_ring(void* platform)
 		// printf("%s\n", buffer);
 	}
 
-	close(sockfd);
+	if (network)
+		close(sockfd);
 }
 
 // /* Allocate DRAM and move memory with DMA */

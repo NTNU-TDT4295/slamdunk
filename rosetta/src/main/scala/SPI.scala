@@ -16,12 +16,12 @@ class SPI_Slave() extends RosettaAccelerator {
     // val spi_mosi = Bits(INPUT, 1)
     // val spi_sck  = Bits(INPUT, 1)
     // val spi_ss   = Bits(INPUT, 1)
+    // val buffer_reset = Bits(INPUT, 1)
 
     val lidar_burst_counter = UInt(OUTPUT, 32)
 
     val read_data = Bits(OUTPUT, 32)
     val read_addr = Bits(INPUT, 11)
-    // Decoupled
   }
 
   io.signature := makeDefaultSignature()
@@ -65,15 +65,14 @@ class SPI_Slave() extends RosettaAccelerator {
     }
   }
 
-  val byte_signal_received = Reg(init = Bool(false))
-  val write_address = Reg(init = UInt(0, width = 11)) // 4096 lines of words
-  val write_address_delayed = Reg(next = write_address) // Needed to delay write_address
-  val byte_counter = Reg(init = UInt(0, width = 2))  // 4 bytes/word
-  val word_data_received = Reg(init = UInt(0, width = 32))
-  val word_signal_received = Reg(init = Bool(false))
-  val word_received = Reg(init = Bool(false))
-
-  val lidar_burst_counter = Reg(init = UInt(0, width = 32))
+  val byte_signal_received  = Reg(init = Bool(false))
+  val write_address         = Reg(init = UInt(0, width = 11)) // 4096 lines of words
+  val write_address_delayed = Reg(next = write_address) // Needed to delay write_address TODO: Try not to delay this signal
+  val byte_counter          = Reg(init = UInt(0, width = 2))  // 4 bytes/word
+  val word_data_received    = Reg(init = UInt(0, width = 32))
+  val word_signal_received  = Reg(init = Bool(false))
+  val word_received         = Reg(init = Bool(false))
+  val lidar_burst_counter   = Reg(init = UInt(0, width = 32))
 
   byte_signal_received := ss_active && sck_rise && bitcnt === 7.U
 
@@ -83,40 +82,51 @@ class SPI_Slave() extends RosettaAccelerator {
     byte_counter := byte_counter + 1.U
   }
 
-
   // TODO: SYNC sequence
   // Simple double buffering based on 1800 bytes
   // of lidar data bursts.
   when (word_signal_received) { // 4 bytes received => next write_address
     when (write_address === 449.U) {
-      write_address := 512.U
+      write_address       := 512.U
       lidar_burst_counter := lidar_burst_counter + 1.U
     } .elsewhen (write_address === 961.U) {
-      write_address := 0.U
+      write_address       := 0.U
       lidar_burst_counter := lidar_burst_counter + 1.U
     } .otherwise {
-      write_address := write_address + 1.U
+      write_address       := write_address + 1.U
     }
+  }
+
+  when (~io.buffer_reset) { // Pullup button
+    byte_counter          := 0.U
+    write_address         := 0.U
+    word_received         := false.B
+    word_data_received    := 0.U
+    lidar_burst_counter   := 0.U
+    write_address_delayed := 0.U
+  }
+
+  io.io4_led := false.B
+  when (write_address === 0.U) {
+    io.io4_led := true.B
   }
 
   io.lidar_burst_counter := lidar_burst_counter
 
-  word_received := word_signal_received
+  word_received := word_signal_received // TODO: try not to delay this signal
 
-  io.led3 := io.btn3
-
-  // Choose buffer (double buffering) 0x0-0x7ff
-  val bram = Module(new DualPortBRAM(addrBits = 11, dataBits = 32)).io
+  // Choose buffer (double buffering in BRAM)
+  val bram      = Module(new DualPortBRAM(addrBits = 11, dataBits = 32)).io
   val writePort = bram.ports(0)
-  val readPort = bram.ports(1)
+  val readPort  = bram.ports(1)
 
-  writePort.req.addr := write_address_delayed
+  writePort.req.addr      := write_address_delayed
   writePort.req.writeData := word_data_received
-  writePort.req.writeEn := word_received
+  writePort.req.writeEn   := word_received
 
   readPort.req.writeEn := Bool(false)
-  readPort.req.addr := io.read_addr
-  io.read_data := readPort.rsp.readData
+  readPort.req.addr    := io.read_addr
+  io.read_data         := readPort.rsp.readData
 
   // the result will appear the next cycle, it is not noticeable in
   // software, but be wary when interfacing with BRAM from chisel

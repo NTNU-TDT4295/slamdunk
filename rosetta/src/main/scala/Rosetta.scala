@@ -59,6 +59,10 @@ class RosettaAcceleratorIF(numMemPorts: Int) extends Bundle {
   val spi_mosi = Bits(INPUT, 1)
   val spi_sck  = Bits(INPUT, 1)
   val spi_ss   = Bits(INPUT, 1)
+
+  // Reset button
+  val buffer_reset = Bool(INPUT)
+  val io4_led      = Bool(OUTPUT)
 }
 
 // base class for Rosetta accelerators
@@ -143,6 +147,10 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
     val spi_mosi = Bits(INPUT, 1)
     val spi_sck  = Bits(INPUT, 1)
     val spi_ss   = Bits(INPUT, 1)
+
+    // Reset button
+    val buffer_reset = Bool(INPUT)
+    val io4_led      = Bool(OUTPUT)
   }
   setName("PYNQWrapper")
   setModuleName("PYNQWrapper")
@@ -279,6 +287,10 @@ class RosettaWrapper(instFxn: () => RosettaAccelerator) extends Module {
   accel.io.spi_mosi := io.spi_mosi
   accel.io.spi_sck  := io.spi_sck
   accel.io.spi_ss   := io.spi_ss
+
+  // Reset button
+  accel.io.buffer_reset := io.buffer_reset
+  io.io4_led            := accel.io.io4_led
 
   // memory port adapters and connections
   for(i <- 0 until accel.numMemPorts) {
