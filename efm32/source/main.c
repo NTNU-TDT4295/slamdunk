@@ -12,6 +12,8 @@
 char transmitBuffer[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 #define BUFFERSIZE (sizeof(transmitBuffer) / sizeof(char))
 
+extern bool enable_lidar;
+
 int main(void)
 {
 	// General chip initialization
@@ -25,13 +27,18 @@ int main(void)
 
 	// UART
 	init_uart();
+	/* GPIO_PinModeSet(gpioPortF, 8, gpioModePushPull, 1); //motoctl */
+	
 
 	// I2C and the BNO055
 	/* init_i2c(); */
 	/* init_bno055(); */
 
 	// SPI
-	SPI_init();
+	init_SPI();
+
+	// GPIO interrupts
+	init_GPIO();
 
 	// RTC
 	//rtcSetup();
@@ -40,31 +47,42 @@ int main(void)
 	//init_sonar();
 
 	// Reset lidar completely to make it ready for scanning
-    unsigned int uart_channel = 0; // uart input channel
-	init_lidar(false, uart_channel);
+	unsigned int uart_channel = 0; // uart input channel
 
 	// Hold IMU data
-	uint8_t status_buf[1] = { 7 };
+	uint8_t status_buf[1] = {7};
 	struct euler angles;
 	struct quaternion quat;
 	struct accel accelerations;
 
 	// Hold LIDAR data
 	size_t lidar_samples = 360;
-	uint8_t lidar_data[lidar_samples*5];
+	uint8_t lidar_data[lidar_samples * 5];
 
 	char lidar_sample;
-	init_scan_lidar(false, 0);
+	init_lidar(true, 0);
 
-	while (1) {
+///////////////
+	char buffer[255];
+///////////////
+	
+while (1) {
 		// 500 us per sample, 2000 samples per second, LIDAR
-// SPI
+		// SPI
 		/* get_samples_lidar(lidar_data, lidar_samples); */
 		/* put_uart_simple(0, lidar_data, lidar_samples*5); */
 		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
+		/* put_uart_simple(1, buffer, 255); */
+
+		while (!enable_lidar);
 
 		lidar_sample = USART_Rx(UART0);
-        SPI_sendBuffer(&lidar_sample, 1);
+		put_uart_simple(1, lidar_sample, 1);
+		SPI_sendBuffer(&lidar_sample, 1);
+
+		// TODO:
+		// toggle lidar
+		// sync sequence
 
 		continue;
 
@@ -98,9 +116,9 @@ int main(void)
 
 		// SPI
 		SPI_sendBuffer(transmitBuffer, BUFFERSIZE);
-		
+
 		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
-		Delay(25);
+		Delay(4);
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)

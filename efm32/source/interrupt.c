@@ -2,76 +2,24 @@
 
 #define RTC_FREQ    32768
 
-/* Initial setup to 12:00 */
-uint32_t hours   = 12;
-uint32_t minutes = 0;
-uint32_t seconds = 0;
-
-/*
- * @brief  Gpio callback
- * @param  pin - pin which triggered interrupt
- */
-void gpioCallback(uint8_t pin)
-{
-    if (pin == 9)
-        hours = (hours + 1) % 24;
-    else if (pin == 10)
-        minutes = (minutes + 1) % 60;
-
-    inc_clock();
-}
-
 /*
  * @brief  Gpio setup. Setup button pins to trigger falling edge interrupts.
  *  Register callbacks for that interrupts.
  */
-void gpioSetup(void)
+void init_GPIO(void)
 {
     /* Initialize GPIO interrupt dispatcher */
     GPIOINT_Init();
 
-    /* Configure PB9 and PB10 as input */
-    GPIO_PinModeSet(gpioPortB, 9, gpioModeInput, 0);
-    GPIO_PinModeSet(gpioPortB, 10, gpioModeInput, 0);
+    /* Configure PC11 as input */
+    GPIO_PinModeSet(gpioPortC, 11, gpioModeInput, 0);
 
     /* Set falling edge interrupt for both ports */
-    GPIO_IntConfig(gpioPortB, 9, false, true, true);
-    GPIO_IntConfig(gpioPortB, 10, false, true, true);
+    GPIO_IntConfig(gpioPortC, 11, false, true, true);
 
     /* Register callbacks before setting up and enabling pin interrupt. */
-    GPIOINT_CallbackRegister(9, gpioCallback);
-    GPIOINT_CallbackRegister(10, gpioCallback);
-}
+	GPIOINT_CallbackRegister(11, toggle_lidar_cb);
 
-/* void RTC_IRQHandler(void) */
-/* { */
-/*     /\* Clear interrupt source *\/ */
-/*     RTC_IntClear(RTC_IFC_COMP0); */
-
-/*     /\* Increase time by one minute *\/ */
-/*     seconds++; */
-/*     if(seconds > 59){ */
-/*         seconds = 0; */
-/*         minutes++; */
-/*         if (minutes > 59) */
-/*         { */
-/*             minutes = 0; */
-/*             hours++; */
-/*             if (hours > 23) */
-/*             { */
-/*                 hours = 0; */
-/*             } */
-/*         } */
-/*     } */
-/*     inc_clock(); */
-/* } */
-
-void inc_clock()
-{
-    char str[8];
-    //SegmentLCD_Number(minutes * 100 + seconds);
-    snprintf(str, 8, "%02ld%02ld%02ld", hours, minutes, seconds);
-    SegmentLCD_Write(str);
 }
 
 /*

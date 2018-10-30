@@ -13,9 +13,11 @@
 #include "bsp_trace.h"
 #include "gpiointerrupt.h"
 #include "segmentlcd.h"
+#include "lidar.h"
 
-void inc_clock();
-void interrupt_test();
-void rtcSetup();
+void interrupt_test(void);
+void rtcSetup(void);
+
+void init_GPIO(void);
 
 #endif

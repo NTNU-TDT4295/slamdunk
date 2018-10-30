@@ -140,9 +140,8 @@ void setup_uart(void) {
 void uartSetup(void) {
   /* Enable clock for GPIO module (required for pin configuration) */
   CMU_ClockEnable(cmuClock_GPIO, true);
+  
   /* Configure GPIO pins (portB with 9 and 10 is also usable) */
-  /* GPIO_PinModeSet(gpioPortE, 0, gpioModePushPull, 1);	//TX */
-  /* GPIO_PinModeSet(gpioPortE, 1, gpioModeInput, 0);	//RX */
   GPIO_PinModeSet(gpioPortF, 6, gpioModePushPull, 1);	//TX
   GPIO_PinModeSet(gpioPortF, 7, gpioModeInput, 0);	//RX
 
@@ -160,34 +159,12 @@ void uartSetup(void) {
   uartInit.stopbits     = usartStopbits1; 	/* Number of stop bits. Range is 0 to 2 */
   uartInit.mvdis        = false;          	/* Disable majority voting */
   uartInit.prsRxEnable  = false;          	/* Enable USART Rx via Peripheral Reflex System */
-  uartInit.prsRxCh      = usartPrsRxCh0;  	/* Select PRS channel if enabled */
+  /* uartInit.prsRxCh      = usartPrsRxCh0;  	/\* Select PRS channel if enabled *\/ */
 
   /* Initialize USART with uartInit struct */
   USART_InitAsync(uart0, &uartInit);
   USART_InitAsync(uart1, &uartInit);
 
-  // Disable TX on 0 and RX on 1 for now to use USART_{T,R}x directly
-  // in main loop to avoid interrupt overhead
-  /* Prepare UART Rx and Tx interrupts */
-  USART_IntClear(uart0, _UART_IF_MASK);
-  USART_IntEnable(uart0, UART_IF_RXDATAV);
-  NVIC_ClearPendingIRQ(UART0_RX_IRQn);
-  NVIC_ClearPendingIRQ(UART0_TX_IRQn);
-  /* NVIC_EnableIRQ(UART0_RX_IRQn); */
-  NVIC_EnableIRQ(UART0_TX_IRQn);
-
-
-  USART_IntClear(uart1, _UART_IF_MASK);
-  USART_IntEnable(uart1, UART_IF_RXDATAV);
-  NVIC_ClearPendingIRQ(UART1_RX_IRQn);
-  NVIC_ClearPendingIRQ(UART1_TX_IRQn);
-  NVIC_EnableIRQ(UART1_RX_IRQn);
-  /* NVIC_EnableIRQ(UART1_TX_IRQn); */
-
-  /* Enable I/O pins at UART1 location #2 */
-  // LOC3 = PE2/PE3
-  // LOC2 = PB9/PB10
-  // LOC1 = PE0/PE1
   /* uart0->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC1; */
   uart0->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC0;
   uart1->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC1;

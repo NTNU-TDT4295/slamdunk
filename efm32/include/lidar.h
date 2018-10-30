@@ -13,5 +13,6 @@ void sample_rate_lidar(bool verbose, unsigned int uart_channel);
 void init_scan_lidar(bool verbose, unsigned int uart_channel);
 void init_lidar(bool verbose, unsigned int uart_channel);
 void get_samples_lidar(uint8_t data[], size_t samples, unsigned int uart_channel);
+void toggle_lidar_cb(uint8_t pin);
 
 #endif

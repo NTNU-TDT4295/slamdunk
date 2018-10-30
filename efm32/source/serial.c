@@ -170,7 +170,7 @@ void I2C0_IRQHandler(void)
 
 
 // Master, txonly. USART1, location 1
-void SPI_init(void)
+void init_SPI(void)
 {
 	CMU_ClockEnable(cmuClock_USART1, true);
 
