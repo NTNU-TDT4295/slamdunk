@@ -74,8 +74,8 @@ int main(void)
 			; // Busy wait, toggled by Top left button
 
 		lidar_sample = USART_Rx(UART0);
-		put_uart_simple(1, lidar_sample, 1);
-		/* SPI_sendBuffer(&lidar_sample, 1); */
+		/* put_uart_simple(1, lidar_sample, 1); */
+		SPI_sendBuffer(&lidar_sample, 1);
 
 		// TODO:
 		// toggle lidar
