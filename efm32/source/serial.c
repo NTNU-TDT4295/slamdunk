@@ -5,61 +5,52 @@
 // UART
 ////////////////
 
-// Currently registered UART callback -- it really just prints to the
-// LCD for now
-void recv_char_cb(char c)
-{
-	//static char str[LCD_BUFFER_SIZE];
-	//static int idx = 0;
-
-	//switch (c) {
-	//case BACKSPACE:
-	//	if (idx != 0) {
-	//		str[--idx] = 0;
-	//	}
-	//	break;
-	//case ENTER:
-	//	for (size_t i = 0; i < LCD_BUFFER_SIZE; ++i) {
-	//		str[i] = 0;
-	//		idx = 0;
-	//	}
-	//	break;
-	//default:
-	//	uartPutChar(0, c);
-	//	break;
-	//}
-
-	//if ('a' <= c && c <= 'z') {
-	//	str[idx] = c - 32;
-	//	idx = idx == SEGMENT_LCD_NUM_BLOCK_COLUMNS
-	//		? SEGMENT_LCD_NUM_BLOCK_COLUMNS
-	//		: idx + 1;
-	//}
-
-	//SegmentLCD_Write(str);
-}
-
 void init_uart()
 {
-	// LCD for proof of concept, remove later (TODO)
-	/* SegmentLCD_Init(false); */
+	USART_InitAsync_TypeDef uartInit = USART_INITASYNC_DEFAULT;
 
-	/* Setup UART for testing */
-	set_recv_callback(&recv_char_cb);
-	setup_uart();
-}
+	/* Enable clock for HF peripherals */
+	CMU_ClockEnable(cmuClock_HFPER, true);
 
-// Mainly for debugging purposes when you want to monitor the pins
-void echo_uart()
-{
-	char rx_data;
-	/* Echo RX to TX indefinitely */
-	for (;;) {
-		rx_data = uartGetChar();
-		if (rx_data) {
-			uartPutChar(0, rx_data);
-		}
-	}
+	/* Enable clock for USART module */
+	CMU_ClockEnable(cmuClock_UART0, true);
+	CMU_ClockEnable(cmuClock_UART1, true);
+
+	/* Enable clock for GPIO module (required for pin configuration) */
+	CMU_ClockEnable(cmuClock_GPIO, true);
+
+	// LIDAR
+	GPIO_PinModeSet(gpioPortF, 6, gpioModePushPull, 1); //TX
+	GPIO_PinModeSet(gpioPortF, 7, gpioModeInput, 0);	//RX
+
+	// Debug pins
+	GPIO_PinModeSet(gpioPortF, 10, gpioModePushPull, 1); //TX
+	GPIO_PinModeSet(gpioPortF, 11, gpioModeInput, 0);	//RX
+
+
+	/* Prepare struct for initializing UART in asynchronous mode*/
+	uartInit.enable = usartDisable;		/* Don't enable UART upon intialization */
+	uartInit.refFreq = 0;				/* Provide information on reference frequency. When set to 0, the reference frequency is */
+	uartInit.baudrate = 115200;			/* Baud rate */
+	uartInit.oversampling = usartOVS16; /* Oversampling. Range is 4x, 6x, 8x or 16x */
+	uartInit.databits = usartDatabits8; /* Number of data bits. Range is 4 to 10 */
+	uartInit.parity = usartNoParity;	/* Parity mode */
+	uartInit.stopbits = usartStopbits1; /* Number of stop bits. Range is 0 to 2 */
+	uartInit.mvdis = false;				/* Disable majority voting */
+	uartInit.prsRxEnable = false;		/* Enable USART Rx via Peripheral Reflex System */
+	/* uartInit.prsRxCh      = usartPrsRxCh0;  	/\* Select PRS channel if enabled *\/ */
+
+	/* Initialize USART with uartInit struct */
+	USART_InitAsync(UART0, &uartInit);
+	USART_InitAsync(UART1, &uartInit);
+
+	// TX and RX for both locations
+	UART0->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC0;
+	UART1->ROUTE = UART_ROUTE_RXPEN | UART_ROUTE_TXPEN | UART_ROUTE_LOCATION_LOC1;
+
+	/* Enable UART */
+	USART_Enable(UART0, usartEnable);
+	USART_Enable(UART1, usartEnable);
 }
 
 void put_uart_simple(int channel, uint8_t* data, size_t length)
@@ -204,9 +195,7 @@ void init_SPI(void)
 					| USART_ROUTE_LOCATION_LOC1;
 }
 
-// USART1, Location 1 (required on efm32gg-stk3700)
-// TODO: update n for USARTn and LOCn to match PCB layout
-// This has to be done, SPI layout is a bit off.
+// USART1, Location 1
 void SPI_sendBuffer(char* txBuffer, int bytesToSend)
 {
 	USART_TypeDef* spi = USART1;

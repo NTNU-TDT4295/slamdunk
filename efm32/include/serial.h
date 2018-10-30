@@ -11,7 +11,6 @@
 #include "bsp_trace.h"
 #include "segmentlcd.h"
 #include "setup.h"
-#include "uart.h"
 #include "em_emu.h"
 
 #define LCD_BUFFER_SIZE SEGMENT_LCD_NUM_BLOCK_COLUMNS + 1
@@ -21,9 +20,7 @@ enum key_kode {
 	BACKSPACE = 8
 };
 
-void recv_char_cb(char c);
 void init_uart();
-void echo_uart();
 void put_uart_simple(int channel, uint8_t *data, size_t length);
 
 ////////////////
