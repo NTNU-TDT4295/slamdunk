@@ -8,9 +8,9 @@
 #define BNO055_PWR_MODE_ADDR    0x3E
 #define BNO055_PAGE_ID_ADDR     0x07
 
-#define POWER_MODE_NORMAL   0x00
-#define POWER_MODE_LOWPOWER 0x01
-#define POWER_MODE_SUSPEND  0x02
+#define POWER_MODE_NORMAL       0x00
+#define POWER_MODE_LOWPOWER     0x01
+#define POWER_MODE_SUSPEND      0x02
 
 #define BNO055_INT_MSK          0x0F
 #define BNO055_INT_EN           0x10

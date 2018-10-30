@@ -31,8 +31,8 @@ int main(void)
 
 
 	// I2C and the BNO055
-	/* init_i2c(); */
-	/* init_bno055(); */
+	init_i2c();
+	init_bno055();
 
 	// SPI
 	init_SPI();
@@ -60,7 +60,7 @@ int main(void)
 	uint8_t lidar_data[lidar_samples * 5];
 
 	char lidar_sample;
-	init_lidar(true, 0);
+	/* init_lidar(false, 0); */
 
 	while (1) {
 		// 500 us per sample, 2000 samples per second, LIDAR
@@ -70,18 +70,18 @@ int main(void)
 		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
 		/* put_uart_simple(1, buffer, 255); */
 
-		while (!enable_lidar)
-			; // Busy wait, toggled by Top left button
+		/* while (!enable_lidar) */
+		/* 	; // Busy wait, toggled by Top left button */
 
-		lidar_sample = USART_Rx(UART0);
-		/* put_uart_simple(1, lidar_sample, 1); */
-		SPI_sendBuffer(&lidar_sample, 1);
+		/* lidar_sample = USART_Rx(UART0); */
+		// /* put_uart_simple(1, lidar_sample, 1); */
+		/* SPI_sendBuffer(&lidar_sample, 1); */
 
 		// TODO:
 		// toggle lidar
 		// sync sequence
 
-		continue;
+		/* continue; */
 
 		/* // IMU */
 		/* quat = get_quaternion_sample(); */
@@ -90,10 +90,11 @@ int main(void)
 		/* 	USART_Tx(UART0, quat_data); */
 		/* } */
 
-		/*
 		// Fetch system status
 		performI2CRead(BNO055_I2C_ADDRESS, BNO055_SYS_STAT_ADDR, status_buf, 1);
-		uartPutChar(0, status_buf[0]);
+		put_uart_simple(1, status_buf, 1);
+
+		DelayMs(100);
 
 		// Fetch samples for sensors available
 		angles = get_euler_sample();
@@ -101,8 +102,8 @@ int main(void)
 		accelerations = get_linear_acceleration_sample();
 
 		// Send quaternion data
+		/* put_uart_simple(1, (uint8_t *) &quat.w, 8); */
 		uartPutData((uint8_t *) &quat.w, 8);
-		*/
 
 		// Trigger the sonar, it will interrupt you
 		// trigger_sonar();
@@ -110,12 +111,6 @@ int main(void)
 		// Testing of accelerometer data
 		/* accelerations = get_linear_acceleration_sample(); */
 		/* uartPutData((uint8_t *) &accelerations.x, 6); */
-
-		// SPI
-		SPI_sendBuffer(transmitBuffer, BUFFERSIZE);
-
-		/* SPI_sendBuffer(lidar_data, lidar_samples*5); */
-		Delay(4);
 	}
 
 	// LEDS, (disabled for now, as they collide with UART)

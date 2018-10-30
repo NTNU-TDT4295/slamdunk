@@ -4,15 +4,6 @@
 #include "string.h"
 #include "gpiointerrupt.h"
 
-void accelerometer_callback(uint8_t pin)
-{
-	uartPutChar(0, 'f');
-
-	// Write RST_INT in SYS_TRIGGER to reset interrupt
-	uint8_t mode[] = "\x3F\x40";
-	performI2CTransfer(BNO055_I2C_ADDRESS, mode, 2);
-}
-
 void init_bno055()
 {
 	// Normal power mode
@@ -49,7 +40,6 @@ void init_accelerometer_int()
 	// Port, pin, rising edge, falling edge, enable
 	GPIO_PinModeSet(gpioPortD, 1, gpioModeInput, 0);
 	GPIO_IntConfig(gpioPortD, 1, true, false, true);
-	GPIOINT_CallbackRegister(1, accelerometer_callback);
 
 	// Mask interrupt on INT pin
 	uint8_t interrupt_mask[] = "\x0F\x40";

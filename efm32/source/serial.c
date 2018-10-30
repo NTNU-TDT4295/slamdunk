@@ -69,23 +69,23 @@ void put_uart_simple(int channel, uint8_t* data, size_t length)
 
 void init_i2c(void)
 {
-	CMU_ClockEnable(cmuClock_I2C0, true);
+	CMU_ClockEnable(cmuClock_I2C1, true);
 
 	// Using default settings
 	I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
 
-	/* Using PD6 (SDA) and PD7 (SCL) */
-	GPIO_PinModeSet(gpioPortD, 7, gpioModeWiredAndPullUpFilter, 1);
-	GPIO_PinModeSet(gpioPortD, 6, gpioModeWiredAndPullUpFilter, 1);
+	/* Using PB11 (SDA) and PB12 (SCL) */
+	GPIO_PinModeSet(gpioPortB, 11, gpioModeWiredAndPullUpFilter, 1);
+	GPIO_PinModeSet(gpioPortB, 12, gpioModeWiredAndPullUpFilter, 1);
 
 	// Setting up PC0 to indicate transfer direction
 	GPIO_PinModeSet(gpioPortC, 0, gpioModePushPull, 0);
 
 	/* Enable pins at location 1 */
-	I2C0->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (1 << _I2C_ROUTE_LOCATION_SHIFT);
+	I2C1->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | I2C_ROUTE_LOCATION_LOC1;
 
 	/* Initializing the I2C */
-	I2C_Init(I2C0, &i2cInit);
+	I2C_Init(I2C1, &i2cInit);
 }
 
 // NOTE: the address of the register must be the first byte *buf (this
@@ -106,8 +106,8 @@ void performI2CTransfer(uint8_t addr, uint8_t* buf, uint8_t bytes)
 	i2cTransfer.buf[0].len = bytes;
 
 	// Initialize the transfer and wait for completion
-	I2C_TransferInit(I2C0, &i2cTransfer);
-	while (I2C_Transfer(I2C0) == i2cTransferInProgress) {
+	I2C_TransferInit(I2C1, &i2cTransfer);
+	while (I2C_Transfer(I2C1) == i2cTransferInProgress) {
 		;
 	}
 
@@ -140,8 +140,8 @@ void performI2CRead(uint8_t addr, int8_t reg, uint8_t* buf, uint8_t bytes)
 
 	// Initialize a transfer and wait for completion, note that no
 	// error handling/reporting is done (TODO)
-	I2C_TransferInit(I2C0, &i2cTransfer);
-	while (I2C_Transfer(I2C0) == i2cTransferInProgress) {
+	I2C_TransferInit(I2C1, &i2cTransfer);
+	while (I2C_Transfer(I2C1) == i2cTransferInProgress) {
 		;
 	}
 
