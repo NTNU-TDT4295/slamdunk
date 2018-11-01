@@ -7,6 +7,29 @@
 #include <float.h>
 #include <limits.h>
 
+
+#ifdef PROFILING
+    #include <time.h>
+    #include "profiling.h"
+    #define BEGIN_PROFILING_BLOCK(name)
+
+    // timing hs_match_data();
+    double acc_mdata_time[HECTOR_SLAM_MAP_RESOLUTIONS] = {0.0};
+    int mdata_iterations[HECTOR_SLAM_MAP_RESOLUTIONS] = {0};
+
+    // timing hs_update_map_by_scan();
+    double acc_umapbs_time[HECTOR_SLAM_MAP_RESOLUTIONS] = {0.0};
+    int umapbs_iterations[HECTOR_SLAM_MAP_RESOLUTIONS] = {0};
+
+    //avg time of hs_update():
+    double acc_update_time = 0.0;
+    int update_iterations = 0;
+
+    //avg time of get_complete_hessian_derivs():
+    double acc_gchd_time = 0.0;
+    int gchd_iterations = 0;
+#endif
+
 constexpr size_t HECTOR_SLAM_MAP_WIDTH = 1024;
 constexpr size_t HECTOR_SLAM_MAP_HEIGHT = 1024;
 constexpr float HECTOR_SLAM_MAP_CELL_LENGTH = 0.025f;
@@ -102,6 +125,7 @@ void hs_init(HectorSlam &slam) {
 }
 
 void hs_free(HectorSlam &slam) {
+
 }
 
 static inline vec3 hs_get_world_coords_pose(HectorSlamOccGrid &map,
@@ -273,7 +297,20 @@ static void hs_update_by_scan(HectorSlam &slam,
 							  vec2 *points, size_t numPoints,
 							  vec3 newPose) {
 	for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
+
+        #ifdef PROFILING
+        	timespec start;
+        	timespec_get(&start, TIME_UTC);
+        #endif
+
 		hs_update_map_by_scan(slam.maps[i], points, numPoints, newPose);
+
+        #ifdef PROFILING
+        	timespec stop;
+       		timespec_get(&stop, TIME_UTC);
+        	acc_umapbs_time[i] += timespec_diff_to_sec(start, stop);
+        	umapbs_iterations[i] += 1;
+        #endif
 	}
 }
 
@@ -390,7 +427,19 @@ static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
 	mat3 H;
 	vec3 dTr;
 
-	hs_get_complete_hessian_derivs(map, estimate, points, numPoints, H, dTr);
+    #ifdef PROFILING
+        timespec start;
+        timespec_get(&start, TIME_UTC);
+    #endif
+
+    hs_get_complete_hessian_derivs(map, estimate, points, numPoints, H, dTr);
+
+    #ifdef PROFILING
+        timespec stop;
+        timespec_get(&stop, TIME_UTC);
+        acc_gchd_time += timespec_diff_to_sec(start, stop);
+        gchd_iterations += 1;
+    #endif
 
 	if ((H[0][0] != 0.0f) && (H[1][1] != 0.0f)) {
 		vec3 searchDir (glm::inverse(H) * dTr);
@@ -453,14 +502,31 @@ static bool hs_pose_difference_larger_than(const vec3& pose1,
 void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 	vec3 newPoseEstimateWorld = slam.lastPosition;
 
+    #ifdef PROFILING
+        timespec start_u;
+        timespec_get(&start_u, TIME_UTC);
+    #endif
+
 	for (int i = HECTOR_SLAM_MAP_RESOLUTIONS - 1; i >= 0; --i){
-		newPoseEstimateWorld =
-			hs_match_data(slam.maps[i],
+        #ifdef PROFILING
+        	timespec start_md;
+        	timespec_get(&start_md, TIME_UTC);
+        #endif
+
+        newPoseEstimateWorld =
+		    hs_match_data(slam.maps[i],
 						  newPoseEstimateWorld,
 						  points, numPoints,
 						     (i == 0)
 						   ? HECTOR_SLAM_ITERATIONS_FINAL
 						   : HECTOR_SLAM_ITERATIONS);
+
+        #ifdef PROFILING
+            timespec stop_md;
+            timespec_get(&stop_md, TIME_UTC);
+            acc_mdata_time[i] += timespec_diff_to_sec(start_md, stop_md);
+            mdata_iterations[i] += 1;
+        #endif
 	}
 
 	slam.lastPosition = newPoseEstimateWorld;
@@ -472,4 +538,27 @@ void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
 		hs_update_by_scan(slam, points, numPoints, newPoseEstimateWorld);
 		slam.lastUpdatePosition = newPoseEstimateWorld;
 	}
+    #ifdef PROFILING
+        timespec stop_u;
+        timespec_get(&stop_u, TIME_UTC);
+        acc_update_time += timespec_diff_to_sec(start_u, stop_u);
+        update_iterations += 1;
+    #endif
+}
+
+void hs_print_profiling_data(){
+    #ifdef PROFILING
+        printf("hs_update():\n Average time: %f \n", acc_update_time/update_iterations);
+
+        printf("hs_match_data(): \n");
+        for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
+            printf("Average time of map %lu: %f \n", i, acc_mdata_time[i]/mdata_iterations[i]);
+        }
+
+        printf("update_map_by_scan(): \n");
+        for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
+            printf("Average time of map %lu: %f \n", i, acc_umapbs_time[i]/umapbs_iterations[i]);
+        }
+        printf("hs_get_complete_hessian_derivs():\n Average time: %f \n", acc_gchd_time/gchd_iterations);
+    #endif
 }

@@ -6,7 +6,11 @@ SRC=$(shell find $(SRC_DIR)/ -name *.cpp)
 OBJS=$(SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 HEADERS:=$(find $(SRC_DIR)/ -name *.h)
 
+# Comment for profiling, leave uncommented for normal operation.
 CFLAGS:=-g -O3 -I$(SRC_DIR)
+
+# Uncomment for profiling, leav commented for normal operation.
+#CFLAGS:=-g -D PROFILING -O3 -I$(SRC_DIR)
 
 all: libslamcommon.a
 
