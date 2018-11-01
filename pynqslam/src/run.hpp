@@ -6,4 +6,4 @@
 void *init_platform();
 void deinit_platform(void *platform);
 
-void spi_read_ring(void *platform);
+void slamit(void *platform);

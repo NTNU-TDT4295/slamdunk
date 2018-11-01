@@ -49,7 +49,7 @@
 #include <signal.h>
 
 #include "platform.h"
-#include "xlnkdriver.h"
+#include "xlnkdriver.hpp"
 
 extern "C" {
   #include <unistd.h>

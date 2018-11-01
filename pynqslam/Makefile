@@ -1,9 +1,12 @@
 BOARD_URI=xilinx@pynq2
 
-CXX=g++
-CXXFLAGS=-pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -mcpu=cortex-a9 -mfpu=neon -funsafe-math-optimizations -mcpu=cortex-a9 -mfpu=neon -funsafe-math-optimizations -std=c++11 -c
+SLAM_COMMON_LIB=../slam_common/libslamcommon.a
+SLAM_COMMON_INC=../slam_common/src
 
-LDFLAGS=-pthread -lsds_lib
+CXX=g++
+CXXFLAGS=-pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -mcpu=cortex-a9 -mfpu=neon -funsafe-math-optimizations -mcpu=cortex-a9 -mfpu=neon -funsafe-math-optimizations -std=c++11 -I$(SLAM_COMMON_INC) -c
+
+LDFLAGS=-pthread -lsds_lib $(SLAM_COMMON_LIB)
 
 SOURCES := $(wildcard src/*.cpp)
 OBJECTS := $(SOURCES:src/%.cpp=build/%.o)
@@ -23,7 +26,7 @@ all: $(EXECUTABLE)
 
 .PHONY: run
 run: $(EXECUTABLE)
-	./$(EXECUTABLE)
+	sudo ./$(EXECUTABLE) # sudo needed for /dev/mem
 
 .PHONY: clean
 clean:

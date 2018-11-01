@@ -17,21 +17,21 @@
       detach();
     }
 
-      void set_btn(AccelReg value) {writeReg(1, value);} 
-  AccelReg get_led3() {return readReg(2);} 
-  AccelReg get_lidar_burst_counter() {return readReg(3);} 
-  void set_read_addr(AccelReg value) {writeReg(4, value);} 
-  AccelReg get_read_data() {return readReg(5);} 
+      void set_btn3(AccelReg value) {writeReg(1, value);} 
+  void set_buffer_reset(AccelReg value) {writeReg(2, value);} 
+  AccelReg get_io4_led() {return readReg(3);} 
+  AccelReg get_led3() {return readReg(4);} 
+  AccelReg get_lidar_burst_counter() {return readReg(5);} 
+  void set_read_addr(AccelReg value) {writeReg(6, value);} 
+  AccelReg get_read_data() {return readReg(7);} 
   AccelReg get_signature() {return readReg(0);} 
-  void set_spi_mosi(AccelReg value) {writeReg(6, value);} 
-  void set_spi_ready(AccelReg value) {writeReg(7, value);} 
-  void set_spi_sck(AccelReg value) {writeReg(8, value);} 
-  void set_spi_ss(AccelReg value) {writeReg(9, value);} 
-  AccelReg get_spi_valid() {return readReg(10);} 
+  void set_spi_mosi(AccelReg value) {writeReg(8, value);} 
+  void set_spi_sck(AccelReg value) {writeReg(9, value);} 
+  void set_spi_ss(AccelReg value) {writeReg(10, value);} 
 
 
     map<string, vector<unsigned int>> getStatusRegs() {
-      map<string, vector<unsigned int>> ret = { {"led3", {2}} ,  {"lidar_burst_counter", {3}} ,  {"read_data", {5}} ,  {"signature", {0}} ,  {"spi_valid", {10}} };
+      map<string, vector<unsigned int>> ret = { {"io4_led", {3}} ,  {"led3", {4}} ,  {"lidar_burst_counter", {5}} ,  {"read_data", {7}} ,  {"signature", {0}} };
       return ret;
     }
 
