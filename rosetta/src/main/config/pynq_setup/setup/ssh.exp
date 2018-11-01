@@ -1,11 +1,11 @@
 #!/usr/bin/expect
 
-set ip [lindex $argv 0];
+set ip  [lindex $argv 0];
 set pwd [lindex $argv 1];
 set cmd [lindex $argv 2];
 
 spawn ssh xilinx@${ip} \
-"echo $pwd | sudo -S bash /home/xilinx/$cmd"
+echo $pwd | sudo -S $cmd
 expect {
     password: {send "${pwd}\r"; exp_continue}
 }

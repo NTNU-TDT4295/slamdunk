@@ -12,8 +12,8 @@ with "(Dup!)" is the pynq. ssh to this address with username and password «xili
 4. Assign the eth interface on the pynq to a static ip address in the
 /etc/network/interfaces file:
 
-    auto eth1
-    iface eth1 inet static
+    auto eth0
+    iface eth0 inet static
     address 192.168.2.99
     netmask 255.255.255.0
     gateway 192.168.2.89
@@ -35,7 +35,7 @@ and do the same on your own ethernet port with an address on the same subnet eg:
 
 you can now ssh and rsync using "pynq" instead of the ip address.
 
-Connect the pynq to the internet via ethernet
+Connect the pynq to the internet via ethernet (this is not required if you can connect it to the internet using a custom router)
 ============================================
 
 1. Setup iptable rules on your host and enable ipv4 forwarding:
@@ -53,7 +53,7 @@ sudo echo "nameserver 129.241.0.200" >> /etc/resolv.conf
 sudo echo "nameserver 129.241.0.201" >> /etc/resolv.conf
 sudo echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 
-setting up wifi using edimax N150 wifi dongle
+Setting up wifi using edimax N150 wifi dongle
 =============================================
 Using a wifi dongle we can give the pynq wifi capabilities. To make it work we need to first compile the driver.
 
@@ -78,8 +78,9 @@ git clone https://github.com/Xilinx/linux-xlnx.git --depth 1 --branch xilinx-v20
     sudo insmod 8723bu.ko
 
 6. setup autoloading of the driver on boot:
-    cp 8723bu.ko /lib/modules/4.9.0-xilinx/kernel/drivers/
+    cp 8723bu.ko /lib/modules/4.9.0-xilinx/kernel/driver/
     echo "8723bu" >> /etc/modules
+    sudo depmod -a
 
 
 ssh to pynq from anywhere using external router and tunnel
@@ -90,7 +91,7 @@ Because of the complexity of eduroam, we are using our own router.
 
     network={
         ssid="SLAMDUNK"
-        psk="..."
+        psk="password"
         proto=RSN
         key_mgmt=WPA-PSK
         pairwise=CCMP
@@ -110,3 +111,5 @@ Because of the complexity of eduroam, we are using our own router.
         Hostname 35.195.88.68
         Port 19999
         User xilinx
+
+4. If the router you have supports it, you can also set a static DHCP address for the pynq based on its mac address!
