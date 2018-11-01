@@ -28,9 +28,44 @@ void deinit_platform(void* platform)
 	deinitPlatform((WrapperRegDriver*)platform);
 }
 
+int net_client_connect(const char *node, const char *service) {
+	struct addrinfo hints = {0};
+	struct addrinfo *servinfo;
+	int socket_fd;
+
+	int err;
+
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	err = getaddrinfo(node, service, &hints, &servinfo);
+	if (err) {
+		perror("getaddrinfo");
+		return -1;
+	}
+
+	socket_fd = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+	if (socket_fd == -1) {
+		perror("socket");
+		return -1;
+	}
+
+	err = connect(socket_fd, servinfo->ai_addr, servinfo->ai_addrlen);
+	if (err == -1) {
+		perror("connect");
+		return -1;
+	}
+
+	freeaddrinfo(servinfo);
+
+	return socket_fd;
+}
+
+
 void spi_read_ring(void* platform)
 {
-	bool network = false;
+	bool network = true;
 
 	std::string hostname = "192.168.1.100";
 	std::string port = "6002";
@@ -43,28 +78,10 @@ void spi_read_ring(void* platform)
 	// constexpr int buffer_size = 255;
 	// char buffer[buffer_size];
 
+	portno = atoi(port.c_str());
+
 	if (network) {
-		portno = atoi(port.c_str());
-		sockfd = socket(AF_INET, SOCK_STREAM, 0);
-		if (sockfd < 0) {
-			std::cerr << "ERROR opening socket" << std::endl;
-			exit(1);
-		}
-		server = gethostbyname(hostname.c_str());
-		if (server == NULL) {
-			std::cerr << "ERROR, no such host" << std::endl;
-			exit(1);
-		}
-		bzero((char*)&serv_addr, sizeof(serv_addr));
-		serv_addr.sin_family = AF_INET;
-		bcopy((char*)server->h_addr,
-			  (char*)&serv_addr.sin_addr.s_addr,
-			  server->h_length);
-		serv_addr.sin_port = htons(portno);
-		if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-			std::cerr << "ERROR connecting" << std::endl;
-			exit(1);
-		}
+		sockfd = net_client_connect(hostname.c_str(), port.c_str());
 	}
 
 	//////////////////////////////
@@ -82,6 +99,13 @@ void spi_read_ring(void* platform)
 	while (true) {
 		current_burst = t.get_lidar_burst_counter();
 		if (current_burst != prev_burst) {
+			if (sockfd < 0) {
+				this_thread::sleep_for(chrono::seconds(2));
+				std::cout << "Reconnecting" << std::endl;
+				sockfd = net_client_connect(hostname.c_str(), port.c_str());
+				continue;
+			}
+
 			prev_burst = current_burst;
 
 			read_addr = (current_burst % 2 == 0) ? 512 : 0;
@@ -100,7 +124,6 @@ void spi_read_ring(void* platform)
 
 				++read_addr;
 			}
-			// printf("0x%08X 0x%08X\n", *lidar_data, lidar_data[lidar_data_size - 1]);
 
 			uint16_t angle_q;
 			float angle;
@@ -109,22 +132,25 @@ void spi_read_ring(void* platform)
 			uint8_t* lidar_data_byte = reinterpret_cast<uint8_t*>(&lidar_data);
 
 			if (network) {
-				for (int i = 0; i < lidar_burst_size; i += 5) {
-					if ((lidar_data[i] >> 2) < 20)
-						lidar_data[i] = 0xa5;
-					else
-						lidar_data[i] = 0xa4;
-				}
+				// for (int i = 0; i < lidar_burst_size; i += 5) {
+				// 	if ((lidar_data[i] >> 2) < 20)
+				// 		lidar_data[i] = 0xa5;
+				// 	else
+				// 		lidar_data[i] = 0xa4;
+				// }
 
 				n = write(sockfd, lidar_data, lidar_burst_size);
+				std::cout << "Burst.\n";
+				// n = send(sockfd, lidar_data, lidar_burst_size, MSG_NOSIGNAL);
 				if (n < 0) {
-					std::cerr << "ERROR writing to socket" << std::endl;
-					exit(1);
+					std::cerr << "Can't send data." << std::endl;
+					sockfd = -1;
 				}
 			}
 
 			/////////////////////////////////
 
+			#if false
 			for (int i = 0; i < lidar_burst_size; i += 5) {
 				angle_q = ((lidar_data[i + 2] << 8) | (lidar_data[i + 1]));
 				angle = (float)(angle_q >> 1);
@@ -135,6 +161,7 @@ void spi_read_ring(void* platform)
 				std::cout << std::setw(3) << static_cast<int>(angle) << ' ' << dist << '\n';
 			}
 			std::cout << "\n=================================" << std::endl;
+			#endif
 		}
 
 		// Ev. rx
