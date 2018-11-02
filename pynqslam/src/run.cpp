@@ -30,11 +30,11 @@ void deinit_platform(void* platform)
 	deinitPlatform((WrapperRegDriver*)platform);
 }
 
-void slamit(void* platform)
+void slamit(void* platform, std::string remote_host)
 {
 	bool network = true;
 
-	std::string hostname = "192.168.1.100";
+	std::string hostname = remote_host;
 	std::string port = "6000";
 
 	int sockfd;
