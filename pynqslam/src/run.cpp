@@ -19,6 +19,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <signal.h>
+
+static volatile int keepRunning = 1;
+void INTHandler(int) {
+    keepRunning = 0;
+}
 
 void* init_platform()
 {
@@ -32,16 +38,14 @@ void deinit_platform(void* platform)
 
 void slamit(void* platform, std::string remote_host)
 {
-	bool network = true;
+	signal(SIGINT, INTHandler);
 
 	std::string hostname = remote_host;
 	std::string port = "6000";
 
 	int sockfd;
 
-	if (network) {
-		sockfd = net_client_connect(hostname.c_str(), port.c_str());
-	}
+	sockfd = net_client_connect(hostname.c_str(), port.c_str());
 
 	SPI_Slave t((WrapperRegDriver*)platform);
 	int read_addr = 0;
@@ -55,10 +59,12 @@ void slamit(void* platform, std::string remote_host)
 
 	HectorSlam slam;
 	hs_init(slam);
+	slam_vis_send_reset_path(sockfd);
 	
-	while (true) {
+	while (keepRunning) {
 		current_burst = t.get_lidar_burst_counter();
 		if (current_burst != prev_burst) {
+
 			if (sockfd < 0) {
 				this_thread::sleep_for(chrono::seconds(2));
 				std::cout << "Reconnecting" << std::endl;
@@ -122,7 +128,6 @@ void slamit(void* platform, std::string remote_host)
 				}
 			}
 		}
-
 	}
 
 	close(sockfd);
