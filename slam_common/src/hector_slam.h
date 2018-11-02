@@ -19,8 +19,6 @@ struct HectorSlamOccGrid {
 };
 
 struct HectorSlam {
-	void *cont;
-
 	size_t width;
 	size_t height;
 
@@ -32,6 +30,7 @@ struct HectorSlam {
 
 void hs_init(HectorSlam &slam);
 void hs_free(HectorSlam &slam);
+void hs_clear(HectorSlam &slam);
 void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints);
 
 #define hs_is_occupied(i) (i > 0.0f)

@@ -125,7 +125,22 @@ void hs_init(HectorSlam &slam) {
 }
 
 void hs_free(HectorSlam &slam) {
+	for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
+		free(slam.maps[i].values);
+		free(slam.maps[i].updateIndex);
+	}
+}
 
+void hs_clear(HectorSlam &slam) {
+	for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
+		size_t numCells = slam.maps[i].width*slam.maps[i].width;
+		memset(slam.maps[i].values,      0, numCells * sizeof(float));
+		memset(slam.maps[i].updateIndex, 0, numCells * sizeof(float));
+		slam.maps[i].currentUpdateIndex = 1;
+	}
+
+	slam.lastPosition = vec3(0.0f);
+	slam.lastUpdatePosition = vec3(FLT_MAX);
 }
 
 static inline vec3 hs_get_world_coords_pose(HectorSlamOccGrid &map,
