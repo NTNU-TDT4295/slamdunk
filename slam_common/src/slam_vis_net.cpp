@@ -114,15 +114,17 @@ int slam_vis_send_map(int fd, float *map, unsigned int *map_last_update, unsigne
 		return -1;
 	}
 
+	constexpr size_t word_size = sizeof(uintmax_t) * 8;
+
 	constexpr size_t map_area =
 		SLAM_MAP_WIDTH * SLAM_MAP_HEIGHT;
 	constexpr size_t total_tiles =
 		SLAM_MAP_TILES_X * SLAM_MAP_TILES_Y;
 	constexpr size_t dirty_tiles_chunks =
-		(total_tiles / 64) +
-		(((total_tiles % 64) == 0) ? 0 : 1);
+		(total_tiles / word_size) +
+		(((total_tiles % word_size) == 0) ? 0 : 1);
 
-	uint64_t dirty_tiles[dirty_tiles_chunks] = {0};
+	uintmax_t dirty_tiles[dirty_tiles_chunks] = {0};
 	size_t num_dirty_tiles = 0;
 
 	for (size_t i = 0; i < map_area; i++) {
@@ -131,15 +133,16 @@ int slam_vis_send_map(int fd, float *map, unsigned int *map_last_update, unsigne
 			size_t tile_y = (i / SLAM_MAP_WIDTH) / SLAM_MAP_TILE_SIZE;
 			size_t tile_i = tile_x + tile_y * SLAM_MAP_TILES_X;
 
-			uint64_t mask = 1UL << (tile_i % 64);
+			uintmax_t mask = (uintmax_t)1 << (tile_i % word_size);
 
 			// Only increment num_dirty_tiles if this tile was not
 			// already marked as dirty.
-			num_dirty_tiles += !(dirty_tiles[tile_i / 64] & mask);
-			dirty_tiles[tile_i / 64] |= mask;
+			num_dirty_tiles += !(dirty_tiles[tile_i / word_size] & mask);
+			dirty_tiles[tile_i / word_size] |= mask;
 		}
 	}
 
+	printf("%zu\n", num_dirty_tiles);
 	if (num_dirty_tiles > total_tiles / 2) {
 		return send_full_map(fd, map);
 	} else if (num_dirty_tiles > 0) {
@@ -151,7 +154,7 @@ int slam_vis_send_map(int fd, float *map, unsigned int *map_last_update, unsigne
 		size_t tiles_updated = 0;
 
 		for (size_t i = 0; i < total_tiles; i++) {
-			if ((dirty_tiles[i / 64] & (1UL << (i % 64))) > 0) {
+			if ((dirty_tiles[i / word_size] & ((uintmax_t)1 << (i % word_size))) > 0) {
 				err = send_map_tile(fd, map, i % SLAM_MAP_TILES_X, i / SLAM_MAP_TILES_X);
 				tiles_updated += 1;
 				if (err < 0) {
