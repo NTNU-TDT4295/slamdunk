@@ -9,6 +9,24 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+static int recv_all(int fd, void *data, size_t num_bytes) {
+	size_t bytes_recv = 0;
+	ssize_t err;
+
+	while (bytes_recv < num_bytes) {
+		err = recv(fd, data, num_bytes - bytes_recv, 0);
+		if (err <= 0) {
+			if (err < 0) {
+				perror("recv");
+			}
+			return -1;
+		}
+		bytes_recv += err;
+	}
+
+	return 0;
+}
+
 static void slam_data_receiver(net_client_context *net_ctx) {
 	SlamVisContext *ctx;
 	ctx = (SlamVisContext *)net_ctx->user_data;
@@ -16,30 +34,20 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 	assert(((ctx->width * ctx->height) % 4) == 0);
 
 	while (!net_ctx->should_quit) {
-		ssize_t err;
+		int err;
 		uint8_t packet_type;
 
-		err = recv(net_ctx->socket_fd, &packet_type, sizeof(uint8_t), 0);
-		if (err < 0) {
-			perror("recv");
-			break;
-		} else if (err == 0) {
-			continue;
+		err = recv_all(net_ctx->socket_fd, &packet_type, sizeof(uint8_t));
+		if (err) {
+			return;
 		}
 
 		switch (packet_type) {
 		case SLAM_PACKET_MAP: {
-			size_t bytes_read = 0;
 			size_t bytes_total = (SLAM_MAP_WIDTH * SLAM_MAP_HEIGHT) / 4;
-			while (bytes_read < bytes_total) {
-				err = recv(net_ctx->socket_fd, ctx->read_buffer + bytes_read,
-						   (bytes_total * sizeof(uint8_t)) - bytes_read, 0);
-				if (err < 0) {
-					perror("recv");
-					return;
-				}
-
-				bytes_read += err;
+			err = recv_all(net_ctx->socket_fd, ctx->read_buffer, bytes_total);
+			if (err) {
+				return;
 			}
 
 			uint8_t *out_buffer  = ctx->tex_buffer[ctx->tex_buffer_read ^ 0x1];
@@ -74,16 +82,18 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 
 		case SLAM_PACKET_TILE: {
 			uint8_t header[2];
-			err = recv(net_ctx->socket_fd, header, sizeof(header), 0);
+			err = recv_all(net_ctx->socket_fd, header, sizeof(header));
+			if (err) {
+				return;
+			}
 
 			uint8_t chunk_x = header[0];
 			uint8_t chunk_y = header[1];
 
 			uint8_t buffer[(SLAM_MAP_TILE_SIZE*SLAM_MAP_TILE_SIZE) / 4] = {0};
 
-			err = recv(net_ctx->socket_fd, buffer, sizeof(buffer), 0);
-			if (err != sizeof(buffer)) {
-				perror("recv");
+			err = recv_all(net_ctx->socket_fd, buffer, sizeof(buffer));
+			if (err) {
 				return;
 			}
 
@@ -110,9 +120,8 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 
 		case SLAM_PACKET_POSE: {
 			int32_t buffer[3];
-			err = recv(net_ctx->socket_fd, buffer, sizeof(buffer), 0);
-			if (err < 0) {
-				perror("recv");
+			err = recv_all(net_ctx->socket_fd, buffer, sizeof(buffer));
+			if (err) {
 				return;
 			}
 
