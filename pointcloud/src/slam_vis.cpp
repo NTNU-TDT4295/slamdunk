@@ -14,7 +14,7 @@ static int recv_all(int fd, void *data, size_t num_bytes) {
 	ssize_t err;
 
 	while (bytes_recv < num_bytes) {
-		err = recv(fd, data, num_bytes - bytes_recv, 0);
+		err = recv(fd, (uint8_t *)data + bytes_recv, num_bytes - bytes_recv, 0);
 		if (err <= 0) {
 			if (err < 0) {
 				perror("recv");
