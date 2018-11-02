@@ -12,6 +12,7 @@ class SPI_Slave() extends RosettaAccelerator {
   val io = new RosettaAcceleratorIF(numMemPorts) {
     // val decouple = IODecoupled()
     // SPI - FPGA is slave
+    // Represents signals in RosettaAcceleratorIF used in this RosettaAccelerator
     // val spi_miso = Bits(OUTPUT, 1)
     // val spi_mosi = Bits(INPUT, 1)
     // val spi_sck  = Bits(INPUT, 1)
@@ -28,30 +29,29 @@ class SPI_Slave() extends RosettaAccelerator {
 
   // Setup
   // sync SCK to the FPGA clock using 3-bit shift register
-  val sckreg = Reg(init = Bits("b000", 3))
-  sckreg := Cat(sckreg(1, 0), io.spi_sck)
+  val sckreg   = Reg(init = Bits("b000", 3))
   val sck_rise = Bool()
-  sck_rise := sckreg(2, 1) === Bits("b01")
+  sckreg      := Cat(sckreg(1, 0), io.spi_sck)
+  sck_rise    := sckreg(2, 1) === Bits("b01")
 
   // sync ss
-  val ssreg = Reg(init = Bits("b000", 3))
-  ssreg := Cat(ssreg(1, 0), io.spi_ss)
-  val ss_active = Bool()
-  ss_active := ~ssreg(1)
+  val ssreg       = Reg(init = Bits("b000", 3))
+  val ss_active   = Bool()
   val ss_startmsg = Bool()
-  ss_startmsg := ssreg(2, 1) === Bits("b10")
-  val ss_endmsg = Bool()
-  ss_endmsg := ssreg(2, 1) === Bits("b01")
+  val ss_endmsg   = Bool()
+  ssreg          := Cat(ssreg(1, 0), io.spi_ss)
+  ss_active      := ~ssreg(1)
+  ss_startmsg    := ssreg(2, 1) === Bits("b10")
+  ss_endmsg      := ssreg(2, 1) === Bits("b01")
 
   // sync mosi
-  val mosireg = Reg(init = Bits("b00", 2))
-  mosireg := Cat(mosireg(0), io.spi_mosi)
+  val mosireg   = Reg(init = Bits("b00", 2))
   val mosi_data = Bool()
-  mosi_data := mosireg(1)
+  mosireg      := Cat(mosireg(0), io.spi_mosi)
+  mosi_data    := mosireg(1)
 
   // Receive
   val bitcnt = Reg(init = Bits("b000", 3))
-  // val byte_data_received = Reg(UInt(width = 8), init = 0.U)
   val byte_data_received = Reg(UInt(width = 8))
 
   when (~ss_active) {
@@ -59,7 +59,6 @@ class SPI_Slave() extends RosettaAccelerator {
   } .otherwise {
     when (sck_rise) {
       bitcnt := bitcnt + 1.U
-
       // MSB first, left-shift data reg
       byte_data_received := Cat(byte_data_received(6, 0), mosi_data)
     }
@@ -82,7 +81,6 @@ class SPI_Slave() extends RosettaAccelerator {
     byte_counter := byte_counter + 1.U
   }
 
-  // TODO: SYNC sequence
   // Simple double buffering based on 1800 bytes
   // of lidar data bursts.
   when (word_signal_received) { // 4 bytes received => next write_address
