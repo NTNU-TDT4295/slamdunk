@@ -54,6 +54,8 @@ void slamit(void* platform, std::string remote_host, std::string port)
 	int num_processed = 0;
 	int last_sent_update = 0;
 	bool init_sent = false;
+	constexpr int init_cutoff = 230; // Cutoffs for number of points each update
+	constexpr int update_cutoff = 150;
 
 	HectorSlam slam;
 	hs_init(slam);
@@ -116,7 +118,7 @@ void slamit(void* platform, std::string remote_host, std::string port)
 				int tmpn = num_processed;
 
 				if ((lidar_data[i] & 1) > 0) {
-					if (num_processed > (init_sent ? 150 : 230)) {
+					if (num_processed > (init_sent ? update_cutoff : init_cutoff)) {
 						init_sent = true;
 						hs_update(slam, processed, num_processed);
 						slam_vis_send_pose(sockfd, slam.lastPosition);
