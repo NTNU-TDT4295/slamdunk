@@ -1,3 +1,4 @@
+TERM=xterm # unclutter some unknown sbt/java bug
 # target frequency for Vivado FPGA synthesis
 FREQ_MHZ := 150.0
 # controls whether Vivado will run in command-line or GUI mode
@@ -30,6 +31,7 @@ BITFILE_PRJNAME := bitfile_synth
 BITFILE_PRJDIR := $(BUILD_DIR)/bitfile_synth
 GEN_BITFILE_PATH := $(BITFILE_PRJDIR)/$(BITFILE_PRJNAME).runs/impl_1/procsys_wrapper.bit
 VIVADO_IN_PATH := $(shell command -v vivado 2> /dev/null)
+DEV_BITFILE_PATH := ../bitfiles/develop.bit
 
 # note that all targets are phony targets, no proper dependency tracking
 .PHONY: hw_verilog hw_cpp hw_driver hw_vivadoproj bitfile pynq_hw pynq_sw pynq deploy test characterize check_vivado
@@ -70,6 +72,7 @@ bitfile: hw_vivadoproj
 # copy bitfile to the deployment folder, make an empty tcl script for bitfile loader
 pynq_hw: bitfile
 	mkdir -p $(BUILD_DIR_PYNQ); cp $(GEN_BITFILE_PATH) $(BUILD_DIR_PYNQ)/rosetta.bit; touch $(BUILD_DIR_PYNQ)/rosetta.tcl
+	-cp $(GEN_BITFILE_PATH) $(DEV_BITFILE_PATH)
 
 # copy all user sources and driver sources to the deployment folder
 pynq_sw: hw_driver
