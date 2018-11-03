@@ -6,7 +6,7 @@
 
 #include <float.h>
 #include <limits.h>
-
+#include <string.h>
 
 #ifdef PROFILING
     #include <time.h>
@@ -567,12 +567,12 @@ void hs_print_profiling_data(){
 
         printf("hs_match_data(): \n");
         for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
-            printf("Average time of map %lu: %f \n", i, acc_mdata_time[i]/mdata_iterations[i]);
+            printf("Average time of map %zu: %f \n", i, acc_mdata_time[i]/mdata_iterations[i]);
         }
 
         printf("update_map_by_scan(): \n");
         for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
-            printf("Average time of map %lu: %f \n", i, acc_umapbs_time[i]/umapbs_iterations[i]);
+            printf("Average time of map %zu: %f \n", i, acc_umapbs_time[i]/umapbs_iterations[i]);
         }
         printf("hs_get_complete_hessian_derivs():\n Average time: %f \n", acc_gchd_time/gchd_iterations);
     #endif
