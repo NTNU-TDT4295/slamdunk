@@ -28,16 +28,16 @@ pynqslam: deploy slamcommon
 	@echo "Building pynqslam on PYNQ: $(BOARD_URI)"
 	ssh $(BOARD_URI) "cd ~/slamdunk/pynqslam && make"
 
-IP_ADDR := $(shell hostname -I)
+IP_ADDR := $(shell hostname -I | cut -f1 -d" ")
 
 .PHONY: run
 run:
 	@echo ""
 	@echo "Running SLAMIT on: $(BOARD_URI) -- your IP-address: $(IP_ADDR)"
-	ssh $(BOARD_URI) "sudo systemctl restart pynqslam.service"
+	ssh $(BOARD_URI) "echo $(IP_ADDR) | sudo tee /etc/slamvis_host; sudo systemctl restart pynqslam.service"
 
 .PHONY: stop
 stop:
 	@echo ""
-	@echo "Stopping SLAMIT on: $(BOARD_URI) -- your IP-address: $(IP_ADDR)"
+	@echo "Stopping SLAMIT on: $(BOARD_URI)"
 	ssh $(BOARD_URI) "sudo systemctl stop pynqslam.service"
