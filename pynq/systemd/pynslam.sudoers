@@ -1,0 +1,3 @@
+xilinx	ALL=(root) NOPASSWD: /bin/systemctl start pynqslam.service
+xilinx	ALL=(root) NOPASSWD: /bin/systemctl restart pynqslam.service
+xilinx	ALL=(root) NOPASSWD: /bin/systemctl stop pynqslam.service
