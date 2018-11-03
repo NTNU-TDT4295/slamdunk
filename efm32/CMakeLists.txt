@@ -54,7 +54,6 @@ include_directories(${BASE_LOCATION}/uart/inc)
 include_directories(${BASE_LOCATION}/lcd)
 include_directories(${BASE_LOCATION}/interrupt)
 include_directories(${BASE_LOCATION}/lib/inc)
-include_directories(${BASE_LOCATION}/i2c/inc)
 include_directories(${BASE_LOCATION}/vendor/inc)
 
 
@@ -71,7 +70,6 @@ set(SOURCES
     uart/src/uart.c
     lcd/segmentlcd.c
     interrupt/gpiointerrupt.c
-    i2c/src/i2cspm.c
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
