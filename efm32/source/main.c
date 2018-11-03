@@ -1,7 +1,7 @@
 #include "setup.h"
 #include "gpio.h"
 #include "serial.h"
-#include "bno055.h"
+#include "imu.h"
 #include "sonar.h"
 #include "lidar.h"
 #include <string.h>
@@ -22,7 +22,7 @@ int main(void)
 
 	// I2C and the BNO055
 	init_i2c();
-	init_bno055();
+	init_imu();
 
 	// SPI
 	init_SPI();

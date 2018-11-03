@@ -1,19 +1,14 @@
-#include "bno055.h"
+#include "imu.h"
 #include "serial.h"
 #include "setup.h"
 #include "string.h"
 #include "gpiointerrupt.h"
 
-void init_bno055()
+void init_imu()
 {
 	// Normal power mode
 	uint8_t power_mode[] = "\x3E\x00";
 	performI2CTransfer(BNO055_I2C_ADDRESS, power_mode, 2);
-
-	Delay(50);
-
-	// Initialize interrupt from accelerometer
-	init_accelerometer_int();
 
 	Delay(50);
 
@@ -30,37 +25,6 @@ void init_bno055()
 
 	uint8_t mode[] = "\x3D\x0C";
 	performI2CTransfer(BNO055_I2C_ADDRESS, mode, 2);
-}
-
-void init_accelerometer_int()
-{
-	// Also init GPIO interrupts for accelerometer interrupts
-	GPIOINT_Init();
-
-	// Port, pin, rising edge, falling edge, enable
-	GPIO_PinModeSet(gpioPortD, 1, gpioModeInput, 0);
-	GPIO_IntConfig(gpioPortD, 1, true, false, true);
-
-	// Mask interrupt on INT pin
-	uint8_t interrupt_mask[] = "\x0F\x40";
-	performI2CTransfer(BNO055_I2C_ADDRESS, interrupt_mask, 2);
-	Delay(50);
-
-	// Enable accelerometer interrupts on any movement
-	uint8_t interrupt_en[] = "\x10\x40";
-	performI2CTransfer(BNO055_I2C_ADDRESS, interrupt_en, 2);
-	Delay(50);
-
-	// Set acceleration threshold to about 1g with 2g-range in
-	// ACC_CONFIG (~255 LSB)
-	uint8_t interrupt_thresh[] = "\x11\x04";
-	performI2CTransfer(BNO055_I2C_ADDRESS, interrupt_thresh, 2);
-	Delay(50);
-
-	// Enable interrupts on X,Y,Z axes
-	uint8_t interrupt_axes[] = "\x12\x1C";
-	performI2CTransfer(BNO055_I2C_ADDRESS, interrupt_axes, 2);
-	Delay(50);
 }
 
 struct euler get_euler_sample()

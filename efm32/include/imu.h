@@ -1,5 +1,5 @@
-#ifndef BNO055_H
-#define BNO055_H
+#ifndef IMU_H
+#define IMU_H
 
 #include "stdint.h"
 
@@ -67,9 +67,7 @@ struct accel {
 	int16_t z;
 };
 
-void accelerometer_callback(uint8_t pin);
-void init_bno055();
-void init_accelerometer_int();
+void init_imu();
 struct euler get_euler_sample();
 struct quaternion get_quaternion_sample();
 struct accel get_linear_acceleration_sample();

@@ -63,7 +63,7 @@ set(SOURCES
     source/setup.c
     source/serial.c
     source/gpio.c
-    source/bno055.c
+    source/imu.c
     source/sonar.c
     source/lidar.c
 
