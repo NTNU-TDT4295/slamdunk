@@ -1,5 +1,4 @@
 #include "setup.h"
-#include "lcd.h"
 #include "interrupt.h"
 #include "serial.h"
 #include "bno055.h"
@@ -20,9 +19,6 @@ int main(void)
 
 	// Interrupts (works with LCD)
 	/* interrupt_test(); */
-
-	// Setup screen for debug
-	/* SegmentLCD_Init(false); */
 
 	// UART
 	init_uart();
