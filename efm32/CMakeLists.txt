@@ -51,7 +51,6 @@ include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 include_directories(${BASE_LOCATION}/include)
 include_directories(${BASE_LOCATION}/emlib/inc)
 include_directories(${BASE_LOCATION}/uart/inc)
-include_directories(${BASE_LOCATION}/interrupt)
 include_directories(${BASE_LOCATION}/lib/inc)
 include_directories(${BASE_LOCATION}/vendor/inc)
 
@@ -66,8 +65,9 @@ set(SOURCES
     source/sonar.c
     source/lidar.c
 
+    vendor/src/gpiointerrupt.c
+
     uart/src/uart.c
-    interrupt/gpiointerrupt.c
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
