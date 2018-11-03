@@ -4,25 +4,25 @@
 
 void sonar_callback(uint8_t pin)
 {
-	// Time the amount of microseconds the pin is high
-	uint32_t microsecond = TIMER_FREQ / 1000000;
-	uint32_t elapsed = 0;
+	/* // Time the amount of microseconds the pin is high */
+	/* uint32_t microsecond = TIMER_FREQ / 1000000; */
+	/* uint32_t elapsed = 0; */
 
-	TIMER0->CNT = 0;
-	TIMER0->CMD = TIMER_CMD_START;
+	/* TIMER0->CNT = 0; */
+	/* TIMER0->CMD = TIMER_CMD_START; */
 
-	while (GPIO_PinInGet(gpioPortD, 2)) {
-		// Gernal purpose timers are 16-bit, we need to extend
-		// this to account for overflow later (TODO)
-		if (TIMER0->CNT > 65000) {
-			elapsed = 0;
-			break;
-		} else {
-			elapsed = TIMER0->CNT;
-		}
-	}
+	/* while (GPIO_PinInGet(gpioPortD, 2)) { */
+	/* 	// Gernal purpose timers are 16-bit, we need to extend */
+	/* 	// this to account for overflow later (TODO) */
+	/* 	if (TIMER0->CNT > 65000) { */
+	/* 		elapsed = 0; */
+	/* 		break; */
+	/* 	} else { */
+	/* 		elapsed = TIMER0->CNT; */
+	/* 	} */
+	/* } */
 
-	TIMER0->CMD = TIMER_CMD_STOP;
+	/* TIMER0->CMD = TIMER_CMD_STOP; */
 }
 
 void init_sonar()
