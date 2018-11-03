@@ -3,7 +3,7 @@ include ../build/config_pynq.mk
 LIBS=../libs
 include $(LIBS)/slamcommon/lib.mk
 
-LDFLAGS+=-lcma
+LDFLAGS:=-lcma $(LDFLAGS)
 
 EXEC_NAME = slam
 

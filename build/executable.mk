@@ -8,7 +8,7 @@ all: $(EXEC_NAME)
 
 $(EXEC_NAME): $(OBJS) $(LOCAL_DEPENDENCIES)
 	echo $(LOCAL_DEPENDENCIES)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
