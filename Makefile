@@ -34,4 +34,10 @@ IP_ADDR := $(shell hostname -I)
 run:
 	@echo ""
 	@echo "Running SLAMIT on: $(BOARD_URI) -- your IP-address: $(IP_ADDR)"
-	ssh $(BOARD_URI) "cd ~/slamdunk/pynqslam && ./slam $(IP_ADDR)"
+	ssh $(BOARD_URI) "sudo systemctl restart pynqslam.service"
+
+.PHONY: stop
+stop:
+	@echo ""
+	@echo "Stopping SLAMIT on: $(BOARD_URI) -- your IP-address: $(IP_ADDR)"
+	ssh $(BOARD_URI) "sudo systemctl stop pynqslam.service"
