@@ -1,5 +1,9 @@
 # SLAMdunk
 
+<p align="center">
+  <img src="./doc/logo.png"/>
+</p>
+
 SLAMdunk is a project built to map out environments, using a custom
 built PCB shield meant for a Xilinx PYNQ-Z1.
 
@@ -23,6 +27,10 @@ serial protocols such as UART, I2C and SPI.
 
 Schematics for the custom PCB shield.
 
+<p align="center">
+  <img src="./doc/setup.jpg"/>
+</p>
+
 ## pynq
 
 General utilities used for deployment to PYNQ. e.g. kernel modules for
@@ -37,6 +45,10 @@ includes an FPGA implementation of an SPI slave, with double
 buffering of the incoming data, as well as the entire implementation
 required to run SLAM on a PYNQ. Also contains compiled bit files
 needed to deploy to FPGA fabric.
+
+<p align="center">
+  <img src="./doc/SLAMdunk.png"/>
+</p>
 
 ## slamvis
 
