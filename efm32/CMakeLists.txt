@@ -51,7 +51,6 @@ include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 include_directories(${BASE_LOCATION}/include)
 include_directories(${BASE_LOCATION}/emlib/inc)
 include_directories(${BASE_LOCATION}/uart/inc)
-include_directories(${BASE_LOCATION}/lcd)
 include_directories(${BASE_LOCATION}/interrupt)
 include_directories(${BASE_LOCATION}/lib/inc)
 include_directories(${BASE_LOCATION}/vendor/inc)
@@ -68,7 +67,6 @@ set(SOURCES
     source/lidar.c
 
     uart/src/uart.c
-    lcd/segmentlcd.c
     interrupt/gpiointerrupt.c
 )
 
