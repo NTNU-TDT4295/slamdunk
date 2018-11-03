@@ -1,5 +1,4 @@
 #include "setup.h"
-#include "leds.h"
 #include "lcd.h"
 #include "interrupt.h"
 #include "serial.h"

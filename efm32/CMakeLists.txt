@@ -62,7 +62,6 @@ set(SOURCES
     source/main.c
     source/setup.c
     source/serial.c
-    source/leds.c
     source/lcd.c
     source/interrupt.c
     source/bno055.c
