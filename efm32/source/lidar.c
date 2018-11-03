@@ -4,7 +4,7 @@
 
 bool enable_lidar = false;
 
-USART_TypeDef* uart_channel(unsigned int channel)
+USART_TypeDef *uart_channel(unsigned int channel)
 {
 	if (channel == 0) {
 		return UART0;
@@ -124,10 +124,5 @@ void init_scan_lidar(bool verbose, unsigned int channel)
 
 void init_lidar(bool verbose, unsigned int channel)
 {
-	/* GPIO_PinModeSet(gpioPortF, 8, gpioModePushPull, 1); //motoctl */
-	/* stop_lidar(uart_channel); */
-	/* reset_lidar(verbose, uart_channel); */
-	/* health_lidar(verbose, uart_channel); */
 	reset_lidar(verbose, channel);
-	/* health_lidar(verbose, uart_channel); */
 }
