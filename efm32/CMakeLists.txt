@@ -50,12 +50,13 @@ include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 # Add project headers
 include_directories(${BASE_LOCATION}/include)
 include_directories(${BASE_LOCATION}/emlib/inc)
-include_directories(${BASE_LOCATION}/bsp/inc)
 include_directories(${BASE_LOCATION}/uart/inc)
 include_directories(${BASE_LOCATION}/lcd)
 include_directories(${BASE_LOCATION}/interrupt)
 include_directories(${BASE_LOCATION}/lib/inc)
 include_directories(${BASE_LOCATION}/i2c/inc)
+include_directories(${BASE_LOCATION}/vendor/inc)
+
 
 # Add project sources
 set(SOURCES
@@ -66,10 +67,6 @@ set(SOURCES
     source/imu.c
     source/sonar.c
     source/lidar.c
-
-    bsp/src/bsp_bcc.c
-    bsp/src/bsp_stk.c
-    bsp/src/bsp_stk_leds.c
 
     uart/src/uart.c
     lcd/segmentlcd.c
