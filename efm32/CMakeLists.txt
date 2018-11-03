@@ -50,7 +50,6 @@ include(${BASE_LOCATION}/toolchain/efm32-base.cmake)
 # Add project headers
 include_directories(${BASE_LOCATION}/include)
 include_directories(${BASE_LOCATION}/emlib/inc)
-include_directories(${BASE_LOCATION}/uart/inc)
 include_directories(${BASE_LOCATION}/vendor/inc)
 
 
@@ -65,8 +64,6 @@ set(SOURCES
     source/lidar.c
 
     vendor/src/gpiointerrupt.c
-
-    uart/src/uart.c
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
