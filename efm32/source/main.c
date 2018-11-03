@@ -1,5 +1,5 @@
 #include "setup.h"
-#include "interrupt.h"
+#include "gpio.h"
 #include "serial.h"
 #include "bno055.h"
 #include "sonar.h"
@@ -17,9 +17,6 @@ int main(void)
 	// General chip initialization
 	init();
 
-	// Interrupts (works with LCD)
-	/* interrupt_test(); */
-
 	// UART
 	init_uart();
 
@@ -32,9 +29,6 @@ int main(void)
 
 	// GPIO interrupts
 	init_GPIO();
-
-	// RTC
-	//rtcSetup();
 
 	// Initalize GPIO interrupts for sonar
 	//init_sonar();
