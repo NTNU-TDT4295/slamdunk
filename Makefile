@@ -15,6 +15,7 @@ deploy:
 	rsync -avz ./build $(BOARD_URI):~/slamdunk/
 	rsync -avz --exclude=build/* ./pynqslam $(BOARD_URI):~/slamdunk/
 	rsync -avz --exclude=build/* --exclude=libslamcommon.a ./libs/slamcommon $(BOARD_URI):~/slamdunk/libs/
+	rsync -avz ./pynq $(BOARD_URI):~/slamdunk/
 
 .PHONY: slamcommon
 slamcommon: deploy
