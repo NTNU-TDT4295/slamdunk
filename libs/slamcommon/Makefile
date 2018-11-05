@@ -1,3 +1,5 @@
+include ../../build/config_pynq.mk
+
 BUILD_DIR:=./build
 SRC_DIR:=./src
 

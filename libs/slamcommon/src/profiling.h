@@ -12,12 +12,12 @@ static double timespec_diff_to_sec(const timespec &from, const timespec &to) {
   }    return result.tv_sec + (double)result.tv_nsec / 1000000000.0;
 }
 
-static struct timespec read_time() {
-  struct timespec time;
-  int error;
+// static struct timespec read_time() {
+//   struct timespec time;
+//   int error;
 
-  error = clock_gettime(CLOCK_MONOTONIC, &time);
-  assert(!error);
+//   error = clock_gettime(CLOCK_MONOTONIC, &time);
+//   assert(!error);
 
-  return time;
-}
+//   return time;
+// }

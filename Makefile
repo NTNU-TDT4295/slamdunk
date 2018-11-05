@@ -14,7 +14,7 @@ deploy:
 	@echo "Uploading SLAMDUNK project to: $(BOARD_URI)"
 	rsync -avz ./build $(BOARD_URI):~/slamdunk/
 	rsync -avz --exclude=build/* ./pynqslam $(BOARD_URI):~/slamdunk/
-	rsync -avz --exclude=build/* ./libs/slamcommon $(BOARD_URI):~/slamdunk/libs/
+	rsync -avz --exclude=build/* --exclude=libslamcommon.a ./libs/slamcommon $(BOARD_URI):~/slamdunk/libs/
 
 .PHONY: slamcommon
 slamcommon: deploy
