@@ -1,0 +1,8 @@
+efm32/cmsis/* linguist-vendored
+efm32/device/* linguist-vendored
+efm32/drivers/usb/* linguist-vendored
+efm32/emdrv/* linguist-vendored
+efm32/emlib/* linguist-vendored
+efm32/radio/rail_lib/* linguist-vendored
+efm32/toolchain/* linguist-vendored
+efm32/vendor/* linguist-vendored
