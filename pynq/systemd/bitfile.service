@@ -1,0 +1,10 @@
+[Unit]
+Description=PynqSLAM Bitfile loader
+After=network.target
+
+[Service]
+ExecStart=/opt/python3.6/bin/python3.6 /home/xilinx/slamdunk/pynqslam/bitfiles/load_bitfile.py
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
