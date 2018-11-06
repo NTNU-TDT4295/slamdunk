@@ -55,7 +55,7 @@ void slamit(void* platform, std::string remote_host, std::string port)
 	int last_sent_update = 0;
 	bool init_sent = false;
 	constexpr int init_cutoff = 230; // Cutoffs for number of points each update
-	constexpr int update_cutoff = 150;
+	constexpr int update_cutoff = 80;
 
 	HectorSlam slam;
 	hs_init(slam);
