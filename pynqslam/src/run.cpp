@@ -55,7 +55,7 @@ void slamit(void* platform, std::string remote_host, std::string port)
 	int last_sent_update = 0;
 	bool init_sent = false;
 	constexpr int init_cutoff = 230; // Cutoffs for number of points each update
-	constexpr int update_cutoff = 80;
+	constexpr int update_cutoff = 32;
 
 	HectorSlam slam;
 	hs_init(slam);
@@ -80,7 +80,7 @@ void slamit(void* platform, std::string remote_host, std::string port)
 					std::cout << "Connected" << std::endl;
 
 				last_sent_update = 0;
-				slam_vis_send_pose(sockfd, {0.0f, 0.0f, 0.0f});
+				slam_vis_send_pose(sockfd, slam.lastPosition);
 				slam_vis_send_reset_path(sockfd);
 				slam_vis_send_map(sockfd,
 								  slam.maps[0].values,
