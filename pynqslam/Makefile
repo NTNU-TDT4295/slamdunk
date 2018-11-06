@@ -1,4 +1,4 @@
-include ../build/config_pynq.mk
+include ../build/config.mk
 
 LIBS=../libs
 include $(LIBS)/slamcommon/lib.mk

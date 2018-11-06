@@ -21,13 +21,13 @@ deploy:
 slamcommon: deploy
 	@echo ""
 	@echo "Building slamcommon on PYNQ: $(BOARD_URI)"
-	ssh $(BOARD_URI) "cd ~/slamdunk/libs/slamcommon && make"
+	ssh $(BOARD_URI) "cd ~/slamdunk/libs/slamcommon && make TARGET=pynq"
 
 .PHONY: pynqslam
 pynqslam: deploy slamcommon
 	@echo ""
 	@echo "Building pynqslam on PYNQ: $(BOARD_URI)"
-	ssh $(BOARD_URI) "cd ~/slamdunk/pynqslam && make"
+	ssh $(BOARD_URI) "cd ~/slamdunk/pynqslam && make TARGET=pynq"
 
 IP_ADDR := $(shell hostname -I | cut -f1 -d" ")
 
