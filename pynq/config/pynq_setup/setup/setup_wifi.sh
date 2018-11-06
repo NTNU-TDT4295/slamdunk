@@ -10,5 +10,9 @@ fi
 echo "8723bu" > /etc/modules
 sudo depmod -a
 
+sudo systemctl restart networking
 # cleanup
 rm /home/xilinx/setup_wifi.sh
+sudo ip addr flush dev eth0
+sudo systemctl restart networking 2>/dev/null
+sudo dhclient

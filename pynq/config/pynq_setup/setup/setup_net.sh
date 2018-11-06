@@ -16,10 +16,12 @@ auto lo
 iface lo inet loopback
 
 auto eth0
-iface eth0 inet static
-address 192.168.2.99
-netmask 255.255.255.0
-#gateway 192.168.2.89 #needed for ip ether bridge
+iface eth0 inet dhcp
+#needed for ip ether bridge
+    #iface eth0 inet static
+    #address 192.168.2.99
+    #netmask 255.255.255.0
+    #gateway 192.168.2.89
 
 auto wlx74da38930a18
 allow-hotplug wlx74da38930a18
@@ -37,7 +39,8 @@ wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf" > /etc/network/interfaces
 # sudo chattr +i /etc/resolv.conf
 
 # restart networking
-sudo systemctl restart networking 2>/dev/null
+#sudo ip addr flush dev eth0
+#sudo systemctl restart networking 2>/dev/null
 
 # cleanup
 rm /home/xilinx/setup_net.sh

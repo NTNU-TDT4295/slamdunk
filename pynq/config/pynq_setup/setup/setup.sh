@@ -14,6 +14,14 @@ fi
 printf 'current pynq password: '
 read -s pass
 echo
+
+# check if correct password
+expect ssh.exp ${ip} $pass "pwd" | grep "Permission denied" > /dev/null
+if [ $? == 0 ]; then
+    echo Incorrect password
+    exit 1
+fi
+
 read -p "Setup new password [y/n]?" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -24,15 +32,15 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     pass=$new_pass
 fi
 
+printf '\nsetup and execute network settings...\n'
+expect scp.exp ${ip} $pass "setup_net.sh"
+expect ssh.exp ${ip} $pass "bash setup_net.sh"
+expect ssh.exp ${ip} $pass "sed -i \"s/xxx/$pass/g\" /etc/wpa_supplicant/wpa_supplicant.conf"
+
 printf '\nsetup and execute wifi driver settings...\n'
 expect scp.exp ${ip} $pass "8723bu.ko"
 expect scp.exp ${ip} $pass "setup_wifi.sh"
 expect ssh.exp ${ip} $pass "bash setup_wifi.sh" > /dev/null
-
-printf '\nsetup and execute network settings...\n'
-expect scp.exp ${ip} $pass "setup_net.sh"
-expect ssh.exp ${ip} $pass "bash setup_net.sh" > /dev/null
-expect ssh.exp ${ip} $pass "sed -i \"s/xxx/$pass/g\" /etc/wpa_supplicant/wpa_supplicant.conf" > /dev/null
 
 read -p "Finished setup, reboot to enact changes [y/n]?" -n 1 -r
 echo
