@@ -46,8 +46,8 @@ void slamit(void* platform, std::string remote_host, std::string port)
 
 	SPI_Slave t((WrapperRegDriver*)platform);
 	int read_addr = 0;
-	int prev_burst = t.get_lidar_burst_counter();
-	int current_burst = t.get_lidar_burst_counter();
+	bool current_buffer = t.get_valid_buffer();
+	bool prev_buffer = current_buffer;
 	constexpr int lidar_burst_size = 1800;
 	uint8_t lidar_data[lidar_burst_size];
 	vec2 processed[1024];
@@ -59,7 +59,6 @@ void slamit(void* platform, std::string remote_host, std::string port)
 
 	HectorSlam slam;
 	hs_init(slam);
-	// TODO fix
 	slam_vis_send_pose(sockfd, {0.0f, 0.0f, 0.0f});
 	slam_vis_send_reset_path(sockfd);
 	slam_vis_send_map(sockfd,
@@ -69,8 +68,8 @@ void slamit(void* platform, std::string remote_host, std::string port)
 	last_sent_update = slam.maps[0].currentUpdateIndex;
 	
 	while (keepRunning) {
-		current_burst = t.get_lidar_burst_counter();
-		if (current_burst != prev_burst && current_burst > 3) {
+		prev_buffer = t.get_valid_buffer();
+		if (current_buffer != prev_buffer) {
 
 			if (sockfd == -1) {
 				this_thread::sleep_for(chrono::seconds(2));
@@ -90,9 +89,10 @@ void slamit(void* platform, std::string remote_host, std::string port)
 				continue;
 			}
 
-			prev_burst = current_burst;
+			prev_buffer = current_buffer;
+			int buffer_size = t.get_read_size();
 
-			read_addr = (current_burst % 2 == 0) ? 512 : 0;
+			read_addr = (current_buffer % 2 == 0) ? 512 : 0;
 			uint32_t read_data = 0;
 			uint8_t* read_byte = reinterpret_cast<uint8_t*>(&read_data);
 
@@ -109,52 +109,41 @@ void slamit(void* platform, std::string remote_host, std::string port)
 			}
 
 			uint16_t angle_q;
-			uint8_t quality;
 			float angle;
 			float dist;
 			float scale = 1.0f / slam.maps[0].cellSize;
 
-			for (int i = 0; i < lidar_burst_size; i += 5) {
+
+			for (int i = 0; i < lidar_burst_size; i += 4) {
 				int tmpn = num_processed;
 
-				if ((lidar_data[i] & 1) > 0) {
-					if (num_processed > (init_sent ? update_cutoff : init_cutoff)) {
-						init_sent = true;
-						hs_update(slam, processed, num_processed);
-						slam_vis_send_pose(sockfd, slam.lastPosition);
-						if (sockfd >= 0 && last_sent_update < slam.maps[0].currentUpdateIndex) {
-							if (slam_vis_send_map(sockfd,
-												  slam.maps[0].values,
-												  slam.maps[0].updateIndex,
-												  last_sent_update) == 0) {
-								last_sent_update = slam.maps[0].currentUpdateIndex;
-							} else {
-								sockfd = -1;
-							}
+				if (buffer_size > (init_sent ? update_cutoff : init_cutoff)) {
+					init_sent = true;
+					hs_update(slam, processed, num_processed);
+					slam_vis_send_pose(sockfd, slam.lastPosition);
+					if (sockfd >= 0 && last_sent_update < slam.maps[0].currentUpdateIndex) {
+						if (slam_vis_send_map(sockfd,
+											  slam.maps[0].values,
+											  slam.maps[0].updateIndex,
+											  last_sent_update) == 0) {
+							last_sent_update = slam.maps[0].currentUpdateIndex;
+						} else {
+							sockfd = -1;
 						}
 					}
-					num_processed = 0;
 				}
 
-				quality = lidar_data[i] >> 2;
-				angle_q = ((lidar_data[i + 2] << 8) | (lidar_data[i + 1]));
+				angle_q = ((lidar_data[i + 1] << 8) | (lidar_data[i]));
 				angle = (float)(angle_q >> 1);
 				angle = angle / 64.0f;
 
-				dist = (float)((lidar_data[i + 4] << 8) | lidar_data[i + 3]) / 4.0f;
-
-				if ((lidar_data[i] & 1) > 0) {
-					std::cout << angle << " processed: " << tmpn << std::endl;
-				}
+				dist = (float)((lidar_data[i + 3] << 8) | lidar_data[i + 2]) / 4.0f;
 
 				angle = angle * M_PI / 180.0f;
 				dist  = (dist / 1000.0f) * scale;
-				if ((int)quality > 10) {
-					processed[num_processed].x = cos(angle) * dist;
-					processed[num_processed].y = sin(angle) * dist;
-					++num_processed;
-				}
-
+				processed[num_processed].x = cos(angle) * dist;
+				processed[num_processed].y = sin(angle) * dist;
+				++num_processed;
 			}
 		}
 	}

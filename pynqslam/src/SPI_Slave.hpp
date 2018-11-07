@@ -21,17 +21,18 @@
   void set_buffer_reset(AccelReg value) {writeReg(2, value);} 
   AccelReg get_io4_led() {return readReg(3);} 
   AccelReg get_led3() {return readReg(4);} 
-  AccelReg get_lidar_burst_counter() {return readReg(5);} 
-  void set_read_addr(AccelReg value) {writeReg(6, value);} 
-  AccelReg get_read_data() {return readReg(7);} 
+  void set_read_addr(AccelReg value) {writeReg(5, value);} 
+  AccelReg get_read_data() {return readReg(6);} 
+  AccelReg get_read_size() {return readReg(7);} 
   AccelReg get_signature() {return readReg(0);} 
   void set_spi_mosi(AccelReg value) {writeReg(8, value);} 
   void set_spi_sck(AccelReg value) {writeReg(9, value);} 
   void set_spi_ss(AccelReg value) {writeReg(10, value);} 
+  AccelReg get_valid_buffer() {return readReg(11);} 
 
 
     map<string, vector<unsigned int>> getStatusRegs() {
-      map<string, vector<unsigned int>> ret = { {"io4_led", {3}} ,  {"led3", {4}} ,  {"lidar_burst_counter", {5}} ,  {"read_data", {7}} ,  {"signature", {0}} };
+      map<string, vector<unsigned int>> ret = { {"io4_led", {3}} ,  {"led3", {4}} ,  {"read_data", {6}} ,  {"read_size", {7}} ,  {"signature", {0}} ,  {"valid_buffer", {11}} };
       return ret;
     }
 

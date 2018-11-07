@@ -77,7 +77,7 @@ WrapperRegDriver* initPlatform() {
 	struct sigaction action;
 	std::memset(&action, 0, sizeof(struct sigaction));
 	action.sa_handler = &platformSIGINTHandler;
-	sigaction(SIGINT, &action, NULL);
+	int res = sigaction(SIGINT, &action, NULL);
 
 	return static_cast<WrapperRegDriver*>(platform);
 }

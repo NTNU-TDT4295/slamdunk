@@ -24,6 +24,7 @@ class TestSPISuite extends JUnitSuite {
       poke(c.io.spi_mosi, 0)
       poke(c.io.spi_sck, 0)
       poke(c.io.spi_ss, 1)
+      poke(c.io.buffer_reset, 1)
       step(1)
 
 
@@ -35,53 +36,60 @@ class TestSPISuite extends JUnitSuite {
         0,1,0,0,0,0,1,1,
         0,1,0,0,0,1,0,0,
         0,1,0,0,0,1,0,1,
+
         0,1,0,0,0,1,1,0,
         0,1,0,0,0,1,1,1,
         0,1,0,0,1,0,0,0,
         0,1,0,0,1,0,0,1,
         0,1,0,0,1,0,1,0,
-        0,1,0,0,1,0,1,1,
+
+        0,1,0,0,1,0,1,0,
         0,1,0,0,1,1,0,0,
         0,1,0,0,1,1,0,1,
-                0,1,0,0,0,0,0,1,
+        0,1,0,0,0,0,0,1,
         0,1,0,0,0,0,1,0,
-        0,1,0,0,0,0,1,1,
+
+        0,1,0,0,0,0,1,0,
         0,1,0,0,0,1,0,0,
         0,1,0,0,0,1,0,1,
         0,1,0,0,0,1,1,0,
         0,1,0,0,0,1,1,1,
+
         0,1,0,0,1,0,0,0,
         0,1,0,0,1,0,0,1,
         0,1,0,0,1,0,1,0,
         0,1,0,0,1,0,1,1,
         0,1,0,0,1,1,0,0,
-        0,1,0,0,1,1,0,1,
-                0,1,0,0,0,0,0,1,
+
+        0,1,0,0,1,1,0,0,
+        0,1,0,0,0,0,0,1,
         0,1,0,0,0,0,1,0,
         0,1,0,0,0,0,1,1,
         0,1,0,0,0,1,0,0,
-        0,1,0,0,0,1,0,1,
+
+        0,1,0,0,0,1,0,0,
         0,1,0,0,0,1,1,0,
         0,1,0,0,0,1,1,1,
         0,1,0,0,1,0,0,0,
         0,1,0,0,1,0,0,1,
+
         0,1,0,0,1,0,1,0,
-        0,1,0,0,1,0,1,1,
+        0,1,0,0,1,0,1,0,
         0,1,0,0,1,1,0,0,
         0,1,0,0,1,1,0,1,
-                0,1,0,0,0,0,0,1,
-        0,1,0,0,0,0,1,0,
+        0,1,0,0,0,0,0,1,
+
+        0,1,0,0,0,0,1,1,
         0,1,0,0,0,0,1,1,
         0,1,0,0,0,1,0,0,
         0,1,0,0,0,1,0,1,
         0,1,0,0,0,1,1,0,
+
         0,1,0,0,0,1,1,1,
         0,1,0,0,1,0,0,0,
-        0,1,0,0,1,0,0,1,
+        0,1,0,0,1,0,0,0,
         0,1,0,0,1,0,1,0,
-        0,1,0,0,1,0,1,1,
-        0,1,0,0,1,1,0,0,
-        0,1,0,0,1,1,0,1
+        0,1,0,0,1,0,1,1
       ) // A->M
 
       poke(c.io.spi_ss, 0) // select
@@ -89,18 +97,22 @@ class TestSPISuite extends JUnitSuite {
 
         poke(c.io.spi_mosi, mosi(i))
         poke(c.io.spi_sck, 1)
+        peek(c.current_buffer)
+        peek(c.packet_received)
+        peek(c.write_enable)
         step(1)
 
         poke(c.io.spi_sck, 0)
+        peek(c.current_buffer)
+        peek(c.packet_received)
+        peek(c.write_enable)
         step(1)
 
-        when (c.word_received) {
-          println("==================================================================")
-        }
+        println("==================================================================")
         // peek(c.byte_counter)
         // peek(c.word_data_received)
         // peek(c.write_address)
-peek(c.word_received)
+        // peek(c.packet_received)
         // peek(c.word_received)
         // peek(c.byte_signal_received)
         // peek(c.word_received)
@@ -111,10 +123,10 @@ peek(c.word_received)
       }
 
       step(1)
-      poke(c.io.spi_ss, 0)
+      // poke(c.io.spi_ss, 0)
       step(1)
-      peek(c.word_data_received)
-        // peek(c.word_received)
+      // peek(c.word_data_received)
+      //   peek(c.word_received)
     }
 
     // Chisel arguments to pass to chiselMainTest
