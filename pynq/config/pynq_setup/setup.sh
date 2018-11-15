@@ -5,7 +5,7 @@
 # get ip address of the pynq, exit if not connected
 ip=$(bash connect_pynq.sh 1)
 
-if [ "$ip" = "Not connected" ];then
+if [ "$ip" = "Not connected" ]; then
     echo $ip
     exit 1
 fi
@@ -34,8 +34,8 @@ fi
 
 printf '\nsetup and execute network settings...\n'
 expect scp.exp ${ip} $pass "setup_net.sh"
-expect ssh.exp ${ip} $pass "bash setup_net.sh"
-expect ssh.exp ${ip} $pass "sed -i \"s/xxx/$pass/g\" /etc/wpa_supplicant/wpa_supplicant.conf"
+expect ssh.exp ${ip} $pass "bash setup_net.sh" > /dev/null
+expect ssh.exp ${ip} $pass "sed -i \"s/xxx/$pass/g\" /etc/wpa_supplicant/wpa_supplicant.conf" > /dev/null
 
 printf '\nsetup and execute wifi driver settings...\n'
 expect scp.exp ${ip} $pass "8723bu.ko"

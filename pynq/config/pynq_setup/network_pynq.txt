@@ -83,7 +83,7 @@ git clone https://github.com/Xilinx/linux-xlnx.git --depth 1 --branch xilinx-v20
     sudo depmod -a
 
 
-ssh to pynq from anywhere using external router and tunnel
+ssh to pynq from anywhere using external router or tunnel
 ========================================================
 Because of the complexity of eduroam, we are using our own router.
 
