@@ -362,10 +362,10 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	matrix = mat4(1.0f);
 
 	float scale = 1.0f / (SLAM_MAP_METERS_PER_PIXEL * (float)SLAM_MAP_WIDTH / 2.0f);
+	matrix *= viewport_matrix;
 	matrix = glm::translate(matrix, vec3(ctx.pose.x, ctx.pose.y, 0.0f) * scale);
 	matrix = glm::rotate(matrix, ctx.pose.z, vec3(0.0f, 0.0f, 1.0f));
 	matrix = glm::scale(matrix, vec3(scale, scale, 0.0f));
-	matrix *= viewport_matrix;
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 	glLineWidth(2.0f);
 	glDrawArrays(GL_LINES, 0, pose_marker_points);
