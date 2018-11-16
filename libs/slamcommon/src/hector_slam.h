@@ -31,7 +31,7 @@ struct HectorSlam {
 void hs_init(HectorSlam &slam);
 void hs_free(HectorSlam &slam);
 void hs_clear(HectorSlam &slam);
-void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints);
+void hs_update(HectorSlam &slam, const vec2 *const points, const size_t numPoints);
 
 #define hs_is_occupied(i) (i > 0.0f)
 #define hs_is_free(i) (i < 0.0f)

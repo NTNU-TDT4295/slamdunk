@@ -47,6 +47,8 @@ constexpr float hs_prob_to_log_odds(float prob) {
 	return log(prob / (1.0f - prob));
 }
 
+constexpr float HECTOR_SLAM_MAX_MAP_VALUE = 50.0f;
+
 constexpr float log_odds_free =
 	hs_prob_to_log_odds(HECTOR_SLAM_UPDATE_FREE_FACTOR);
 constexpr float log_odds_occupied =
@@ -170,8 +172,9 @@ static inline void hs_bresenham_cell_free(HectorSlamOccGrid &map,
 	unsigned int currMarkFreeIndex = hs_curr_free_update_index(map.currentUpdateIndex);
 
 	if (updateIndex < currMarkFreeIndex) {
-		map.values[offset] += log_odds_free;
-
+		if (map.values[offset] > -(HECTOR_SLAM_MAX_MAP_VALUE + log_odds_free)) {
+			map.values[offset] += log_odds_free;
+		}
 		map.updateIndex[offset] = currMarkFreeIndex;
 	}
 }
@@ -188,7 +191,9 @@ static inline void hs_bresenham_cell_occ(HectorSlamOccGrid &map,
 			map.values[offset] -= log_odds_free;
 		}
 
-		map.values[offset] += log_odds_occupied;
+		if (map.values[offset] < (HECTOR_SLAM_MAX_MAP_VALUE - log_odds_occupied)) {
+			map.values[offset] += log_odds_occupied;
+		}
 		map.updateIndex[offset] = currMarkOccIndex;
 	}
 }
@@ -263,7 +268,7 @@ static void hs_update_line_bresenhami(HectorSlamOccGrid &map,
 }
 
 static void hs_update_map_by_scan(HectorSlamOccGrid &map,
-								  vec2 *points, size_t numPoints,
+								  const vec2 *const points, const size_t numPoints,
 								  const vec3 &newPose) {
 	//Get pose in map coordinates from pose in world coordinates
 	vec3 mapPose = hs_get_map_coords_pose(map, newPose);
@@ -309,7 +314,7 @@ static void hs_update_map_by_scan(HectorSlamOccGrid &map,
 }
 
 static void hs_update_by_scan(HectorSlam &slam,
-							  vec2 *points, size_t numPoints,
+							  const vec2 *const points, const size_t numPoints,
 							  vec3 newPose) {
 	for (size_t i = 0; i < HECTOR_SLAM_MAP_RESOLUTIONS; i++) {
 
@@ -392,7 +397,7 @@ static inline mat3 hs_get_transform_for_state(const vec3& pose) {
 
 static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 										   const vec3 &pose,
-										   vec2 *points, size_t numPoints,
+										   const vec2 *const points, const size_t numPoints,
 										   mat3 &H,
 										   vec3 &dTr) {
 	mat3 transform =
@@ -405,7 +410,6 @@ static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 	dTr = vec3(0.0f);
 
 	for (size_t i = 0; i < numPoints; ++i) {
-
 		vec2 currPoint = points[i] * map.mapScale;
 
 		vec3 transformedPointData =
@@ -438,7 +442,7 @@ static void hs_get_complete_hessian_derivs(HectorSlamOccGrid &map,
 
 static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
 											  vec3 &estimate,
-											  vec2 *points, size_t numPoints) {
+											  const vec2 * const points, const size_t numPoints) {
 	mat3 H;
 	vec3 dTr;
 
@@ -467,6 +471,13 @@ static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
 			std::cout << "SearchDir angle change too large\n";
 		}
 
+		if (searchDir.x != searchDir.x ||
+			searchDir.y != searchDir.y ||
+			searchDir.z != searchDir.z) {
+			std::cout << "SearchDir is NAN!" << std::endl;
+			return false;
+		}
+
 		estimate += searchDir;
 		return true;
 	}
@@ -475,7 +486,7 @@ static bool hs_estimate_transformation_log_lh(HectorSlamOccGrid &map,
 
 static vec3 hs_match_data(HectorSlamOccGrid &map,
 									 const vec3 &beginEstimateWorld,
-									 vec2 *points, size_t numPoints,
+									 const vec2 *const points, const size_t numPoints,
 									 int maxIterations) {
 
 	vec3 beginEstimateMap(hs_get_map_coords_pose(map, beginEstimateWorld));
@@ -514,7 +525,7 @@ static bool hs_pose_difference_larger_than(const vec3& pose1,
 	return false;
 }
 
-void hs_update(HectorSlam &slam, vec2 *points, size_t numPoints) {
+void hs_update(HectorSlam &slam, const vec2 *const points, const size_t numPoints) {
 	vec3 newPoseEstimateWorld = slam.lastPosition;
 
     #ifdef PROFILING
