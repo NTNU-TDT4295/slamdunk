@@ -143,6 +143,34 @@ static void slam_data_receiver(net_client_context *net_ctx) {
 			ctx->should_reset_path = true;
 		} break;
 
+		case SLAM_PACKET_SCAN: {
+			int32_t buffer[SLAM_LIDAR_DATA_CAP * 2];
+			uint32_t buffer_entries = 0;
+
+			err = recv_all(net_ctx->socket_fd, &buffer_entries,
+						   sizeof(buffer_entries));
+			if (err) {
+				return;
+			}
+
+			err = recv_all(net_ctx->socket_fd, buffer,
+						   buffer_entries * sizeof(int32_t) * 2);
+			if (err) {
+				return;
+			}
+
+			sem_wait(&ctx->lidar_data_lock);
+
+			for (size_t i = 0; i < buffer_entries; i++) {
+				ctx->lidar_data[i].x = (float)buffer[i*2 + 0] / 1000.0f;
+				ctx->lidar_data[i].y = (float)buffer[i*2 + 1] / 1000.0f;
+			}
+			ctx->lidar_data_length = buffer_entries;
+			ctx->lidar_data_last_available += 1;
+
+			sem_post(&ctx->lidar_data_lock);
+		} break;
+
 		default:
 			print_error("net", "Got invalid packet type %i!\n", packet_type);
 			break;
@@ -308,11 +336,27 @@ void init_slam_vis(SlamVisContext &ctx) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+
+
+	glGenVertexArrays(1, &ctx.lidar_data_vao);
+	glBindVertexArray(ctx.lidar_data_vao);
+
+	glGenBuffers(1, &ctx.lidar_data_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, ctx.lidar_data_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * SLAM_LIDAR_DATA_CAP, NULL, GL_DYNAMIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), 0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
 	ctx.path = ctx.path_last_page = (SlamPathPage *)calloc(1, sizeof(SlamPathPage));
 
 	glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
 	sem_init(&ctx.lock, 0, 1);
+	sem_init(&ctx.lidar_data_lock, 0, 1);
 	ctx.net.client_callback = slam_data_receiver;
 	ctx.net.user_data = &ctx;
 	net_init(&ctx.net, "0.0.0.0", "6000");
@@ -321,6 +365,20 @@ void init_slam_vis(SlamVisContext &ctx) {
 void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
+
+	if (ctx.lidar_data_last_read < ctx.lidar_data_last_available) {
+		sem_wait(&ctx.lidar_data_lock);
+
+		glBindBuffer(GL_ARRAY_BUFFER, ctx.lidar_data_vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0,
+						sizeof(vec2) * ctx.lidar_data_length,
+						ctx.lidar_data);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		ctx.lidar_data_vao_length = ctx.lidar_data_length;
+		ctx.lidar_data_last_read = ctx.lidar_data_last_available;
+
+		sem_post(&ctx.lidar_data_lock);
+	}
 
 	mat4 viewport_matrix;
 	if (info.window.width > info.window.height) {
@@ -355,20 +413,38 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	// Draw pose marker
 	glUseProgram(ctx.shader.id);
 
-	glBindVertexArray(ctx.pose_marker_vao);
 	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
 	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
 
-	matrix = mat4(1.0f);
-
 	float scale = 1.0f / (SLAM_MAP_METERS_PER_PIXEL * (float)SLAM_MAP_WIDTH / 2.0f);
+	float point_scale = SLAM_MAP_METERS_PER_PIXEL;
+
+	matrix = mat4(1.0f);
 	matrix *= viewport_matrix;
 	matrix = glm::translate(matrix, vec3(ctx.pose.x, ctx.pose.y, 0.0f) * scale);
 	matrix = glm::rotate(matrix, ctx.pose.z, vec3(0.0f, 0.0f, 1.0f));
 	matrix = glm::scale(matrix, vec3(scale, scale, 0.0f));
+
+	glBindVertexArray(ctx.pose_marker_vao);
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 	glLineWidth(2.0f);
 	glDrawArrays(GL_LINES, 0, pose_marker_points);
+
+
+	if (ctx.lidar_data_vao_length > 0) {
+		matrix = mat4(1.0f);
+		matrix *= viewport_matrix;
+		matrix = glm::translate(matrix, vec3(ctx.pose.x, ctx.pose.y, 0.0f) * scale);
+		matrix = glm::rotate(matrix, ctx.pose.z, vec3(0.0f, 0.0f, 1.0f));
+		matrix = glm::scale(matrix, vec3(scale * point_scale, scale * point_scale, 0.0f));
+
+		glBindVertexArray(ctx.lidar_data_vao);
+		glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
+		glUniform3f(ctx.shader.emission_color, 0.0f, 0.0f, 1.0f);
+		glPointSize(5.0f);
+		glDrawArrays(GL_POINTS, 0, ctx.lidar_data_vao_length);
+	}
+
 
 	glUniform3f(ctx.shader.emission_color, 0.0f, 1.0f, 0.0f);
 	glLineWidth(1.0f);
@@ -414,15 +490,20 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 				page->last_vbo_update = num_entries;
 			}
 
-			glBindVertexArray(page->vao);
-			glDrawArrays(GL_LINE_STRIP, 0, num_entries);
+			if (num_entries > 0) {
+				glBindVertexArray(page->vao);
+				glDrawArrays(GL_LINE_STRIP, 0, num_entries);
+			}
 		}
 	}
+
+
 }
 
 void free_slam_vis(SlamVisContext &ctx) {
 	net_shutdown(&ctx.net);
 	sem_destroy(&ctx.lock);
+	sem_destroy(&ctx.lidar_data_lock);
 	free(ctx.tex_buffer[0]);
 	free(ctx.tex_buffer[1]);
 	free(ctx.read_buffer);

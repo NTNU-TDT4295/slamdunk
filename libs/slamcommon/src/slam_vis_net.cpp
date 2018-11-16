@@ -2,6 +2,27 @@
 #include "hector_slam.h"
 #include <stdio.h>
 #include <sys/socket.h>
+#include <algorithm>
+
+static int send_all(int fd, void *data, size_t length) {
+	if (fd == -1) {
+		return -1;
+	}
+
+	size_t bytes_sent = 0;
+	while (bytes_sent < length) {
+		ssize_t err = send(fd, (uint8_t *)data + bytes_sent,
+						   length - bytes_sent, MSG_NOSIGNAL);
+		if (err < 0) {
+			perror("send");
+			return -1;
+		}
+
+		bytes_sent += err;
+	}
+
+	return 0;
+}
 
 static int send_packet_id(int fd, uint8_t packet_id) {
 	if (fd == -1) {
@@ -142,7 +163,6 @@ int slam_vis_send_map(int fd, float *map, unsigned int *map_last_update, unsigne
 		}
 	}
 
-	printf("%zu\n", num_dirty_tiles);
 	if (num_dirty_tiles > total_tiles / 2) {
 		return send_full_map(fd, map);
 	} else if (num_dirty_tiles > 0) {
@@ -195,4 +215,34 @@ int slam_vis_send_pose(int fd, vec3 pose) {
 
 int slam_vis_send_reset_path(int fd) {
 	return send_packet_id(fd, SLAM_PACKET_RESET_PATH);
+}
+
+int slam_vis_send_scan(int fd, vec2 *scan, size_t scan_length) {
+	if (fd == -1) {
+		return -1;
+	}
+
+	constexpr size_t max_buffer_length = 1024;
+	int32_t buffer[max_buffer_length*2];
+	uint32_t buffer_entries = std::min(scan_length, max_buffer_length);
+
+	for (size_t i = 0; i < buffer_entries; i++) {
+		buffer[i*2 + 0] = scan[i].x * 1000.0f;
+		buffer[i*2 + 1] = scan[i].y * 1000.0f;
+	}
+
+	int err;
+	err = send_packet_id(fd, SLAM_PACKET_SCAN);
+	if (err) {
+		return -1;
+	}
+
+	err = send_all(fd, &buffer_entries, sizeof(buffer_entries));
+	if (err) {
+		return -1;
+	}
+
+	err = send_all(fd, buffer, buffer_entries * sizeof(int32_t) * 2);
+
+	return err;
 }

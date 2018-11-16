@@ -19,6 +19,7 @@ struct SlamPathPage {
 	bool inited;
 };
 
+constexpr size_t SLAM_LIDAR_DATA_CAP = 1024;
 struct SlamVisContext {
 	unsigned int quad_vao;
 	unsigned int texture;
@@ -55,6 +56,15 @@ struct SlamVisContext {
 	bool should_reset_path;
 	SlamPathPage *path;
 	SlamPathPage *path_last_page;
+
+	sem_t lidar_data_lock;
+	vec2 lidar_data[SLAM_LIDAR_DATA_CAP];
+	size_t lidar_data_length;
+	size_t lidar_data_last_available;
+	size_t lidar_data_last_read;
+	unsigned int lidar_data_vbo;
+	unsigned int lidar_data_vao;
+	size_t lidar_data_vao_length;
 };
 
 void init_slam_vis(SlamVisContext &ctx);

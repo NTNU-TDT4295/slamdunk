@@ -80,8 +80,8 @@ void slamit(void* platform, std::string remote_host, std::string port)
 					std::cout << "Connected" << std::endl;
 
 				last_sent_update = 0;
-				slam_vis_send_pose(sockfd, slam.lastPosition);
 				slam_vis_send_reset_path(sockfd);
+				slam_vis_send_pose(sockfd, slam.lastPosition);
 				slam_vis_send_map(sockfd,
 								  slam.maps[0].values,
 								  slam.maps[0].updateIndex,
@@ -133,6 +133,13 @@ void slamit(void* platform, std::string remote_host, std::string port)
 							}
 						}
 					}
+
+					int err;
+					err = slam_vis_send_scan(sockfd, processed, num_processed);
+					if (err) {
+						sockfd = -1;
+					}
+
 					num_processed = 0;
 				}
 
@@ -150,9 +157,13 @@ void slamit(void* platform, std::string remote_host, std::string port)
 				angle = angle * M_PI / 180.0f;
 				dist  = (dist / 1000.0f) * scale;
 				if ((int)quality > 10) {
-					processed[num_processed].x = cos(angle) * dist;
-					processed[num_processed].y = sin(angle) * dist;
-					++num_processed;
+					if (num_processed < 1023) {
+						processed[num_processed].x = cos(angle) * dist;
+						processed[num_processed].y = sin(angle) * dist;
+						++num_processed;
+					} else {
+						std::cout << "Discadring point due to too many points" << std::endl;
+					}
 				}
 
 			}
