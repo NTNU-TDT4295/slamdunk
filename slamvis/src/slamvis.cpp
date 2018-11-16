@@ -310,7 +310,7 @@ void init_slam_vis(SlamVisContext &ctx) {
 
 	ctx.path = ctx.path_last_page = (SlamPathPage *)calloc(1, sizeof(SlamPathPage));
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
 	sem_init(&ctx.lock, 0, 1);
 	ctx.net.client_callback = slam_data_receiver;
@@ -322,6 +322,16 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 
+	mat4 viewport_matrix;
+	if (info.window.width > info.window.height) {
+		float aspect = (float)info.window.height / (float)info.window.width;
+		viewport_matrix = glm::scale(mat4(1.0f), vec3(aspect, 1.0f, 1.0f));
+	} else {
+		float aspect = (float)info.window.width / (float)info.window.height;
+		viewport_matrix = glm::scale(mat4(1.0f), vec3(1.0f, aspect, 1.0f));
+	}
+
+	// Draw texture
 	glUseProgram(ctx.tex_shader.id);
 	glBindVertexArray(ctx.quad_vao);
 
@@ -333,6 +343,11 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 				 GL_RED, GL_UNSIGNED_BYTE, ctx.tex_buffer[ctx.tex_buffer_read]);
 	sem_post(&ctx.lock);
 
+	mat4 matrix;
+	matrix = mat4(1.0f);
+	matrix *= viewport_matrix;
+	glUniformMatrix4fv(ctx.tex_shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
+
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -343,12 +358,14 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	glBindVertexArray(ctx.pose_marker_vao);
 	glUniform3f(ctx.shader.diffuse_color, 0.0f, 0.0f, 0.0f);
 	glUniform3f(ctx.shader.emission_color, 1.0f, 0.0f, 0.0f);
-	mat4 matrix;
+
 	matrix = mat4(1.0f);
+
 	float scale = 1.0f / (SLAM_MAP_METERS_PER_PIXEL * (float)SLAM_MAP_WIDTH / 2.0f);
 	matrix = glm::translate(matrix, vec3(ctx.pose.x, ctx.pose.y, 0.0f) * scale);
 	matrix = glm::rotate(matrix, ctx.pose.z, vec3(0.0f, 0.0f, 1.0f));
 	matrix = glm::scale(matrix, vec3(scale, scale, 0.0f));
+	matrix *= viewport_matrix;
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 	glLineWidth(2.0f);
 	glDrawArrays(GL_LINES, 0, pose_marker_points);
@@ -357,6 +374,7 @@ void tick_slam_vis(SlamVisContext &ctx, const WindowFrameInfo &info) {
 	glLineWidth(1.0f);
 	matrix = mat4(1.0f);
 	matrix = glm::scale(matrix, vec3(scale, scale, 0.0f));
+	matrix *= viewport_matrix;
 	glUniformMatrix4fv(ctx.shader.in_matrix, 1, GL_FALSE, glm::value_ptr(matrix));
 
 	if (ctx.should_reset_path) {
