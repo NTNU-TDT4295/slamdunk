@@ -1,5 +1,6 @@
 #pragma once
 
+#include "hector_slam_config.h"
 #include "linmath.h"
 #include <stdint.h>
 #include <stddef.h>
@@ -14,9 +15,9 @@ constexpr uint8_t SLAM_PACKET_SCAN       = 6;
 
 constexpr size_t SLAM_MAP_TILE_SIZE = 32;
 
-constexpr size_t SLAM_MAP_WIDTH  = 1024;
-constexpr size_t SLAM_MAP_HEIGHT = 1024;
-constexpr float SLAM_MAP_METERS_PER_PIXEL = 0.025f;
+constexpr size_t SLAM_MAP_WIDTH  = HECTOR_SLAM_MAP_WIDTH;
+constexpr size_t SLAM_MAP_HEIGHT = HECTOR_SLAM_MAP_HEIGHT;
+constexpr float  SLAM_MAP_METERS_PER_PIXEL = HECTOR_SLAM_MAP_CELL_LENGTH;
 
 constexpr size_t SLAM_MAP_TILES_X = SLAM_MAP_WIDTH  / SLAM_MAP_TILE_SIZE;
 constexpr size_t SLAM_MAP_TILES_Y = SLAM_MAP_HEIGHT / SLAM_MAP_TILE_SIZE;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "linmath.h"
+#include "hector_slam_config.h"
 
 constexpr size_t HECTOR_SLAM_MAP_RESOLUTIONS = 3;
 

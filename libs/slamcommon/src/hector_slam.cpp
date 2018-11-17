@@ -30,10 +30,6 @@
     int gchd_iterations = 0;
 #endif
 
-constexpr size_t HECTOR_SLAM_MAP_WIDTH = 1024;
-constexpr size_t HECTOR_SLAM_MAP_HEIGHT = 1024;
-constexpr float HECTOR_SLAM_MAP_CELL_LENGTH = 0.025f;
-
 constexpr float HECTOR_SLAM_UPDATE_FREE_FACTOR = 0.4f;
 constexpr float HECTOR_SLAM_UPDATE_OCCUPIED_FACTOR = 0.9f;
 
